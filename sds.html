@@ -1,723 +1,755 @@
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Dieylany – SEN DIGITAL SOLUTION</title>
-<style>
-:root{--gold:#F5A623;--gold2:#FFD166;--dark:#0A0A0F;--dark2:#111118;--card:#14141E;--border:#1E1E2E;--text:#E2E2F0;--muted:#7A7A9D;--green:#06D6A0;--blue:#4CC9F0;}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--dark);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;cursor:none;}
-[dir="rtl"] body{font-family:'Segoe UI',Tahoma,'Arabic Typesetting',system-ui,sans-serif;}
-::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--gold);}
-
-/* CURSOR */
-#cursor{position:fixed;width:12px;height:12px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:difference;}
-#cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(245,166,35,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .12s ease,top .12s ease,width .2s,height .2s;}
-
-/* NAV */
-nav{position:fixed;top:0;width:100%;z-index:100;backdrop-filter:blur(20px);background:rgba(10,10,15,.88);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;animation:slideDown .6s ease both;}
-.nav-logo{font-size:1.05rem;font-weight:800;color:var(--gold);letter-spacing:2px;flex-shrink:0;}
-.nav-logo span{color:var(--text);}
-.nav-links{display:flex;gap:1.4rem;list-style:none;flex-wrap:wrap;}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:.82rem;letter-spacing:.4px;position:relative;transition:.2s;}
-.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:.3s;}
-.nav-links a:hover{color:var(--gold);}
-.nav-links a:hover::after{width:100%;}
-[dir="rtl"] .nav-links a::after{left:auto;right:0;}
-
-/* LANG SWITCHER */
-.lang-switcher{display:flex;gap:.4rem;flex-shrink:0;}
-.lang-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:.72rem;font-weight:700;padding:.28rem .65rem;border-radius:6px;cursor:none;transition:.2s;letter-spacing:.5px;}
-.lang-btn:hover,.lang-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,166,35,.08);}
-
-/* CANVAS */
-#particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
-
-/* HERO */
-#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:5rem 2rem 3rem;z-index:1;}
-.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.08),transparent 70%);top:50%;left:55%;transform:translate(-50%,-50%);animation:breathe 4s ease-in-out infinite;}
-.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(245,166,35,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,.03) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 20s linear infinite;}
-.shape{position:absolute;border-radius:50%;pointer-events:none;animation:float linear infinite;}
-.s1{width:200px;height:200px;border:1px solid rgba(245,166,35,.05);top:15%;right:8%;animation-duration:12s;}
-.s2{width:120px;height:120px;border:1px solid rgba(76,201,240,.07);bottom:20%;right:20%;animation-duration:9s;animation-delay:-4s;}
-.hero-content{position:relative;max-width:780px;}
-.badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:50px;padding:.35rem 1rem;font-size:.76rem;color:var(--gold);margin-bottom:1.5rem;animation:fadeUp .6s ease both;}
-.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.5s infinite;flex-shrink:0;}
-h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:800;line-height:1.1;animation:fadeUp .7s .15s ease both;opacity:0;}
-h1 .name{background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s linear infinite;}
-.hero-sub{font-size:clamp(.92rem,2.2vw,1.15rem);color:var(--muted);margin:1rem 0 2rem;line-height:1.7;max-width:580px;animation:fadeUp .7s .3s ease both;opacity:0;}
-.hero-sub strong{color:var(--text);}
-.typewriter{color:var(--gold);font-weight:700;border-right:2px solid var(--gold);padding-right:3px;animation:blink .8s step-end infinite;}
-.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;animation:fadeUp .7s .45s ease both;opacity:0;}
-.btn-primary{background:linear-gradient(135deg,var(--gold),#E08E1A);color:#0A0A0F;font-weight:700;padding:.78rem 1.6rem;border-radius:8px;text-decoration:none;font-size:.9rem;transition:.3s;border:none;cursor:none;position:relative;overflow:hidden;}
-.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.2),transparent);transform:translateX(-100%);transition:.5s;}
-.btn-primary:hover::before{transform:translateX(100%);}
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(245,166,35,.4);}
-.btn-outline{background:transparent;color:var(--text);font-weight:600;padding:.78rem 1.6rem;border-radius:8px;text-decoration:none;font-size:.9rem;border:1px solid var(--border);transition:.3s;cursor:none;}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-.hero-stats{display:flex;gap:2.5rem;margin-top:3rem;animation:fadeUp .7s .6s ease both;opacity:0;}
-.stat-num{font-size:2rem;font-weight:800;color:var(--gold);}
-.stat-label{font-size:.7rem;color:var(--muted);margin-top:.2rem;letter-spacing:.5px;text-transform:uppercase;}
-
-/* SECTIONS SHARED */
-section{padding:5rem 2rem;position:relative;z-index:1;}
-.container{max-width:1000px;margin:0 auto;}
-.section-tag{font-size:.73rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:.75rem;}
-.section-title{font-size:clamp(1.5rem,3.5vw,2.3rem);font-weight:800;margin-bottom:1rem;}
-.section-sub{color:var(--muted);font-size:.93rem;line-height:1.7;max-width:600px;}
-.divider{width:0;height:3px;background:linear-gradient(90deg,var(--gold),transparent);margin:1.5rem 0;transition:width 1s ease;}
-.divider.animated{width:48px;}
-[dir="rtl"] .divider{background:linear-gradient(270deg,var(--gold),transparent);}
-
-/* ABOUT */
-#about{background:var(--dark2);}
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:3rem;align-items:start;}
-.about-text p{color:var(--muted);line-height:1.8;margin-bottom:1rem;font-size:.93rem;}
-.about-text strong{color:var(--text);}
-.award-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem;transition:.3s;}
-.award-card:hover{border-color:rgba(245,166,35,.3);transform:translateX(6px);}
-[dir="rtl"] .award-card:hover{transform:translateX(-6px);}
-.award-icon{font-size:1.4rem;flex-shrink:0;}
-.award-title{font-weight:700;font-size:.9rem;}
-.award-desc{font-size:.78rem;color:var(--muted);margin-top:.25rem;}
-
-/* TIMELINE */
-#timeline{background:var(--dark);}
-.tl-wrap{position:relative;margin-top:3.5rem;padding:0 1rem;}
-.tl-line{position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--gold),rgba(245,166,35,.1));transform:translateX(-50%);}
-[dir="rtl"] .tl-line{left:auto;right:50%;transform:translateX(50%);}
-.tl-item{display:flex;justify-content:flex-end;padding-right:calc(50% + 2rem);margin-bottom:2.5rem;position:relative;}
-.tl-item:nth-child(even){justify-content:flex-start;padding-right:0;padding-left:calc(50% + 2rem);}
-[dir="rtl"] .tl-item{justify-content:flex-start;padding-right:0;padding-left:calc(50% + 2rem);}
-[dir="rtl"] .tl-item:nth-child(even){justify-content:flex-end;padding-left:0;padding-right:calc(50% + 2rem);}
-.tl-dot{position:absolute;left:50%;top:1.2rem;width:14px;height:14px;background:var(--gold);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 12px rgba(245,166,35,.5);transition:.3s;}
-[dir="rtl"] .tl-dot{left:auto;right:50%;transform:translateX(50%);}
-.tl-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.6rem;max-width:360px;transition:.3s;}
-.tl-card:hover{border-color:rgba(245,166,35,.35);transform:translateY(-4px);}
-.tl-year{font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:2px;margin-bottom:.4rem;}
-.tl-title{font-weight:700;font-size:.95rem;margin-bottom:.4rem;}
-.tl-desc{font-size:.82rem;color:var(--muted);line-height:1.6;}
-.tl-badge{display:inline-block;margin-top:.75rem;font-size:.68rem;background:rgba(6,214,160,.08);color:var(--green);border-radius:20px;padding:.2rem .65rem;border:1px solid rgba(6,214,160,.2);}
-
-/* SERVICES */
-.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem;}
-.service-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:.4s;position:relative;overflow:hidden;}
-.service-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(transparent,rgba(245,166,35,.04) 60deg,transparent 120deg);animation:rotate 8s linear infinite;opacity:0;transition:.3s;}
-.service-card:hover::before{opacity:1;}
-.service-card::after{content:'';position:absolute;inset:1px;background:var(--card);border-radius:15px;z-index:0;}
-.service-card>*{position:relative;z-index:1;}
-.service-card:hover{border-color:rgba(245,166,35,.4);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.3);}
-.service-icon{width:48px;height:48px;border-radius:14px;background:rgba(245,166,35,.1);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.2rem;transition:.3s;}
-.service-card:hover .service-icon{background:rgba(245,166,35,.2);transform:scale(1.1) rotate(-5deg);}
-.service-title{font-weight:700;font-size:.98rem;margin-bottom:.6rem;}
-.service-desc{color:var(--muted);font-size:.84rem;line-height:1.6;}
-.service-tag{display:inline-block;margin-top:1rem;font-size:.7rem;background:rgba(6,214,160,.08);color:var(--green);border-radius:20px;padding:.25rem .75rem;border:1px solid rgba(6,214,160,.2);}
-
-/* PROJECTS */
-#projects{background:var(--dark2);}
-.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.5rem;margin-top:3rem;}
-.project-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:.4s;position:relative;}
-.project-card:hover{border-color:rgba(245,166,35,.35);transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.4);}
-.project-shine{position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(245,166,35,.04) 50%,transparent 60%);transform:translateX(-100%);transition:.6s;}
-.project-card:hover .project-shine{transform:translateX(100%);}
-.project-header{padding:1.3rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
-.project-type{font-size:.68rem;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:.35rem;}
-.project-name{font-weight:700;font-size:.97rem;}
-.project-status{font-size:.68rem;border-radius:20px;padding:.2rem .6rem;flex-shrink:0;}
-.status-live{background:rgba(6,214,160,.1);color:var(--green);border:1px solid rgba(6,214,160,.2);}
-.status-build{background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2);}
-.project-body{padding:1.3rem 1.5rem;}
-.project-desc{color:var(--muted);font-size:.83rem;line-height:1.6;margin-bottom:1rem;}
-.project-stack{display:flex;flex-wrap:wrap;gap:.35rem;}
-.stack-tag{font-size:.68rem;background:rgba(76,201,240,.06);color:var(--blue);border:1px solid rgba(76,201,240,.15);border-radius:6px;padding:.18rem .5rem;}
-
-/* SKILLS */
-.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:3rem;}
-.skill-group{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;transition:.3s;}
-.skill-group:hover{border-color:rgba(245,166,35,.2);}
-.skill-group-title{font-weight:700;font-size:.86rem;color:var(--gold);margin-bottom:1.2rem;}
-.skill-row{margin-bottom:1rem;}
-.skill-name{font-size:.82rem;color:var(--text);margin-bottom:.4rem;display:flex;justify-content:space-between;}
-.skill-pct{color:var(--muted);font-size:.73rem;}
-.skill-bar{width:100%;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
-.skill-fill{height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 1.2s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(245,166,35,.4);}
-
-/* BLOG */
-#blog{background:var(--dark);}
-.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.5rem;margin-top:3rem;}
-.blog-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:.4s;position:relative;display:flex;flex-direction:column;}
-.blog-card:hover{border-color:rgba(245,166,35,.35);transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.35);}
-.blog-top{padding:1.6rem 1.6rem 0;}
-.blog-emoji{font-size:2rem;margin-bottom:.8rem;display:block;}
-.blog-cat{font-size:.68rem;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.5rem;}
-.blog-title{font-weight:700;font-size:.97rem;line-height:1.45;margin-bottom:.75rem;}
-.blog-excerpt{color:var(--muted);font-size:.83rem;line-height:1.65;}
-.blog-footer{padding:1rem 1.6rem 1.4rem;margin-top:auto;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);margin-top:1.2rem;}
-.blog-date{font-size:.73rem;color:var(--muted);}
-.blog-link{font-size:.73rem;color:var(--gold);text-decoration:none;font-weight:700;display:flex;align-items:center;gap:.3rem;transition:.2s;}
-.blog-link:hover{color:var(--gold2);}
-
-/* CONTACT */
-#contact{background:var(--dark2);}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:3rem;align-items:start;}
-.contact-item{display:flex;align-items:center;gap:1rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;transition:.3s;}
-.contact-item:hover{border-color:rgba(245,166,35,.3);transform:translateX(6px);}
-[dir="rtl"] .contact-item:hover{transform:translateX(-6px);}
-.contact-icon{font-size:1.1rem;width:36px;text-align:center;}
-.contact-label{font-size:.7rem;color:var(--muted);}
-.contact-value{font-size:.88rem;font-weight:600;}
-.form-input{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.88rem 1.1rem;color:var(--text);font-size:.9rem;outline:none;font-family:inherit;transition:.3s;width:100%;display:block;margin-bottom:1rem;cursor:none;}
-.form-input:focus{border-color:var(--gold);box-shadow:0 0 20px rgba(245,166,35,.1);}
-.form-input::placeholder{color:var(--muted);}
-textarea.form-input{resize:vertical;min-height:120px;}
-
-/* WA FLOAT */
-.wa-float{position:fixed;bottom:1.8rem;right:1.8rem;z-index:200;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 4px 20px rgba(37,211,102,.5);cursor:none;transition:.3s;animation:waPulse 2s ease-in-out infinite;}
-.wa-float:hover{transform:scale(1.12);}
-[dir="rtl"] .wa-float{right:auto;left:1.8rem;}
-@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 35px rgba(37,211,102,.8)}}
-
-/* FOOTER */
-footer{background:var(--dark);border-top:1px solid var(--border);padding:1.8rem 2rem;text-align:center;color:var(--muted);font-size:.8rem;position:relative;z-index:1;}
-footer span{color:var(--gold);}
-
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease;}
-.reveal.from-left{transform:translateX(-32px);}
-.reveal.from-right{transform:translateX(32px);}
-[dir="rtl"] .reveal.from-left{transform:translateX(32px);}
-[dir="rtl"] .reveal.from-right{transform:translateX(-32px);}
-.reveal.visible{opacity:1;transform:translate(0);}
-.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}.d4{transition-delay:.4s;}
-
-/* KEYFRAMES */
-@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
-@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
-@keyframes gridMove{from{background-position:0 0}to{background-position:60px 60px}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 6px var(--green)}50%{box-shadow:0 0 14px var(--green)}}
-@keyframes blink{0%,100%{border-color:var(--gold)}50%{border-color:transparent}}
-
-@media(max-width:720px){
-  nav{padding:.8rem 1rem;gap:.5rem;}
-  .nav-links{gap:.8rem;}
-  .nav-links li:nth-child(n+5){display:none;}
-  .about-grid,.contact-grid{grid-template-columns:1fr;}
-  .tl-line{left:16px;}[dir="rtl"] .tl-line{right:16px;left:auto;}
-  .tl-item,.tl-item:nth-child(even){padding:0 0 0 48px;justify-content:flex-start;}
-  [dir="rtl"] .tl-item,[dir="rtl"] .tl-item:nth-child(even){padding:0 48px 0 0;justify-content:flex-end;}
-  .tl-dot{left:9px;}[dir="rtl"] .tl-dot{left:auto;right:9px;}
-  .tl-card{max-width:100%;}
-  .hero-stats{gap:1.5rem;}
-  .shape{display:none;}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Dieylany – SEN DIGITAL SOLUTION</title>
+  <meta name="description"
+    content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal. Découvrez les services de SEN DIGITAL SOLUTION." />
+  <meta property="og:title" content="Dieylany – SEN DIGITAL SOLUTION" />
+  <meta property="og:description"
+    content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sds.sn/" />
+  <meta property="og:image" content="https://sds.sn/cover.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
-<canvas id="particles"></canvas>
-<a href="https://wa.me/780152522" class="wa-float" title="WhatsApp">💬</a>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">SDS<span>.</span></div>
-  <ul class="nav-links">
-    <li><a href="#about" data-i18n="nav.about">À propos</a></li>
-    <li><a href="#timeline" data-i18n="nav.timeline">Parcours</a></li>
-    <li><a href="#services" data-i18n="nav.services">Services</a></li>
-    <li><a href="#projects" data-i18n="nav.projects">Projets</a></li>
-    <li><a href="#blog" data-i18n="nav.blog">Blog</a></li>
-    <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
-  </ul>
-  <div class="lang-switcher">
-    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" onclick="setLang('ar')">AR</button>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-glow"></div>
-  <div class="grid-bg"></div>
-  <div class="shape s1"></div><div class="shape s2"></div>
-  <div class="hero-content">
-    <div class="badge"><span class="dot-live"></span><span data-i18n="hero.badge">Disponible pour des collaborations – Dakar, Sénégal</span></div>
-    <h1><span data-i18n="hero.h1">Bonjour, je suis</span><br><span class="name">Dieylany</span></h1>
-    <p class="hero-sub"><strong data-i18n="hero.agency">SEN DIGITAL SOLUTION</strong> &nbsp;·&nbsp; <span class="typewriter" id="tw"></span></p>
-    <div class="hero-cta">
-      <a href="#projects" class="btn-primary" data-i18n="hero.btn1">Voir mes projets</a>
-      <a href="#contact" class="btn-outline" data-i18n="hero.btn2">Me contacter</a>
-    </div>
-    <div class="hero-stats">
-      <div class="stat"><div class="stat-num" data-target="3">0</div><div class="stat-label" data-i18n="stat.projects">Projets livrés</div></div>
-      <div class="stat"><div class="stat-num" data-target="2">0</div><div class="stat-label" data-i18n="stat.years">Ans d'expérience</div></div>
-      <div class="stat"><div class="stat-num" data-target="1">0</div><div class="stat-label" data-i18n="stat.agency">Agence fondée</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section id="about">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="about.tag">Qui suis-je ?</p>
-      <h2 class="section-title" data-i18n="about.title">Passionné de tech, ancré dans l'Afrique</h2>
-      <div class="divider"></div>
-    </div>
-    <div class="about-grid">
-      <div class="about-text reveal from-left">
-        <p data-i18n="about.p1">Je suis étudiant en <strong>Génie Logiciel (BTS)</strong> à l'ISI Suptech de Dakar et fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de devenir le leader tech de l'Afrique de l'Ouest.</p>
-        <p data-i18n="about.p2">Ma mission : intégrer l'<strong>intelligence artificielle</strong> et l'automatisation dans les workflows des entreprises africaines pour les rendre plus compétitives à l'échelle mondiale.</p>
-        <p data-i18n="about.p3">Je combine développement web, automatisation no-code/low-code (<strong>n8n, Make</strong>), et intégration d'APIs IA pour livrer des solutions concrètes et mesurables.</p>
-        <p data-i18n="about.p4">Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en devenir, laureát du Concours Général Sénégalais 2022.</p>
-      </div>
-      <div class="reveal from-right d1">
-        <div class="award-card"><div class="award-icon">🏆</div><div><div class="award-title" data-i18n="award1.title">Laureát – Concours Général Sénégalais 2022</div><div class="award-desc" data-i18n="award1.desc">2ème Prix · Langue Arabe · Distinction nationale</div></div></div>
-        <div class="award-card"><div class="award-icon">🤖</div><div><div class="award-title" data-i18n="award2.title">Expert IA & Automatisation</div><div class="award-desc" data-i18n="award2.desc">n8n · Make · OpenAI API · WhatsApp Business API</div></div></div>
-        <div class="award-card"><div class="award-icon">🌍</div><div><div class="award-title" data-i18n="award3.title">Vision Pan-Africaine</div><div class="award-desc" data-i18n="award3.desc">Fondateur SEN DIGITAL SOLUTION · Dakar, Sénégal</div></div></div>
-        <div class="award-card"><div class="award-icon">🎙️</div><div><div class="award-title" data-i18n="award4.title">Speaker en construction</div><div class="award-desc" data-i18n="award4.desc">Personal branding · LinkedIn · Prise de parole</div></div></div>
+  <div id="preloader">
+    <div class="preloader-content">
+      <div class="preloader-logo">A2K<span></span></div>
+      <div class="preloader-bar">
+        <div class="preloader-fill"></div>
       </div>
     </div>
   </div>
-</section>
+  <div id="progress-bar"></div>
 
-<!-- TIMELINE -->
-<section id="timeline">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="tl.tag">Mon parcours</p>
-      <h2 class="section-title" data-i18n="tl.title">De l'excellence académique à l'entrepreneuriat</h2>
-      <div class="divider"></div>
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+  <canvas id="particles"></canvas>
+  <a href="https://wa.me/780152522" class="wa-float" title="WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#fff" viewBox="0 0 16 16">
+      <path
+        d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
+    </svg>
+  </a>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">SDS<span>.</span></div>
+    <ul class="nav-links">
+      <li><a href="#about" data-i18n="nav.about">À propos</a></li>
+      <li><a href="#timeline" data-i18n="nav.timeline">Parcours</a></li>
+      <li><a href="#services" data-i18n="nav.services">Services</a></li>
+      <li><a href="#projects" data-i18n="nav.projects">Projets</a></li>
+      <li><a href="#blog" data-i18n="nav.blog">Blog</a></li>
+      <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
+    </ul>
+    <div class="lang-switcher">
+      <button class="lang-btn" id="theme-toggle" title="Thème Clair/Sombre">🌓</button>
+      <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ar')">AR</button>
     </div>
-    <div class="tl-wrap">
-      <div class="tl-line"></div>
-      <div class="tl-item reveal d1">
-        <div class="tl-dot"></div>
-        <div class="tl-card">
-          <div class="tl-year" data-i18n="tl1.year">2022</div>
-          <div class="tl-title" data-i18n="tl1.title">Concours Général Sénégalais</div>
-          <div class="tl-desc" data-i18n="tl1.desc">2ème Prix national en Langue Arabe. Une distinction qui forge la rigueur intellectuelle et la confiance en soi.</div>
-          <span class="tl-badge" data-i18n="tl1.badge">🏆 Excellence académique</span>
+    <button class="menu-toggle" id="menu-toggle" aria-label="Menu" title="Menu">☰</button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-glow"></div>
+    <div class="grid-bg"></div>
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+    <div class="hero-content">
+      <div class="badge"><span class="dot-live"></span><span data-i18n="hero.badge">Disponible pour des collaborations –
+          Dakar, Sénégal</span></div>
+      <h1><span data-i18n="hero.h1">Bonjour, je suis</span><br><span class="name">Dieylany</span></h1>
+      <p class="hero-sub"><strong data-i18n="hero.agency">SEN DIGITAL SOLUTION</strong> &nbsp;·&nbsp; <span
+          class="typewriter" id="tw"></span></p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn-primary" data-i18n="hero.btn1">Voir mes projets</a>
+        <a href="#contact" class="btn-outline" data-i18n="hero.btn2">Me contacter</a>
+        <a href="#" class="btn-cv" id="btn-cv" data-i18n="hero.cv">📄 Télécharger CV</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num" data-target="3">0</div>
+          <div class="stat-label" data-i18n="stat.projects">Projets livrés</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="2">0</div>
+          <div class="stat-label" data-i18n="stat.years">Ans d'expérience</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="1">0</div>
+          <div class="stat-label" data-i18n="stat.agency">Agence fondée</div>
         </div>
       </div>
-      <div class="tl-item reveal d2">
-        <div class="tl-dot"></div>
-        <div class="tl-card">
-          <div class="tl-year" data-i18n="tl2.year">2023</div>
-          <div class="tl-title" data-i18n="tl2.title">BTS Génie Logiciel — ISI Suptech</div>
-          <div class="tl-desc" data-i18n="tl2.desc">Début d'une formation intensive en ingénierie logicielle à Dakar. Maîtrise des fondamentaux : algorithmes, bases de données, développement web.</div>
-          <span class="tl-badge" data-i18n="tl2.badge">📚 Formation technique</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="about.tag">Qui suis-je ?</p>
+        <h2 class="section-title" data-i18n="about.title">Passionné de tech, ancré dans l'Afrique</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="about-grid">
+        <div class="about-text reveal from-left">
+          <p data-i18n="about.p1">Je suis étudiant en <strong>Génie Logiciel (BTS)</strong> à l'ISI Suptech de Dakar et
+            fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de
+            devenir le leader tech de l'Afrique de l'Ouest.</p>
+          <p data-i18n="about.p2">Ma mission : intégrer l'<strong>intelligence artificielle</strong> et l'automatisation
+            dans les workflows des entreprises africaines pour les rendre plus compétitives à l'échelle mondiale.</p>
+          <p data-i18n="about.p3">Je combine développement web, automatisation no-code/low-code (<strong>n8n,
+              Make</strong>), et intégration d'APIs IA pour livrer des solutions concrètes et mesurables.</p>
+          <p data-i18n="about.p4">Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en
+            devenir, laureát du Concours Général Sénégalais 2022.</p>
+        </div>
+        <div class="reveal from-right d1">
+          <div class="award-card">
+            <div class="award-icon">🏆</div>
+            <div>
+              <div class="award-title" data-i18n="award1.title">Laureát – Concours Général Sénégalais 2022</div>
+              <div class="award-desc" data-i18n="award1.desc">2ème Prix · Langue Arabe · Distinction nationale</div>
+            </div>
+          </div>
+          <div class="award-card">
+            <div class="award-icon">🤖</div>
+            <div>
+              <div class="award-title" data-i18n="award2.title">Expert IA & Automatisation</div>
+              <div class="award-desc" data-i18n="award2.desc">n8n · Make · OpenAI API · WhatsApp Business API</div>
+            </div>
+          </div>
+          <div class="award-card">
+            <div class="award-icon">🌍</div>
+            <div>
+              <div class="award-title" data-i18n="award3.title">Vision Pan-Africaine</div>
+              <div class="award-desc" data-i18n="award3.desc">Fondateur SEN DIGITAL SOLUTION · Dakar, Sénégal</div>
+            </div>
+          </div>
+          <div class="award-card">
+            <div class="award-icon">🎙️</div>
+            <div>
+              <div class="award-title" data-i18n="award4.title">Speaker en construction</div>
+              <div class="award-desc" data-i18n="award4.desc">Personal branding · LinkedIn · Prise de parole</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="tl-item reveal d1">
-        <div class="tl-dot"></div>
-        <div class="tl-card">
-          <div class="tl-year" data-i18n="tl3.year">Janv. 2024</div>
-          <div class="tl-title" data-i18n="tl3.title">Fondation de SEN DIGITAL SOLUTION</div>
-          <div class="tl-desc" data-i18n="tl3.desc">Création de l'agence digitale SDS avec une vision claire : devenir le leader de la transformation numérique en Afrique de l'Ouest.</div>
-          <span class="tl-badge" data-i18n="tl3.badge">🚀 Lancement entrepreneurial</span>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="tl.tag">Mon parcours</p>
+        <h2 class="section-title" data-i18n="tl.title">De l'excellence académique à l'entrepreneuriat</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="tl-wrap">
+        <div class="tl-line"></div>
+        <div class="tl-item reveal d1">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-year" data-i18n="tl1.year">2022</div>
+            <div class="tl-title" data-i18n="tl1.title">Concours Général Sénégalais</div>
+            <div class="tl-desc" data-i18n="tl1.desc">2ème Prix national en Langue Arabe. Une distinction qui forge la
+              rigueur intellectuelle et la confiance en soi.</div>
+            <span class="tl-badge" data-i18n="tl1.badge">🏆 Excellence académique</span>
+          </div>
+        </div>
+        <div class="tl-item reveal d2">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-year" data-i18n="tl2.year">2023</div>
+            <div class="tl-title" data-i18n="tl2.title">BTS Génie Logiciel — ISI Suptech</div>
+            <div class="tl-desc" data-i18n="tl2.desc">Début d'une formation intensive en ingénierie logicielle à Dakar.
+              Maîtrise des fondamentaux : algorithmes, bases de données, développement web.</div>
+            <span class="tl-badge" data-i18n="tl2.badge">📚 Formation technique</span>
+          </div>
+        </div>
+        <div class="tl-item reveal d1">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-year" data-i18n="tl3.year">Janv. 2024</div>
+            <div class="tl-title" data-i18n="tl3.title">Fondation de SEN DIGITAL SOLUTION</div>
+            <div class="tl-desc" data-i18n="tl3.desc">Création de l'agence digitale SDS avec une vision claire : devenir
+              le leader de la transformation numérique en Afrique de l'Ouest.</div>
+            <span class="tl-badge" data-i18n="tl3.badge">🚀 Lancement entrepreneurial</span>
+          </div>
+        </div>
+        <div class="tl-item reveal d2">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-year" data-i18n="tl4.year">Juin 2024</div>
+            <div class="tl-title" data-i18n="tl4.title">Premier client livré — Dibiterie Ameth Boll</div>
+            <div class="tl-desc" data-i18n="tl4.desc">Site web complet avec commandes WhatsApp et panneau admin.
+              Première preuve concrète que SDS peut livrer de la valeur réelle à des clients dakarois.</div>
+            <span class="tl-badge" data-i18n="tl4.badge">💼 Premier client</span>
+          </div>
+        </div>
+        <div class="tl-item reveal d1">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-year" data-i18n="tl5.year">Sept. 2024</div>
+            <div class="tl-title" data-i18n="tl5.title">WhatsApp Bot IA — SDS_Shop</div>
+            <div class="tl-desc" data-i18n="tl5.desc">Déploiement d'un agent IA sur WhatsApp via n8n et OpenAI :
+              commandes automatisées, logging Google Sheets, service 24h/24.</div>
+            <span class="tl-badge" data-i18n="tl5.badge">🤖 IA en production</span>
+          </div>
+        </div>
+        <div class="tl-item reveal d2">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-year" data-i18n="tl6.year">2025</div>
+            <div class="tl-title" data-i18n="tl6.title">Expert IA reconnu + Mémoire BTS</div>
+            <div class="tl-desc" data-i18n="tl6.desc">Positionnement comme expert IA en Afrique de l'Ouest, personal
+              branding sur LinkedIn, finalisation du mémoire BTS sur la gestion scolaire.</div>
+            <span class="tl-badge" data-i18n="tl6.badge">⭐ En cours</span>
+          </div>
         </div>
       </div>
-      <div class="tl-item reveal d2">
-        <div class="tl-dot"></div>
-        <div class="tl-card">
-          <div class="tl-year" data-i18n="tl4.year">Juin 2024</div>
-          <div class="tl-title" data-i18n="tl4.title">Premier client livré — Dibiterie Ameth Boll</div>
-          <div class="tl-desc" data-i18n="tl4.desc">Site web complet avec commandes WhatsApp et panneau admin. Première preuve concrète que SDS peut livrer de la valeur réelle à des clients dakarois.</div>
-          <span class="tl-badge" data-i18n="tl4.badge">💼 Premier client</span>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" style="background:var(--dark2);">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="svc.tag">Ce que je fais</p>
+        <h2 class="section-title" data-i18n="svc.title">Services SEN DIGITAL SOLUTION</h2>
+        <div class="divider"></div>
+        <p class="section-sub" data-i18n="svc.sub">Des solutions digitales pensées pour les entreprises africaines qui
+          veulent passer à la vitesse supérieure.</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card reveal d1">
+          <div class="service-icon">⚡</div>
+          <div class="service-title" data-i18n="s1.t">Automatisation WhatsApp Business</div>
+          <div class="service-desc" data-i18n="s1.d">Agents IA sur WhatsApp pour répondre aux clients 24/7, prendre des
+            commandes et gérer le support — sans intervention humaine.</div><span class="service-tag">n8n · WhatsApp API
+            · OpenAI</span>
+        </div>
+        <div class="service-card reveal d2">
+          <div class="service-icon">🌐</div>
+          <div class="service-title" data-i18n="s2.t">Développement Web</div>
+          <div class="service-desc" data-i18n="s2.d">Sites vitrines, e-commerce, dashboards admin et applications web
+            full-stack. Code propre, rapide, déployé sur Netlify.</div><span class="service-tag">HTML · CSS · JS ·
+            React</span>
+        </div>
+        <div class="service-card reveal d3">
+          <div class="service-icon">🤖</div>
+          <div class="service-title" data-i18n="s3.t">Intégration IA & Agents</div>
+          <div class="service-desc" data-i18n="s3.d">Intégration d'API OpenAI, création d'agents autonomes,
+            automatisation de workflows complexes avec Make et n8n.</div><span class="service-tag">OpenAI · LangChain ·
+            Make</span>
+        </div>
+        <div class="service-card reveal d1">
+          <div class="service-icon">🎨</div>
+          <div class="service-title" data-i18n="s4.t">Design Graphique & Branding</div>
+          <div class="service-desc" data-i18n="s4.d">Affiches événementielles, identité visuelle, supports marketing
+            digital. Un design moderne qui parle à l'audience africaine.</div><span class="service-tag">Canva · HTML/CSS
+            · UI Design</span>
+        </div>
+        <div class="service-card reveal d2">
+          <div class="service-icon">🔒</div>
+          <div class="service-title" data-i18n="s5.t">Cybersécurité</div>
+          <div class="service-desc" data-i18n="s5.d">Sensibilisation à la sécurité, audit basique et bonnes pratiques
+            pour protéger vos données et systèmes digitaux.</div><span class="service-tag">En développement</span>
+        </div>
+        <div class="service-card reveal d3">
+          <div class="service-icon">📊</div>
+          <div class="service-title" data-i18n="s6.t">Conseil Digital & Stratégie IA</div>
+          <div class="service-desc" data-i18n="s6.d">Accompagnement dans la transformation digitale : choix des outils,
+            automatisation des processus, formation des équipes.</div><span class="service-tag">Consulting ·
+            Formation</span>
         </div>
       </div>
-      <div class="tl-item reveal d1">
-        <div class="tl-dot"></div>
-        <div class="tl-card">
-          <div class="tl-year" data-i18n="tl5.year">Sept. 2024</div>
-          <div class="tl-title" data-i18n="tl5.title">WhatsApp Bot IA — SDS_Shop</div>
-          <div class="tl-desc" data-i18n="tl5.desc">Déploiement d'un agent IA sur WhatsApp via n8n et OpenAI : commandes automatisées, logging Google Sheets, service 24h/24.</div>
-          <span class="tl-badge" data-i18n="tl5.badge">🤖 IA en production</span>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="proj.tag">Réalisations</p>
+        <h2 class="section-title" data-i18n="proj.title">Projets & Travaux</h2>
+        <div class="divider"></div>
+        <div class="project-filters">
+          <button class="filter-btn active" data-filter="all">Tous</button>
+          <button class="filter-btn" data-filter="web">Web</button>
+          <button class="filter-btn" data-filter="ai">IA & Bot</button>
+          <button class="filter-btn" data-filter="design">Design</button>
         </div>
       </div>
-      <div class="tl-item reveal d2">
-        <div class="tl-dot"></div>
-        <div class="tl-card">
-          <div class="tl-year" data-i18n="tl6.year">2025</div>
-          <div class="tl-title" data-i18n="tl6.title">Expert IA reconnu + Mémoire BTS</div>
-          <div class="tl-desc" data-i18n="tl6.desc">Positionnement comme expert IA en Afrique de l'Ouest, personal branding sur LinkedIn, finalisation du mémoire BTS sur la gestion scolaire.</div>
-          <span class="tl-badge" data-i18n="tl6.badge">⭐ En cours</span>
+      <div class="projects-grid">
+        <div class="project-card reveal d1" data-category="web">
+          <div class="project-shine"></div>
+          <div class="project-header">
+            <div>
+              <div class="project-type">Client · Restaurant</div>
+              <div class="project-name">Dibiterie Ameth Boll</div>
+            </div><span class="project-status status-live" data-i18n="status.live">Live</span>
+          </div>
+          <div class="project-body">
+            <div class="project-desc" data-i18n="p1.d">Site web avec commandes WhatsApp, panneau admin, génération de
+              tickets et architecture config.js. Déployé sur Netlify.</div>
+            <div class="project-stack"><span class="stack-tag">HTML/CSS/JS</span><span class="stack-tag">WhatsApp
+                API</span><span class="stack-tag">Netlify</span></div>
+          </div>
         </div>
+        <div class="project-card reveal d2" data-category="web">
+          <div class="project-shine"></div>
+          <div class="project-header">
+            <div>
+              <div class="project-type">E-Commerce · Luxe</div>
+              <div class="project-name">LuxeGold Platform</div>
+            </div><span class="project-status status-live" data-i18n="status.done">Réalisé</span>
+          </div>
+          <div class="project-body">
+            <div class="project-desc" data-i18n="p2.d">Plateforme e-commerce haut de gamme pour bijouterie. Interface
+              élégante avec catalogue, panier et paiement.</div>
+            <div class="project-stack"><span class="stack-tag">HTML/CSS/JS</span><span
+                class="stack-tag">E-Commerce</span><span class="stack-tag">UI Design</span></div>
+          </div>
+        </div>
+        <div class="project-card reveal d3" data-category="ai">
+          <div class="project-shine"></div>
+          <div class="project-header">
+            <div>
+              <div class="project-type">Automatisation · Boutique</div>
+              <div class="project-name">SDS_Shop WhatsApp Bot</div>
+            </div><span class="project-status status-live" data-i18n="status.done">Réalisé</span>
+          </div>
+          <div class="project-body">
+            <div class="project-desc" data-i18n="p3.d">Agent IA WhatsApp : réponses OpenAI, logging Google Sheets,
+              gestion commandes 24/7.</div>
+            <div class="project-stack"><span class="stack-tag">n8n</span><span class="stack-tag">Meta WhatsApp
+                API</span><span class="stack-tag">OpenAI</span></div>
+          </div>
+        </div>
+        <div class="project-card reveal d1" data-category="design">
+          <div class="project-shine"></div>
+          <div class="project-header">
+            <div>
+              <div class="project-type">Événementiel · Design</div>
+              <div class="project-name">SEN-EVENT</div>
+            </div><span class="project-status status-live" data-i18n="status.done">Réalisé</span>
+          </div>
+          <div class="project-body">
+            <div class="project-desc" data-i18n="p4.d">Plateforme événementielle et affiches de mariage premium. Design
+              HTML/CSS luxe pour événements haut de gamme.</div>
+            <div class="project-stack"><span class="stack-tag">HTML/CSS</span><span class="stack-tag">UI/UX</span><span
+                class="stack-tag">Design Luxe</span></div>
+          </div>
+        </div>
+        <div class="project-card reveal d2" data-category="web">
+          <div class="project-shine"></div>
+          <div class="project-header">
+            <div>
+              <div class="project-type">BTS Mémoire · EdTech</div>
+              <div class="project-name" data-i18n="p5.name">Système Gestion Scolaire</div>
+            </div><span class="project-status status-build" data-i18n="status.wip">En cours</span>
+          </div>
+          <div class="project-body">
+            <div class="project-desc" data-i18n="p5.d">Application de gestion des inscriptions et paiements de
+              scolarité. Mémoire BTS Génie Logiciel.</div>
+            <div class="project-stack"><span class="stack-tag">Full-Stack</span><span class="stack-tag">BDD</span><span
+                class="stack-tag">BTS GL</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" style="background:var(--dark2);">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="sk.tag">Compétences</p>
+        <h2 class="section-title" data-i18n="sk.title">Stack Technique</h2>
+        <div class="divider"></div>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-group reveal d1">
+          <div class="skill-group-title" data-i18n="sg1">💻 Développement Web</div>
+          <div class="skill-row">
+            <div class="skill-name">HTML / CSS <span class="skill-pct">92%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="92"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">JavaScript <span class="skill-pct">80%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="80"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">React <span class="skill-pct">65%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="65"></div>
+            </div>
+          </div>
+        </div>
+        <div class="skill-group reveal d2">
+          <div class="skill-group-title" data-i18n="sg2">⚡ Automatisation & IA</div>
+          <div class="skill-row">
+            <div class="skill-name">n8n <span class="skill-pct">85%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="85"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">Prompt Engineering <span class="skill-pct">88%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="88"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">Make <span class="skill-pct">75%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="75"></div>
+            </div>
+          </div>
+        </div>
+        <div class="skill-group reveal d3">
+          <div class="skill-group-title" data-i18n="sg3">🔗 APIs & Intégrations</div>
+          <div class="skill-row">
+            <div class="skill-name">OpenAI API <span class="skill-pct">82%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="82"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">WhatsApp Business API <span class="skill-pct">80%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="80"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">REST / JSON <span class="skill-pct">78%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="78"></div>
+            </div>
+          </div>
+        </div>
+        <div class="skill-group reveal d4">
+          <div class="skill-group-title" data-i18n="sg4">🛠️ Outils & DevOps</div>
+          <div class="skill-row">
+            <div class="skill-name">Git / GitHub <span class="skill-pct">75%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="75"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">Netlify / Vercel <span class="skill-pct">82%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="82"></div>
+            </div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-name">Google Workspace <span class="skill-pct">85%</span></div>
+            <div class="skill-bar">
+              <div class="skill-fill" data-w="85"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section id="blog">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="blog.tag">Réflexions & Articles</p>
+        <h2 class="section-title" data-i18n="blog.title">Blog & Publications LinkedIn</h2>
+        <div class="divider"></div>
+        <p class="section-sub" data-i18n="blog.sub">Je partage mes réflexions sur l'IA, la tech africaine et
+          l'entrepreneuriat digital.</p>
+      </div>
+      <div class="blog-grid">
+        <div class="blog-card reveal d1">
+          <div class="blog-top">
+            <span class="blog-emoji">🌍</span>
+            <div class="blog-cat" data-i18n="bc1">IA · Afrique</div>
+            <div class="blog-title" data-i18n="bt1">L'IA va transformer l'économie africaine — voici comment en profiter
+              maintenant</div>
+            <div class="blog-excerpt" data-i18n="be1">Pendant que le monde débat des dangers de l'IA, l'Afrique a une
+              fenêtre d'opportunité unique. Les marchés moins rigides, la démographie jeune et le besoin criant
+              d'efficacité font de ce continent le terrain idéal pour une adoption rapide de l'intelligence
+              artificielle.</div>
+          </div>
+          <div class="blog-footer">
+            <span class="blog-date" data-i18n="bd1">Mars 2025 · 4 min</span>
+            <a href="#" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
+          </div>
+        </div>
+        <div class="blog-card reveal d2">
+          <div class="blog-top">
+            <span class="blog-emoji">💬</span>
+            <div class="blog-cat" data-i18n="bc2">Automatisation · PME</div>
+            <div class="blog-title" data-i18n="bt2">WhatsApp + IA = Le CRM des PME sénégalaises</div>
+            <div class="blog-excerpt" data-i18n="be2">95% des commerçants dakarois utilisent WhatsApp pour gérer leurs
+              clients. Pourtant, ils répondent manuellement à chaque message. Un agent IA bien configuré peut changer ça
+              — sans budget CRM, sans formation complexe, en 48h.</div>
+          </div>
+          <div class="blog-footer">
+            <span class="blog-date" data-i18n="bd2">Fév. 2025 · 3 min</span>
+            <a href="#" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
+          </div>
+        </div>
+        <div class="blog-card reveal d3">
+          <div class="blog-top">
+            <span class="blog-emoji">⚡</span>
+            <div class="blog-cat" data-i18n="bc3">Cas client · Automatisation</div>
+            <div class="blog-title" data-i18n="bt3">Comment j'ai automatisé un restaurant dakarois en 2 semaines</div>
+            <div class="blog-excerpt" data-i18n="be3">De la prise de commande manuelle sur WhatsApp à un système
+              automatique avec tickets, historique et tableau de bord admin. Retour d'expérience sur le projet Dibiterie
+              Ameth Boll — les choix techniques, les obstacles et les leçons apprises.</div>
+          </div>
+          <div class="blog-footer">
+            <span class="blog-date" data-i18n="bd3">Janv. 2025 · 5 min</span>
+            <a href="#" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" style="background:var(--dark2);">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="testi.tag">Ils me font confiance</p>
+        <h2 class="section-title" data-i18n="testi.title">Témoignages Clients</h2>
+        <div class="divider"></div>
+        <p class="section-sub" data-i18n="testi.sub">Ce que disent mes clients et partenaires sur la qualité de mon
+          travail.</p>
+      </div>
+      <div class="testimonials-slider">
+        <div class="testi-track" id="testi-track">
+          <div class="testi-card reveal d1">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-text" data-i18n="t1.text">"Dieylany a transformé notre présence digitale. Le site web et le
+              bot WhatsApp ont boosté nos commandes de 40%. Très professionnel et réactif."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">AB</div>
+              <div>
+                <div class="testi-name">Ameth Boll</div>
+                <div class="testi-role" data-i18n="t1.role">Gérant — Dibiterie Ameth Boll</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card reveal d2">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-text" data-i18n="t2.text">"Un talent rare qui combine compétences techniques et vision
+              business. SDS a livré notre plateforme e-commerce dans les délais avec une qualité exceptionnelle."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">MN</div>
+              <div>
+                <div class="testi-name">Mame Thierno Ba</div>
+                <div class="testi-role" data-i18n="t2.role">Directeur— LuxeGold Bijouterie</div>
+              </div>
+            </div>
+          </div>
+          <div class="testi-card reveal d3">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-text" data-i18n="t3.text">"L'automatisation WhatsApp a révolutionné notre service client.
+              Nos clients sont servis 24h/24 et nous avons réduit nos coûts de support de 60%."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">IF</div>
+              <div>
+                <div class="testi-name">Ibrahim Fall</div>
+                <div class="testi-role" data-i18n="t3.role">CEO — SDS_Shop</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-nav">
+          <button class="testi-prev" id="testi-prev" aria-label="Précédent">‹</button>
+          <div class="testi-dots" id="testi-dots"></div>
+          <button class="testi-next" id="testi-next" aria-label="Suivant">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-tag" data-i18n="ct.tag">Contact</p>
+        <h2 class="section-title" data-i18n="ct.title">Travaillons ensemble</h2>
+        <div class="divider"></div>
+        <p class="section-sub" data-i18n="ct.sub">Un projet digital, une automatisation, un site web ? Écrivez-moi — je
+          réponds toujours.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="reveal from-left d1">
+          <div class="contact-item">
+            <div class="contact-icon">📍</div>
+            <div>
+              <div class="contact-label" data-i18n="ci1l">Localisation</div>
+              <div class="contact-value">Dakar, Sénégal</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">💼</div>
+            <div>
+              <div class="contact-label" data-i18n="ci2l">Agence</div>
+              <div class="contact-value">SEN DIGITAL SOLUTION</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">🌐</div>
+            <div>
+              <div class="contact-label" data-i18n="ci3l">Disponibilité</div>
+              <div class="contact-value" data-i18n="ci3v">Projets locaux & internationaux</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">💬</div>
+            <div>
+              <div class="contact-label">LinkedIn</div>
+              <div class="contact-value">@Dieylany</div>
+            </div>
+          </div>
+        </div>
+        <div class="reveal from-right d2">
+          <form id="contact-form">
+            <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off" />
+            <input class="form-input" type="text" id="name" name="name" data-i18n-placeholder="form.name"
+              placeholder="Votre nom" required />
+            <input class="form-input" type="email" id="email" name="email" placeholder="Email" required />
+            <input class="form-input" type="text" id="subject" name="subject" data-i18n-placeholder="form.subject"
+              placeholder="Sujet du projet" required />
+            <textarea class="form-input" id="message" name="message" data-i18n-placeholder="form.msg"
+              placeholder="Décrivez votre projet…" required></textarea>
+            <button type="submit" class="btn-primary" style="width:100%;padding:.95rem;" data-i18n="form.send">Envoyer
+              le message →</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHATBOT IA -->
+  <div id="chatbot-container">
+    <button id="chatbot-toggle" title="Discuter avec mon assistant IA">
+      <span class="chatbot-pulse"></span>
+      🤖
+    </button>
+    <div id="chatbot-window" class="hidden">
+      <div class="chatbot-header">
+        <div class="chatbot-header-info">
+          <div class="chatbot-avatar">🤖</div>
+          <div>
+            <strong>Assistant IA — SDS</strong>
+            <div class="chatbot-status"><span class="status-dot"></span> En ligne</div>
+          </div>
+        </div>
+        <button id="chatbot-close">✕</button>
+      </div>
+      <div id="chatbot-messages">
+        <div class="chat-msg bot-msg">
+          <div class="chat-avatar-mini">🤖</div>
+          <div class="chat-bubble">Bonjour ! 👋 Je suis l'assistant IA de Dieylany. Comment puis-je vous aider ?</div>
+        </div>
+      </div>
+      <div class="chatbot-quick-replies" id="quick-replies">
+        <button class="quick-reply-btn" data-msg="Quels sont vos services ?">💼 Services</button>
+        <button class="quick-reply-btn" data-msg="Montrez-moi vos projets">🚀 Projets</button>
+        <button class="quick-reply-btn" data-msg="Comment vous contacter ?">📩 Contact</button>
+        <button class="quick-reply-btn" data-msg="Parlez-moi de Dieylany">👤 Profil</button>
+      </div>
+      <div class="chatbot-input">
+        <input type="text" id="chat-input" placeholder="Écrivez un message..." autocomplete="off">
+        <button id="chat-send">➤</button>
       </div>
     </div>
   </div>
-</section>
 
-<!-- SERVICES -->
-<section id="services" style="background:var(--dark2);">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="svc.tag">Ce que je fais</p>
-      <h2 class="section-title" data-i18n="svc.title">Services SEN DIGITAL SOLUTION</h2>
-      <div class="divider"></div>
-      <p class="section-sub" data-i18n="svc.sub">Des solutions digitales pensées pour les entreprises africaines qui veulent passer à la vitesse supérieure.</p>
-    </div>
-    <div class="services-grid">
-      <div class="service-card reveal d1"><div class="service-icon">⚡</div><div class="service-title" data-i18n="s1.t">Automatisation WhatsApp Business</div><div class="service-desc" data-i18n="s1.d">Agents IA sur WhatsApp pour répondre aux clients 24/7, prendre des commandes et gérer le support — sans intervention humaine.</div><span class="service-tag">n8n · WhatsApp API · OpenAI</span></div>
-      <div class="service-card reveal d2"><div class="service-icon">🌐</div><div class="service-title" data-i18n="s2.t">Développement Web</div><div class="service-desc" data-i18n="s2.d">Sites vitrines, e-commerce, dashboards admin et applications web full-stack. Code propre, rapide, déployé sur Netlify.</div><span class="service-tag">HTML · CSS · JS · React</span></div>
-      <div class="service-card reveal d3"><div class="service-icon">🤖</div><div class="service-title" data-i18n="s3.t">Intégration IA & Agents</div><div class="service-desc" data-i18n="s3.d">Intégration d'API OpenAI, création d'agents autonomes, automatisation de workflows complexes avec Make et n8n.</div><span class="service-tag">OpenAI · LangChain · Make</span></div>
-      <div class="service-card reveal d1"><div class="service-icon">🎨</div><div class="service-title" data-i18n="s4.t">Design Graphique & Branding</div><div class="service-desc" data-i18n="s4.d">Affiches événementielles, identité visuelle, supports marketing digital. Un design moderne qui parle à l'audience africaine.</div><span class="service-tag">Canva · HTML/CSS · UI Design</span></div>
-      <div class="service-card reveal d2"><div class="service-icon">🔒</div><div class="service-title" data-i18n="s5.t">Cybersécurité</div><div class="service-desc" data-i18n="s5.d">Sensibilisation à la sécurité, audit basique et bonnes pratiques pour protéger vos données et systèmes digitaux.</div><span class="service-tag">En développement</span></div>
-      <div class="service-card reveal d3"><div class="service-icon">📊</div><div class="service-title" data-i18n="s6.t">Conseil Digital & Stratégie IA</div><div class="service-desc" data-i18n="s6.d">Accompagnement dans la transformation digitale : choix des outils, automatisation des processus, formation des équipes.</div><span class="service-tag">Consulting · Formation</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="proj.tag">Réalisations</p>
-      <h2 class="section-title" data-i18n="proj.title">Projets & Travaux</h2>
-      <div class="divider"></div>
-    </div>
-    <div class="projects-grid">
-      <div class="project-card reveal d1"><div class="project-shine"></div><div class="project-header"><div><div class="project-type">Client · Restaurant</div><div class="project-name">Dibiterie Ameth Boll</div></div><span class="project-status status-live" data-i18n="status.live">Live</span></div><div class="project-body"><div class="project-desc" data-i18n="p1.d">Site web avec commandes WhatsApp, panneau admin, génération de tickets et architecture config.js. Déployé sur Netlify.</div><div class="project-stack"><span class="stack-tag">HTML/CSS/JS</span><span class="stack-tag">WhatsApp API</span><span class="stack-tag">Netlify</span></div></div></div>
-      <div class="project-card reveal d2"><div class="project-shine"></div><div class="project-header"><div><div class="project-type">E-Commerce · Luxe</div><div class="project-name">LuxeGold Platform</div></div><span class="project-status status-live" data-i18n="status.done">Réalisé</span></div><div class="project-body"><div class="project-desc" data-i18n="p2.d">Plateforme e-commerce haut de gamme pour bijouterie. Interface élégante avec catalogue, panier et paiement.</div><div class="project-stack"><span class="stack-tag">HTML/CSS/JS</span><span class="stack-tag">E-Commerce</span><span class="stack-tag">UI Design</span></div></div></div>
-      <div class="project-card reveal d3"><div class="project-shine"></div><div class="project-header"><div><div class="project-type">Automatisation · Boutique</div><div class="project-name">SDS_Shop WhatsApp Bot</div></div><span class="project-status status-live" data-i18n="status.done">Réalisé</span></div><div class="project-body"><div class="project-desc" data-i18n="p3.d">Agent IA WhatsApp : réponses OpenAI, logging Google Sheets, gestion commandes 24/7.</div><div class="project-stack"><span class="stack-tag">n8n</span><span class="stack-tag">Meta WhatsApp API</span><span class="stack-tag">OpenAI</span></div></div></div>
-      <div class="project-card reveal d1"><div class="project-shine"></div><div class="project-header"><div><div class="project-type">Événementiel · Design</div><div class="project-name">SEN-EVENT</div></div><span class="project-status status-live" data-i18n="status.done">Réalisé</span></div><div class="project-body"><div class="project-desc" data-i18n="p4.d">Plateforme événementielle et affiches de mariage premium. Design HTML/CSS luxe pour événements haut de gamme.</div><div class="project-stack"><span class="stack-tag">HTML/CSS</span><span class="stack-tag">UI/UX</span><span class="stack-tag">Design Luxe</span></div></div></div>
-      <div class="project-card reveal d2"><div class="project-shine"></div><div class="project-header"><div><div class="project-type">BTS Mémoire · EdTech</div><div class="project-name" data-i18n="p5.name">Système Gestion Scolaire</div></div><span class="project-status status-build" data-i18n="status.wip">En cours</span></div><div class="project-body"><div class="project-desc" data-i18n="p5.d">Application de gestion des inscriptions et paiements de scolarité. Mémoire BTS Génie Logiciel.</div><div class="project-stack"><span class="stack-tag">Full-Stack</span><span class="stack-tag">BDD</span><span class="stack-tag">BTS GL</span></div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- SKILLS -->
-<section id="skills" style="background:var(--dark2);">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="sk.tag">Compétences</p>
-      <h2 class="section-title" data-i18n="sk.title">Stack Technique</h2>
-      <div class="divider"></div>
-    </div>
-    <div class="skills-grid">
-      <div class="skill-group reveal d1"><div class="skill-group-title" data-i18n="sg1">💻 Développement Web</div><div class="skill-row"><div class="skill-name">HTML / CSS <span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-w="92"></div></div></div><div class="skill-row"><div class="skill-name">JavaScript <span class="skill-pct">80%</span></div><div class="skill-bar"><div class="skill-fill" data-w="80"></div></div></div><div class="skill-row"><div class="skill-name">React <span class="skill-pct">65%</span></div><div class="skill-bar"><div class="skill-fill" data-w="65"></div></div></div></div>
-      <div class="skill-group reveal d2"><div class="skill-group-title" data-i18n="sg2">⚡ Automatisation & IA</div><div class="skill-row"><div class="skill-name">n8n <span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-w="85"></div></div></div><div class="skill-row"><div class="skill-name">Prompt Engineering <span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill" data-w="88"></div></div></div><div class="skill-row"><div class="skill-name">Make <span class="skill-pct">75%</span></div><div class="skill-bar"><div class="skill-fill" data-w="75"></div></div></div></div>
-      <div class="skill-group reveal d3"><div class="skill-group-title" data-i18n="sg3">🔗 APIs & Intégrations</div><div class="skill-row"><div class="skill-name">OpenAI API <span class="skill-pct">82%</span></div><div class="skill-bar"><div class="skill-fill" data-w="82"></div></div></div><div class="skill-row"><div class="skill-name">WhatsApp Business API <span class="skill-pct">80%</span></div><div class="skill-bar"><div class="skill-fill" data-w="80"></div></div></div><div class="skill-row"><div class="skill-name">REST / JSON <span class="skill-pct">78%</span></div><div class="skill-bar"><div class="skill-fill" data-w="78"></div></div></div></div>
-      <div class="skill-group reveal d4"><div class="skill-group-title" data-i18n="sg4">🛠️ Outils & DevOps</div><div class="skill-row"><div class="skill-name">Git / GitHub <span class="skill-pct">75%</span></div><div class="skill-bar"><div class="skill-fill" data-w="75"></div></div></div><div class="skill-row"><div class="skill-name">Netlify / Vercel <span class="skill-pct">82%</span></div><div class="skill-bar"><div class="skill-fill" data-w="82"></div></div></div><div class="skill-row"><div class="skill-name">Google Workspace <span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-w="85"></div></div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- BLOG -->
-<section id="blog">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="blog.tag">Réflexions & Articles</p>
-      <h2 class="section-title" data-i18n="blog.title">Blog & Publications LinkedIn</h2>
-      <div class="divider"></div>
-      <p class="section-sub" data-i18n="blog.sub">Je partage mes réflexions sur l'IA, la tech africaine et l'entrepreneuriat digital.</p>
-    </div>
-    <div class="blog-grid">
-      <div class="blog-card reveal d1">
-        <div class="blog-top">
-          <span class="blog-emoji">🌍</span>
-          <div class="blog-cat" data-i18n="bc1">IA · Afrique</div>
-          <div class="blog-title" data-i18n="bt1">L'IA va transformer l'économie africaine — voici comment en profiter maintenant</div>
-          <div class="blog-excerpt" data-i18n="be1">Pendant que le monde débat des dangers de l'IA, l'Afrique a une fenêtre d'opportunité unique. Les marchés moins rigides, la démographie jeune et le besoin criant d'efficacité font de ce continent le terrain idéal pour une adoption rapide de l'intelligence artificielle.</div>
-        </div>
-        <div class="blog-footer">
-          <span class="blog-date" data-i18n="bd1">Mars 2025 · 4 min</span>
-          <a href="#" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
-        </div>
-      </div>
-      <div class="blog-card reveal d2">
-        <div class="blog-top">
-          <span class="blog-emoji"></span>
-          <div class="blog-cat" data-i18n="bc2">Automatisation · PME</div>
-          <div class="blog-title" data-i18n="bt2">WhatsApp + IA = Le CRM des PME sénégalaises</div>
-          <div class="blog-excerpt" data-i18n="be2">95% des commerçants dakarois utilisent WhatsApp pour gérer leurs clients. Pourtant, ils répondent manuellement à chaque message. Un agent IA bien configuré peut changer ça — sans budget CRM, sans formation complexe, en 48h.</div>
-        </div>
-        <div class="blog-footer">
-          <span class="blog-date" data-i18n="bd2">Fév. 2025 · 3 min</span>
-          <a href="#" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
-        </div>
-      </div>
-      <div class="blog-card reveal d3">
-        <div class="blog-top">
-          <span class="blog-emoji">⚡</span>
-          <div class="blog-cat" data-i18n="bc3">Cas client · Automatisation</div>
-          <div class="blog-title" data-i18n="bt3">Comment j'ai automatisé un restaurant dakarois en 2 semaines</div>
-          <div class="blog-excerpt" data-i18n="be3">De la prise de commande manuelle sur WhatsApp à un système automatique avec tickets, historique et tableau de bord admin. Retour d'expérience sur le projet Dibiterie Ameth Boll — les choix techniques, les obstacles et les leçons apprises.</div>
-        </div>
-        <div class="blog-footer">
-          <span class="blog-date" data-i18n="bd3">Janv. 2025 · 5 min</span>
-          <a href="#" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
-        </div>
+  <!-- MODAL PROJET -->
+  <div id="project-modal" class="hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close">✕</button>
+      <div class="modal-body" id="modal-content-body">
+        <!-- Content injected by JS -->
       </div>
     </div>
   </div>
-</section>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="container">
-    <div class="reveal">
-      <p class="section-tag" data-i18n="ct.tag">Contact</p>
-      <h2 class="section-title" data-i18n="ct.title">Travaillons ensemble</h2>
-      <div class="divider"></div>
-      <p class="section-sub" data-i18n="ct.sub">Un projet digital, une automatisation, un site web ? Écrivez-moi — je réponds toujours.</p>
-    </div>
-    <div class="contact-grid">
-      <div class="reveal from-left d1">
-        <div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label" data-i18n="ci1l">Localisation</div><div class="contact-value">Dakar, Sénégal</div></div></div>
-        <div class="contact-item"><div class="contact-icon">💼</div><div><div class="contact-label" data-i18n="ci2l">Agence</div><div class="contact-value">SEN DIGITAL SOLUTION</div></div></div>
-        <div class="contact-item"><div class="contact-icon">🌐</div><div><div class="contact-label" data-i18n="ci3l">Disponibilité</div><div class="contact-value" data-i18n="ci3v">Projets locaux & internationaux</div></div></div>
-        <div class="contact-item"><div class="contact-icon">💬</div><div><div class="contact-label">LinkedIn</div><div class="contact-value">@Dieylany</div></div></div>
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">SDS<span>.</span></div>
+        <p class="footer-desc" data-i18n="footer.desc">Solutions digitales innovantes pour les entreprises africaines.
+          IA, automatisation et développement web.</p>
+        <div class="footer-socials">
+          <a href="https://linkedin.com/in/dieylany-k97600a2a5" class="social-link" title="LinkedIn" target="_blank"
+            rel="noopener">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+          </a>
+          <a href="https://github.com/a2k-dieylany" class="social-link" title="GitHub" target="_blank" rel="noopener">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+          </a>
+          <a href="https://wa.me/780152522" class="social-link" title="WhatsApp" target="_blank" rel="noopener">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326z" />
+            </svg>
+          </a>
+        </div>
       </div>
-      <div class="reveal from-right d2">
-        <input class="form-input" type="text" data-i18n-placeholder="form.name" placeholder="Votre nom"/>
-        <input class="form-input" type="email" placeholder="Email"/>
-        <input class="form-input" type="text" data-i18n-placeholder="form.subject" placeholder="Sujet du projet"/>
-        <textarea class="form-input" data-i18n-placeholder="form.msg" placeholder="Décrivez votre projet…"></textarea>
-        <button class="btn-primary" style="width:100%;padding:.95rem;" data-i18n="form.send">Envoyer le message →</button>
+      <div class="footer-links">
+        <h4 data-i18n="footer.nav">Navigation</h4>
+        <a href="#about" data-i18n="nav.about">À propos</a>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <a href="#projects" data-i18n="nav.projects">Projets</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
+      </div>
+      <div class="footer-links">
+        <h4 data-i18n="footer.services">Services</h4>
+        <a href="#services" data-i18n="s1.t">Automatisation WhatsApp</a>
+        <a href="#services" data-i18n="s2.t">Développement Web</a>
+        <a href="#services" data-i18n="s3.t">Intégration IA</a>
+        <a href="#services" data-i18n="s6.t">Conseil Digital</a>
+      </div>
+      <div class="footer-links">
+        <h4 data-i18n="footer.contact">Contact</h4>
+        <a href="mailto:contact@sds.sn">contact@sds.sn</a>
+        <a href="https://wa.me/780152522">+221 78 015 25 22</a>
+        <a href="#">Dakar, Sénégal</a>
       </div>
     </div>
-  </div>
-</section>
+    <div class="footer-bottom">
+      <p>© 2025 <span>Dieylany</span> · SEN DIGITAL SOLUTION</p>
+      <p data-i18n="footer">Fait avec 🔥 à Dakar, Sénégal</p>
+    </div>
+  </footer>
 
-<footer>
-  <p>© 2025 <span>Dieylany</span> · SEN DIGITAL SOLUTION · <span data-i18n="footer">Fait avec 🔥 à Dakar, Sénégal</span></p>
-</footer>
-
-<script>
-/* ========== I18N ========== */
-const T = {
-fr:{
-  'nav.about':'À propos','nav.timeline':'Parcours','nav.services':'Services','nav.projects':'Projets','nav.blog':'Blog','nav.contact':'Contact',
-  'hero.badge':'Disponible pour des collaborations – Dakar, Sénégal','hero.h1':'Bonjour, je suis','hero.agency':'SEN DIGITAL SOLUTION','hero.btn1':'Voir mes projets','hero.btn2':'Me contacter',
-  'stat.projects':'Projets livrés','stat.years':"Ans d'expérience",'stat.agency':'Agence fondée',
-  'about.tag':'Qui suis-je ?','about.title':'Passionné de tech, ancré dans l\'Afrique',
-  'about.p1':'Je suis étudiant en <strong>Génie Logiciel (BTS)</strong> à l\'ISI Suptech de Dakar et fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de devenir le leader tech de l\'Afrique de l\'Ouest.',
-  'about.p2':'Ma mission : intégrer l\'<strong>intelligence artificielle</strong> et l\'automatisation dans les workflows des entreprises africaines pour les rendre plus compétitives à l\'échelle mondiale.',
-  'about.p3':'Je combine développement web, automatisation no-code/low-code (<strong>n8n, Make</strong>), et intégration d\'APIs IA pour livrer des solutions concrètes et mesurables.',
-  'about.p4':'Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en devenir, laureát du Concours Général Sénégalais 2022.',
-  'award1.title':'Laureát – Concours Général Sénégalais 2022','award1.desc':'2ème Prix · Langue Arabe · Distinction nationale',
-  'award2.title':'Expert IA & Automatisation','award2.desc':'n8n · Make · OpenAI API · WhatsApp Business API',
-  'award3.title':'Vision Pan-Africaine','award3.desc':'Fondateur SEN DIGITAL SOLUTION · Dakar, Sénégal',
-  'award4.title':'Speaker en construction','award4.desc':'Personal branding · LinkedIn · Prise de parole',
-  'tl.tag':'Mon parcours','tl.title':'De l\'excellence académique à l\'entrepreneuriat',
-  'tl1.year':'2022','tl1.title':'Concours Général Sénégalais','tl1.desc':'2ème Prix national en Langue Arabe. Une distinction qui forge la rigueur intellectuelle et la confiance en soi.','tl1.badge':'🏆 Excellence académique',
-  'tl2.year':'2023','tl2.title':'BTS Génie Logiciel — ISI Suptech','tl2.desc':'Formation intensive en ingénierie logicielle à Dakar. Maîtrise des fondamentaux : algorithmes, bases de données, développement web.','tl2.badge':'📚 Formation technique',
-  'tl3.year':'Janv. 2024','tl3.title':'Fondation de SEN DIGITAL SOLUTION','tl3.desc':'Création de l\'agence digitale SDS — vision : devenir le leader de la transformation numérique en Afrique de l\'Ouest.','tl3.badge':'🚀 Lancement entrepreneurial',
-  'tl4.year':'Juin 2024','tl4.title':'Premier client — Dibiterie Ameth Boll','tl4.desc':'Site web complet avec commandes WhatsApp et panneau admin. Première preuve concrète de valeur livrée à un client dakarois.','tl4.badge':'💼 Premier client',
-  'tl5.year':'Sept. 2024','tl5.title':'WhatsApp Bot IA — SDS_Shop','tl5.desc':'Agent IA via n8n et OpenAI : commandes automatisées, logging Google Sheets, service 24h/24.','tl5.badge':'🤖 IA en production',
-  'tl6.year':'2025','tl6.title':'Expert IA + Mémoire BTS','tl6.desc':'Positionnement expert IA Afrique de l\'Ouest, personal branding LinkedIn, finalisation mémoire BTS sur la gestion scolaire.','tl6.badge':'⭐ En cours',
-  'svc.tag':'Ce que je fais','svc.title':'Services SEN DIGITAL SOLUTION','svc.sub':'Des solutions digitales pensées pour les entreprises africaines qui veulent passer à la vitesse supérieure.',
-  's1.t':'Automatisation WhatsApp Business','s1.d':'Agents IA sur WhatsApp pour répondre aux clients 24/7, prendre des commandes et gérer le support — sans intervention humaine.',
-  's2.t':'Développement Web','s2.d':'Sites vitrines, e-commerce, dashboards admin et applications web full-stack. Code propre, rapide, déployé sur Netlify.',
-  's3.t':'Intégration IA & Agents','s3.d':'Intégration d\'API OpenAI, création d\'agents autonomes, automatisation de workflows complexes avec Make et n8n.',
-  's4.t':'Design Graphique & Branding','s4.d':'Affiches événementielles, identité visuelle, supports marketing. Design moderne pour l\'audience africaine.',
-  's5.t':'Cybersécurité','s5.d':'Sensibilisation à la sécurité, audit basique et bonnes pratiques pour protéger vos données.',
-  's6.t':'Conseil Digital & Stratégie IA','s6.d':'Accompagnement dans la transformation digitale : choix des outils, automatisation et formation des équipes.',
-  'proj.tag':'Réalisations','proj.title':'Projets & Travaux',
-  'status.live':'Live','status.done':'Réalisé','status.wip':'En cours',
-  'p1.d':'Site web avec commandes WhatsApp, panneau admin, génération de tickets et architecture config.js. Déployé sur Netlify.',
-  'p2.d':'Plateforme e-commerce haut de gamme pour bijouterie. Interface élégante avec catalogue, panier et paiement.',
-  'p3.d':'Agent IA WhatsApp : réponses OpenAI, logging Google Sheets, gestion commandes 24/7.',
-  'p4.d':'Plateforme événementielle et affiches de mariage premium. Design HTML/CSS luxe.',
-  'p5.name':'Système Gestion Scolaire','p5.d':'Application de gestion des inscriptions et paiements de scolarité. Mémoire BTS Génie Logiciel.',
-  'sk.tag':'Compétences','sk.title':'Stack Technique',
-  'sg1':'💻 Développement Web','sg2':'⚡ Automatisation & IA','sg3':'🔗 APIs & Intégrations','sg4':'🛠️ Outils & DevOps',
-  'blog.tag':'Réflexions & Articles','blog.title':'Blog & Publications LinkedIn','blog.sub':'Je partage mes réflexions sur l\'IA, la tech africaine et l\'entrepreneuriat digital.',
-  'bc1':'IA · Afrique','bt1':'L\'IA va transformer l\'économie africaine — voici comment en profiter maintenant','be1':'Pendant que le monde débat des dangers de l\'IA, l\'Afrique a une fenêtre d\'opportunité unique. Les marchés moins rigides, la démographie jeune et le besoin criant d\'efficacité font de ce continent le terrain idéal pour une adoption rapide.','bd1':'Mars 2025 · 4 min',
-  'bc2':'Automatisation · PME','bt2':'WhatsApp + IA = Le CRM des PME sénégalaises','be2':'95% des commerçants dakarois utilisent WhatsApp pour gérer leurs clients. Pourtant, ils répondent manuellement à chaque message. Un agent IA bien configuré peut changer ça — sans budget CRM, en 48h.','bd2':'Fév. 2025 · 3 min',
-  'bc3':'Cas client · Automatisation','bt3':'Comment j\'ai automatisé un restaurant dakarois en 2 semaines','be3':'De la prise de commande manuelle sur WhatsApp à un système automatique avec tickets et dashboard admin. Retour d\'expérience sur le projet Dibiterie Ameth Boll.','bd3':'Janv. 2025 · 5 min',
-  'blink':'Lire sur LinkedIn →',
-  'ct.tag':'Contact','ct.title':'Travaillons ensemble','ct.sub':'Un projet digital, une automatisation, un site web ? Écrivez-moi — je réponds toujours.',
-  'ci1l':'Localisation','ci2l':'Agence','ci3l':'Disponibilité','ci3v':'Projets locaux & internationaux',
-  'form.name':'Votre nom','form.subject':'Sujet du projet','form.msg':'Décrivez votre projet…','form.send':'Envoyer le message →',
-  'footer':'Fait avec 🔥 à Dakar, Sénégal'
-},
-en:{
-  'nav.about':'About','nav.timeline':'Journey','nav.services':'Services','nav.projects':'Projects','nav.blog':'Blog','nav.contact':'Contact',
-  'hero.badge':'Open for collaborations – Dakar, Senegal','hero.h1':'Hello, I am','hero.agency':'SEN DIGITAL SOLUTION','hero.btn1':'View my projects','hero.btn2':'Contact me',
-  'stat.projects':'Projects delivered','stat.years':'Years of experience','stat.agency':'Agency founded',
-  'about.tag':'Who am I?','about.title':'Tech enthusiast, rooted in Africa',
-  'about.p1':'I am a <strong>Software Engineering (BTS)</strong> student at ISI Suptech Dakar and founder of <strong>SEN DIGITAL SOLUTION</strong> — a digital agency I am building with the vision of becoming the tech leader of West Africa.',
-  'about.p2':'My mission: integrate <strong>artificial intelligence</strong> and automation into African businesses\' workflows to make them more competitive on the global stage.',
-  'about.p3':'I combine web development, no-code/low-code automation (<strong>n8n, Make</strong>), and AI API integration to deliver concrete, measurable solutions.',
-  'about.p4':'Beyond code, I am building my <strong>personal brand</strong> as an African AI expert — aspiring speaker, laureate of the Senegalese General Competition 2022.',
-  'award1.title':'Laureate – Senegalese General Competition 2022','award1.desc':'2nd Prize · Arabic Language · National distinction',
-  'award2.title':'AI & Automation Expert','award2.desc':'n8n · Make · OpenAI API · WhatsApp Business API',
-  'award3.title':'Pan-African Vision','award3.desc':'Founder SEN DIGITAL SOLUTION · Dakar, Senegal',
-  'award4.title':'Speaker in the making','award4.desc':'Personal branding · LinkedIn · Public speaking',
-  'tl.tag':'My journey','tl.title':'From academic excellence to entrepreneurship',
-  'tl1.year':'2022','tl1.title':'Senegalese General Competition','tl1.desc':'2nd National Prize in Arabic Language. A distinction that built intellectual rigor and self-confidence.','tl1.badge':'🏆 Academic excellence',
-  'tl2.year':'2023','tl2.title':'BTS Software Engineering — ISI Suptech','tl2.desc':'Intensive software engineering training in Dakar. Mastering the fundamentals: algorithms, databases, web development.','tl2.badge':'📚 Technical training',
-  'tl3.year':'Jan. 2024','tl3.title':'Founded SEN DIGITAL SOLUTION','tl3.desc':'Created the SDS digital agency — vision: become the leader of digital transformation in West Africa.','tl3.badge':'🚀 Entrepreneurial launch',
-  'tl4.year':'Jun. 2024','tl4.title':'First client — Dibiterie Ameth Boll','tl4.desc':'Full website with WhatsApp ordering and admin panel. First concrete proof of value delivered to a Dakar client.','tl4.badge':'💼 First client',
-  'tl5.year':'Sep. 2024','tl5.title':'WhatsApp AI Bot — SDS_Shop','tl5.desc':'AI agent via n8n and OpenAI: automated orders, Google Sheets logging, 24/7 service.','tl5.badge':'🤖 AI in production',
-  'tl6.year':'2025','tl6.title':'Recognized AI Expert + BTS Thesis','tl6.desc':'Positioned as West Africa AI expert, LinkedIn personal branding, finalizing BTS thesis on school management.','tl6.badge':'⭐ In progress',
-  'svc.tag':'What I do','svc.title':'SEN DIGITAL SOLUTION Services','svc.sub':'Digital solutions built for African businesses that want to level up.',
-  's1.t':'WhatsApp Business Automation','s1.d':'AI agents on WhatsApp to respond to clients 24/7, take orders and handle support — with no human intervention.',
-  's2.t':'Web Development','s2.d':'Showcase sites, e-commerce, admin dashboards and full-stack web applications. Clean, fast code, deployed on Netlify.',
-  's3.t':'AI Integration & Agents','s3.d':'OpenAI API integration, autonomous agents, complex workflow automation with Make and n8n.',
-  's4.t':'Graphic Design & Branding','s4.d':'Event posters, visual identity, digital marketing materials. Modern design that speaks to African audiences.',
-  's5.t':'Cybersecurity','s5.d':'Security awareness, basic audits and best practices to protect your data and digital systems.',
-  's6.t':'Digital Strategy & AI Consulting','s6.d':'Guidance through digital transformation: tool selection, process automation, team training.',
-  'proj.tag':'Portfolio','proj.title':'Projects & Work',
-  'status.live':'Live','status.done':'Delivered','status.wip':'In progress',
-  'p1.d':'Full website with WhatsApp ordering, admin panel, ticket generation and config.js architecture. Deployed on Netlify.',
-  'p2.d':'High-end e-commerce platform for a jewelry store. Elegant interface with product catalog, cart and payment.',
-  'p3.d':'WhatsApp AI agent: OpenAI responses, Google Sheets logging, 24/7 order management.',
-  'p4.d':'Event platform and premium wedding posters. Luxury HTML/CSS design for high-end events.',
-  'p5.name':'School Management System','p5.d':'Application for managing student enrollments and tuition payments. BTS Software Engineering thesis.',
-  'sk.tag':'Skills','sk.title':'Technical Stack',
-  'sg1':'💻 Web Development','sg2':'⚡ Automation & AI','sg3':'🔗 APIs & Integrations','sg4':'🛠️ Tools & DevOps',
-  'blog.tag':'Thoughts & Articles','blog.title':'Blog & LinkedIn Posts','blog.sub':'I share my thoughts on AI, African tech, and digital entrepreneurship.',
-  'bc1':'AI · Africa','bt1':'AI will transform the African economy — here is how to benefit now','be1':'While the world debates AI risks, Africa has a unique window of opportunity. Less rigid markets, a young demographic and a pressing need for efficiency make this continent ideal for rapid AI adoption.','bd1':'Mar. 2025 · 4 min',
-  'bc2':'Automation · SMEs','bt2':'WhatsApp + AI = The CRM for Senegalese SMEs','be2':'95% of Dakar merchants use WhatsApp to manage their clients. Yet they respond manually to every message. A well-configured AI agent can change that — no CRM budget, no complex training, in 48 hours.','bd2':'Feb. 2025 · 3 min',
-  'bc3':'Case Study · Automation','bt3':'How I automated a Dakar restaurant in 2 weeks','be3':'From manual WhatsApp ordering to an automated system with tickets and admin dashboard. A look back at the Dibiterie Ameth Boll project — technical choices, obstacles and lessons learned.','bd3':'Jan. 2025 · 5 min',
-  'blink':'Read on LinkedIn →',
-  'ct.tag':'Contact','ct.title':'Let\'s work together','ct.sub':'A digital project, an automation, a website? Write to me — I always respond.',
-  'ci1l':'Location','ci2l':'Agency','ci3l':'Availability','ci3v':'Local & international projects',
-  'form.name':'Your name','form.subject':'Project subject','form.msg':'Describe your project…','form.send':'Send message →',
-  'footer':'Made with 🔥 in Dakar, Senegal'
-},
-ar:{
-  'nav.about':'عن نفسي','nav.timeline':'مساري','nav.services':'الخدمات','nav.projects':'المشاريع','nav.blog':'مدونة','nav.contact':'التواصل',
-  'hero.badge':'متاح للتعاون – داكار، السنغال','hero.h1':'مرحباً، أنا','hero.agency':'SEN DIGITAL SOLUTION','hero.btn1':'اكتشف مشاريعي','hero.btn2':'تواصل معي',
-  'stat.projects':'مشروع منجز','stat.years':'سنوات خبرة','stat.agency':'وكالة أسّستها',
-  'about.tag':'من أنا؟','about.title':'شغوف بالتكنولوجيا، متجذّر في أفريقيا',
-  'about.p1':'أنا طالب في <strong>هندسة البرمجيات (BTS)</strong> في معهد ISI Suptech بداكار، ومؤسّس <strong>SEN DIGITAL SOLUTION</strong> — وكالة رقمية أبنيها بهدف أن تصبح الرائدة تقنياً في غرب أفريقيا.',
-  'about.p2':'مهمّتي: دمج <strong>الذكاء الاصطناعي</strong> والأتمتة في سير عمل الشركات الأفريقية لجعلها أكثر تنافسية على المستوى العالمي.',
-  'about.p3':'أجمع بين تطوير الويب والأتمتة بدون كود (<strong>n8n, Make</strong>) ودمج واجهات برمجة الذكاء الاصطناعي لتقديم حلول ملموسة وقابلة للقياس.',
-  'about.p4':'أبني <strong>علامتي الشخصية</strong> كخبير في الذكاء الاصطناعي الأفريقي — متحدث طموح، حاصل على جائزة في المسابقة العامة السنغالية 2022.',
-  'award1.title':'الفائز – المسابقة الوطنية السنغالية 2022','award1.desc':'الجائزة الثانية · اللغة العربية · تميّز وطني',
-  'award2.title':'خبير الذكاء الاصطناعي والأتمتة','award2.desc':'n8n · Make · OpenAI API · WhatsApp Business API',
-  'award3.title':'رؤية أفريقيا الشاملة','award3.desc':'مؤسّس SEN DIGITAL SOLUTION · داكار، السنغال',
-  'award4.title':'متحدث في طريق الاحتراف','award4.desc':'بناء العلامة الشخصية · LinkedIn · الخطابة',
-  'tl.tag':'مساري المهني','tl.title':'من التميّز الأكاديمي إلى ريادة الأعمال',
-  'tl1.year':'2022','tl1.title':'المسابقة الوطنية السنغالية','tl1.desc':'الجائزة الثانية في اللغة العربية على المستوى الوطني. تمييز بنى الصرامة الفكرية والثقة بالنفس.','tl1.badge':'🏆 تميّز أكاديمي',
-  'tl2.year':'2023','tl2.title':'BTS هندسة البرمجيات — ISI Suptech','tl2.desc':'تدريب مكثّف في هندسة البرمجيات بداكار. إتقان الأساسيات: الخوارزميات وقواعد البيانات وتطوير الويب.','tl2.badge':'📚 تأهيل تقني',
-  'tl3.year':'يناير 2024','tl3.title':'تأسيس SEN DIGITAL SOLUTION','tl3.desc':'إنشاء وكالة SDS الرقمية — الرؤية: أن تصبح رائدة في التحوّل الرقمي في غرب أفريقيا.','tl3.badge':'🚀 انطلاق ريادي',
-  'tl4.year':'يونيو 2024','tl4.title':'أول عميل — Dibiterie Ameth Boll','tl4.desc':'موقع متكامل مع طلبات WhatsApp ولوحة إدارية. أول دليل ملموس على تقديم قيمة حقيقية لعميل في داكار.','tl4.badge':'💼 أول عميل',
-  'tl5.year':'سبتمبر 2024','tl5.title':'روبوت WhatsApp بالذكاء الاصطناعي','tl5.desc':'وكيل ذكاء اصطناعي عبر n8n وOpenAI: طلبات تلقائية، تسجيل Google Sheets، خدمة 24/7.','tl5.badge':'🤖 ذكاء اصطناعي في الإنتاج',
-  'tl6.year':'2025','tl6.title':'خبير ذكاء اصطناعي معترف به + أطروحة BTS','tl6.desc':'تمركز كخبير ذكاء اصطناعي في غرب أفريقيا، بناء العلامة الشخصية على LinkedIn، إنهاء أطروحة BTS حول إدارة المدارس.','tl6.badge':'⭐ قيد الإنجاز',
-  'svc.tag':'ماذا أقدّم','svc.title':'خدمات SEN DIGITAL SOLUTION','svc.sub':'حلول رقمية مصمَّمة للشركات الأفريقية التي تريد الانتقال إلى مستوى أعلى.',
-  's1.t':'أتمتة WhatsApp Business','s1.d':'وكلاء ذكاء اصطناعي على WhatsApp للردّ على العملاء 24/7 واستقبال الطلبات — دون تدخّل بشري.',
-  's2.t':'تطوير الويب','s2.d':'مواقع عرض، تجارة إلكترونية، لوحات تحكم إدارية وتطبيقات ويب متكاملة. كود نظيف وسريع.',
-  's3.t':'دمج الذكاء الاصطناعي والوكلاء','s3.d':'دمج واجهة OpenAI API، وإنشاء وكلاء مستقلين، وأتمتة سير عمل معقّدة مع Make وn8n.',
-  's4.t':'التصميم الجرافيكي والعلامة التجارية','s4.d':'ملصقات الفعاليات، الهوية البصرية، المواد التسويقية. تصميم عصري يخاطب الجمهور الأفريقي.',
-  's5.t':'الأمن السيبراني','s5.d':'توعية أمنية وتدقيق أساسي وأفضل الممارسات لحماية بياناتك وأنظمتك الرقمية.',
-  's6.t':'الاستشارات الرقمية واستراتيجية الذكاء الاصطناعي','s6.d':'مرافقة في التحوّل الرقمي: اختيار الأدوات، أتمتة العمليات، تدريب الفرق.',
-  'proj.tag':'أعمالي','proj.title':'مشاريع وأعمال',
-  'status.live':'مُطلَق','status.done':'منجز','status.wip':'قيد التطوير',
-  'p1.d':'موقع متكامل مع طلبات WhatsApp، لوحة إدارية وتوليد تذاكر. منشور على Netlify.',
-  'p2.d':'منصة تجارة إلكترونية فاخرة لمحل مجوهرات. واجهة أنيقة مع كتالوج وسلة وخيارات دفع.',
-  'p3.d':'وكيل ذكاء اصطناعي على WhatsApp: ردود OpenAI، تسجيل Google Sheets، إدارة طلبات 24/7.',
-  'p4.d':'منصة للفعاليات وملصقات زفاف فاخرة. تصميم HTML/CSS راقٍ للمناسبات الكبرى.',
-  'p5.name':'نظام إدارة المدارس','p5.d':'تطبيق لإدارة التسجيلات ومدفوعات الرسوم الدراسية. أطروحة BTS في هندسة البرمجيات.',
-  'sk.tag':'المهارات','sk.title':'المكدّس التقني',
-  'sg1':'💻 تطوير الويب','sg2':'⚡ الأتمتة والذكاء الاصطناعي','sg3':'🔗 APIs والتكاملات','sg4':'🛠️ الأدوات والنشر',
-  'blog.tag':'أفكار ومقالات','blog.title':'مدونة ومنشورات LinkedIn','blog.sub':'أشارك أفكاري حول الذكاء الاصطناعي والتقنية الأفريقية وريادة الأعمال الرقمية.',
-  'bc1':'ذكاء اصطناعي · أفريقيا','bt1':'الذكاء الاصطناعي سيحوّل الاقتصاد الأفريقي — إليك كيف تستفيد الآن','be1':'بينما يتجادل العالم حول مخاطر الذكاء الاصطناعي، تمتلك أفريقيا نافذة فرصة فريدة. أسواق أقل جموداً، شباب واعد، وحاجة ملحّة للكفاءة تجعل هذه القارة أرضاً مثالية لتبنّي الذكاء الاصطناعي بسرعة.','bd1':'مارس 2025 · 4 دقائق',
-  'bc2':'أتمتة · المشاريع الصغيرة','bt2':'WhatsApp + ذكاء اصطناعي = نظام CRM للمؤسسات السنغالية الصغيرة','be2':'95% من تجار داكار يستخدمون WhatsApp لإدارة عملائهم. ومع ذلك يردّون يدوياً على كل رسالة. وكيل ذكاء اصطناعي مُهيَّأ جيداً يمكنه تغيير ذلك — دون ميزانية CRM، خلال 48 ساعة.','bd2':'فبراير 2025 · 3 دقائق',
-  'bc3':'دراسة حالة · أتمتة','bt3':'كيف آلّيت مطعماً في داكار في أسبوعين','be3':'من تلقّي الطلبات يدوياً على WhatsApp إلى نظام تلقائي مع تذاكر ولوحة تحكم. تجربة مشروع Dibiterie Ameth Boll — الخيارات التقنية والتحديات والدروس المستفادة.','bd3':'يناير 2025 · 5 دقائق',
-  'blink':'اقرأ على LinkedIn ←',
-  'ct.tag':'التواصل','ct.title':'لنعمل معاً','ct.sub':'مشروع رقمي، أتمتة، موقع ويب؟ راسلني — أردّ دائماً.',
-  'ci1l':'الموقع','ci2l':'الوكالة','ci3l':'التوفّر','ci3v':'مشاريع محلية ودولية',
-  'form.name':'اسمك','form.subject':'موضوع المشروع','form.msg':'صِف مشروعك…','form.send':'← إرسال الرسالة',
-  'footer':'صُنع بـ 🔥 في داكار، السنغال'
-}};
-
-const words = {
-  fr:['Ingénieur Logiciel','Expert IA & Automatisation','Développeur Web Full-Stack','Fondateur & Entrepreneur','Future Speaker Tech Africain'],
-  en:['Software Engineer','AI & Automation Expert','Full-Stack Web Developer','Founder & Entrepreneur','Future African Tech Speaker'],
-  ar:['مهندس برمجيات','خبير ذكاء اصطناعي وأتمتة','مطوّر ويب متكامل','مؤسّس ورائد أعمال','متحدث تقني أفريقي مستقبلي']
-};
-
-let lang='fr', twIdx=0, twChar=0, twDel=false, twTimer=null;
-
-function setLang(l){
-  lang=l;
-  const html=document.documentElement;
-  html.lang=l;
-  html.dir=l==='ar'?'rtl':'ltr';
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const k=el.dataset.i18n, v=T[l][k];
-    if(v!==undefined) el.innerHTML=v;
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
-    const k=el.dataset.i18nPlaceholder, v=T[l][k];
-    if(v!==undefined) el.placeholder=v;
-  });
-  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
-  // restart typewriter
-  twIdx=0;twChar=0;twDel=false;
-  clearTimeout(twTimer);
-  typeWord();
-}
-
-/* TYPEWRITER */
-const twEl=document.getElementById('tw');
-function typeWord(){
-  const ws=words[lang], w=ws[twIdx%ws.length];
-  twEl.textContent=twDel?w.slice(0,twChar--):w.slice(0,twChar++);
-  if(!twDel&&twChar>w.length){twDel=true;twTimer=setTimeout(typeWord,1400);return;}
-  if(twDel&&twChar<0){twDel=false;twIdx++;twTimer=setTimeout(typeWord,400);return;}
-  twTimer=setTimeout(typeWord,twDel?40:80);
-}
-setTimeout(typeWord,1000);
-
-/* CURSOR */
-const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
-(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar);})();
-document.querySelectorAll('a,button,.service-card,.project-card,.award-card,.blog-card,.contact-item').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
-  el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';ring.style.width='36px';ring.style.height='36px';});
-});
-
-/* PARTICLES */
-const cv=document.getElementById('particles'),cx=cv.getContext('2d');
-let W,H,pts=[];
-function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
-resize();window.addEventListener('resize',resize);
-function initPts(){pts=[];for(let i=0;i<70;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.4+.4,a:Math.random()});}
-initPts();
-function draw(){
-  cx.clearRect(0,0,W,H);
-  pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(245,166,35,${p.a*.35})`;cx.fill();});
-  pts.forEach((a,i)=>pts.slice(i+1).forEach(b=>{const d=Math.hypot(a.x-b.x,a.y-b.y);if(d<100){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.strokeStyle=`rgba(245,166,35,${.05*(1-d/100)})`;cx.lineWidth=.5;cx.stroke();}}));
-  requestAnimationFrame(draw);
-}
-draw();
-
-/* COUNTER */
-let counted=false;
-function animCount(el){const t=+el.dataset.target,d=1200,s=d/t;let c=0;const iv=setInterval(()=>{c++;el.textContent=c+'+'*(c>=t?'':'');if(c>=t){el.textContent=t+'+';clearInterval(iv);}},s);}
-const sObs=new IntersectionObserver(e=>{if(e[0].isIntersecting&&!counted){counted=true;document.querySelectorAll('.stat-num[data-target]').forEach(animCount);}},{threshold:.5});
-sObs.observe(document.querySelector('.hero-stats'));
-
-/* SCROLL REVEAL + SKILL BARS + DIVIDERS */
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.classList.add('visible');
-      e.target.querySelectorAll('.skill-fill').forEach(b=>{b.style.width=b.dataset.w+'%';});
-      e.target.querySelectorAll('.divider').forEach(d=>d.classList.add('animated'));
-    }
-  });
-},{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-const dObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('animated');});},{threshold:.3});
-document.querySelectorAll('.divider').forEach(d=>dObs.observe(d));
-</script>
+  <button id="scroll-top" title="Retour en haut">↑</button>
+  <script src="script.js"></script>
 </body>
+
 </html>

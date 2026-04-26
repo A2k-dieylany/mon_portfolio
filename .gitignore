@@ -1,0 +1,6 @@
+
+config.php
+
+# Divers
+.DS_Store
+*.log

@@ -44,7 +44,11 @@ fr:{
   'ct.tag':'Contact','ct.title':'Travaillons ensemble','ct.sub':'Un projet digital, une automatisation, un site web ? Écrivez-moi — je réponds toujours.',
   'ci1l':'Localisation','ci2l':'Agence','ci3l':'Disponibilité','ci3v':'Projets locaux & internationaux',
   'form.name':'Votre nom','form.subject':'Sujet du projet','form.msg':'Décrivez votre projet…','form.send':'Envoyer le message →',
-  'footer':'Fait avec 🔥 à Dakar, Sénégal'
+  'testi.tag':'Ils me font confiance','testi.title':'Témoignages Clients','testi.sub':'Ce que disent mes clients et partenaires sur la qualité de mon travail.',
+  't1.text':'"Dieylany a transformé notre présence digitale. Le site web et le bot WhatsApp ont boosté nos commandes de 40%. Très professionnel et réactif."','t1.role':'Gérant — Dibiterie Ameth Boll',
+  't2.text':'"Un talent rare qui combine compétences techniques et vision business. SDS a livré notre plateforme e-commerce dans les délais avec une qualité exceptionnelle."','t2.role':'Directrice — LuxeGold Bijouterie',
+  't3.text':'"L\'automatisation WhatsApp a révolutionné notre service client. Nos clients sont servis 24h/24 et nous avons réduit nos coûts de support de 60%."','t3.role':'CEO — SDS_Shop',
+  'footer':'Fait avec 🔥 à Dakar, Sénégal','footer.desc':'Solutions digitales innovantes pour les entreprises africaines. IA, automatisation et développement web.','footer.nav':'Navigation','footer.services':'Services','footer.contact':'Contact'
 },
 en:{
   'nav.about':'About','nav.timeline':'Journey','nav.services':'Services','nav.projects':'Projects','nav.blog':'Blog','nav.contact':'Contact',
@@ -90,7 +94,11 @@ en:{
   'ct.tag':'Contact','ct.title':'Let\'s work together','ct.sub':'A digital project, an automation, a website? Write to me — I always respond.',
   'ci1l':'Location','ci2l':'Agency','ci3l':'Availability','ci3v':'Local & international projects',
   'form.name':'Your name','form.subject':'Project subject','form.msg':'Describe your project…','form.send':'Send message →',
-  'footer':'Made with 🔥 in Dakar, Senegal'
+  'testi.tag':'They trust me','testi.title':'Client Testimonials','testi.sub':'What my clients and partners say about the quality of my work.',
+  't1.text':'"Dieylany transformed our digital presence. The website and WhatsApp bot boosted our orders by 40%. Very professional and responsive."','t1.role':'Manager — Dibiterie Ameth Boll',
+  't2.text':'"A rare talent combining technical skills and business vision. SDS delivered our e-commerce platform on time with exceptional quality."','t2.role':'Director — LuxeGold Jewelry',
+  't3.text':'"WhatsApp automation revolutionized our customer service. Our clients are served 24/7 and we reduced support costs by 60%."','t3.role':'CEO — SDS_Shop',
+  'footer':'Made with 🔥 in Dakar, Senegal','footer.desc':'Innovative digital solutions for African businesses. AI, automation and web development.','footer.nav':'Navigation','footer.services':'Services','footer.contact':'Contact'
 },
 ar:{
   'nav.about':'عن نفسي','nav.timeline':'مساري','nav.services':'الخدمات','nav.projects':'المشاريع','nav.blog':'مدونة','nav.contact':'التواصل',
@@ -136,8 +144,12 @@ ar:{
   'ct.tag':'التواصل','ct.title':'لنعمل معاً','ct.sub':'مشروع رقمي، أتمتة، موقع ويب؟ راسلني — أردّ دائماً.',
   'ci1l':'الموقع','ci2l':'الوكالة','ci3l':'التوفّر','ci3v':'مشاريع محلية ودولية',
   'form.name':'اسمك','form.subject':'موضوع المشروع','form.msg':'صِف مشروعك…','form.send':'← إرسال الرسالة',
-  'footer':'صُنع بـ 🔥 في داكار، السنغال'
-}}
+  'testi.tag':'يثقون بي','testi.title':'شهادات العملاء','testi.sub':'ما يقوله عملائي وشركائي عن جودة عملي.',
+  't1.text':'"ديلاني حوّل حضورنا الرقمي. الموقع وبوت WhatsApp زادا طلباتنا بنسبة 40%. محترف جداً وسريع الاستجابة."','t1.role':'مدير — مطعم أميث بول',
+  't2.text':'"موهبة نادرة تجمع بين المهارات التقنية والرؤية التجارية. SDS قدّمت منصتنا في الوقت المحدد بجودة استثنائية."','t2.role':'مديرة — LuxeGold للمجوهرات',
+  't3.text':'"أتمتة WhatsApp أحدثت ثورة في خدمة عملائنا. عملاؤنا يُخدَمون 24/7 وخفّضنا تكاليف الدعم بنسبة 60%."','t3.role':'الرئيس التنفيذي — SDS_Shop',
+  'footer':'صُنع بـ 🔥 في داكار، السنغال','footer.desc':'حلول رقمية مبتكرة للشركات الأفريقية. ذكاء اصطناعي وأتمتة وتطوير ويب.','footer.nav':'التنقل','footer.services':'الخدمات','footer.contact':'التواصل'
+}
 };
 
 const words = {
@@ -189,9 +201,27 @@ function animateRing(){rx+=(mx-rx)*.12; ry+=(my-ry)*.12; ring.style.left=rx+'px'
 function setupInteractions(){
   document.addEventListener('mousemove', updateCursor);
   animateRing();
-  document.querySelectorAll('a,button,.service-card,.project-card,.award-card,.blog-card,.contact-item').forEach(el=>{
+  
+  // Hover effects for cursor
+  document.querySelectorAll('a, button, .service-card, .project-card, .award-card, .blog-card, .contact-item').forEach(el=>{
     el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
     el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';ring.style.width='36px';ring.style.height='36px';});
+  });
+
+  // Magnetic Buttons
+  document.querySelectorAll('.btn-primary, .btn-outline').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+      // Magnetic cursor snap
+      mx = rect.left + rect.width / 2 + x * 0.1;
+      my = rect.top + rect.height / 2 + y * 0.1;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
   });
 }
 
@@ -205,7 +235,20 @@ function draw(){
   requestAnimationFrame(draw);
 }
 
-function animCount(el){const t=+el.dataset.target,d=1200,s=Math.max(10,Math.floor(d/t)),c={value:0};const iv=setInterval(()=>{c.value++;el.textContent=c.value+'+'*(c.value>=t?'':'');if(c.value>=t){el.textContent=t+'+';clearInterval(iv);}},s);}
+function animCount(el){
+  const target = +el.dataset.target;
+  const duration = 1800;
+  const startTime = performance.now();
+  const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  const animate = (now) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const current = Math.round(easeOutExpo(progress) * target);
+    el.textContent = current + '+';
+    if (progress < 1) requestAnimationFrame(animate);
+  };
+  requestAnimationFrame(animate);
+}
 
 function setupObservers(){
   const heroStats=document.querySelector('.hero-stats');
@@ -230,7 +273,8 @@ function setupObservers(){
 function setupForm(){
   const form=document.getElementById('contact-form');
   if(!form) return;
-  form.addEventListener('submit',e=>{
+  const btn=form.querySelector('button[type="submit"]');
+  form.addEventListener('submit',async e=>{
     e.preventDefault();
     const name=form.querySelector('#name');
     const email=form.querySelector('#email');
@@ -240,13 +284,416 @@ function setupForm(){
       alert('Merci de remplir tous les champs du formulaire.');
       return;
     }
-    alert('Message prêt à être envoyé ! Cette page ne gère pas encore le backend.');
-    form.reset();
+    const originalText=btn.innerHTML;
+    btn.innerHTML='Envoi en cours...';
+    btn.disabled=true;
+    try{
+      const formData=new FormData(form);
+      const res=await fetch('contact.php',{method:'POST',body:formData});
+      const data=await res.json();
+      if(data.status==='success'){
+        toast('Message envoyé avec succès !','success');
+        form.reset();
+      }else{
+        toast('Erreur : '+(data.message||'Erreur inconnue.'),'error');
+      }
+    }catch(err){
+      toast('Erreur de connexion.','error');
+    }
+    btn.innerHTML=originalText;
+    btn.disabled=false;
   });
 }
 
 function handleVisibility(){
   document.addEventListener('visibilitychange',()=>{particlesPaused=document.hidden; if(!particlesPaused) draw();});
+}
+
+function setupFilters(){
+  const btns=document.querySelectorAll('.filter-btn');
+  const cards=document.querySelectorAll('.project-card');
+  if(!btns.length) return;
+  btns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      btns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter=btn.dataset.filter;
+      cards.forEach(card=>{
+        if(filter==='all'||card.dataset.category===filter){
+          card.classList.remove('hide-project');
+        }else{
+          card.classList.add('hide-project');
+        }
+      });
+    });
+  });
+}
+
+function setupTheme(){
+  const btn=document.getElementById('theme-toggle');
+  if(!btn) return;
+  const current=localStorage.getItem('theme')||'dark';
+  if(current==='light') document.documentElement.setAttribute('data-theme','light');
+  btn.addEventListener('click',()=>{
+    if(document.documentElement.getAttribute('data-theme')==='light'){
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme','dark');
+    }else{
+      document.documentElement.setAttribute('data-theme','light');
+      localStorage.setItem('theme','light');
+    }
+  });
+}
+
+function setupChatbot(){
+  const toggle=document.getElementById('chatbot-toggle');
+  const win=document.getElementById('chatbot-window');
+  const closeBtn=document.getElementById('chatbot-close');
+  const input=document.getElementById('chat-input');
+  const sendBtn=document.getElementById('chat-send');
+  const messages=document.getElementById('chatbot-messages');
+  const quickReplies=document.getElementById('quick-replies');
+
+  if(!toggle) return;
+
+  toggle.addEventListener('click',()=>win.classList.remove('hidden'));
+  closeBtn.addEventListener('click',()=>win.classList.add('hidden'));
+
+  const appendMsg=(text,sender)=>{
+    const d=document.createElement('div');
+    d.className=`chat-msg ${sender}-msg`;
+    if(sender==='bot'){
+      d.innerHTML=`<div class="chat-avatar-mini">🤖</div><div class="chat-bubble"></div>`;
+      d.querySelector('.chat-bubble').textContent=text;
+    } else {
+      d.innerHTML=`<div class="chat-bubble"></div>`;
+      d.querySelector('.chat-bubble').textContent=text;
+    }
+    messages.appendChild(d);
+    messages.scrollTop=messages.scrollHeight;
+  };
+
+  const handleSend=async (text)=>{
+    if (window.location.protocol === 'file:') {
+      appendMsg("Attention : Vous avez ouvert le fichier directement. Pour que le chatbot fonctionne, vous devez passer par l'URL http://localhost/mes_dossiers/sds/sds.html",'bot');
+      return;
+    }
+    const msg = text || input.value.trim();
+    if(!msg) return;
+    appendMsg(msg,'user');
+    input.value='';
+    
+    // Hide quick replies after first use
+    if(quickReplies) quickReplies.style.display='none';
+    
+    // Typing indicator
+    const typing=document.createElement('div');
+    typing.className='typing-indicator';
+    typing.innerHTML='<span></span><span></span><span></span>';
+    messages.appendChild(typing);
+    messages.scrollTop=messages.scrollHeight;
+
+    try{
+      const res=await fetch('chat.php',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:msg})
+      });
+      const data=await res.json();
+      messages.removeChild(typing);
+      appendMsg(data.reply||"Désolé, une erreur s'est produite.",'bot');
+    }catch(err){
+      console.error('Chatbot Error:', err);
+      messages.removeChild(typing);
+      appendMsg("Erreur de connexion au serveur. Vérifiez que PHP et Apache sont bien lancés.",'bot');
+    }
+  };
+
+  // Quick reply buttons
+  if(quickReplies){
+    quickReplies.querySelectorAll('.quick-reply-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>handleSend(btn.dataset.msg));
+    });
+  }
+
+  sendBtn.addEventListener('click',()=>handleSend());
+  input.addEventListener('keypress',e=>{if(e.key==='Enter') handleSend();});
+}
+
+/* ========== TOAST SYSTEM ========== */
+function toast(message, type='info', duration=3500) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = message;
+  container.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('toast-out');
+    setTimeout(() => t.remove(), 400);
+  }, duration);
+}
+
+/* ========== NAV ACTIVE ON SCROLL ========== */
+function setupActiveNav() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  if (!sections.length || !navLinks.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active-section'));
+        const active = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active-section');
+      }
+    });
+  }, { threshold: 0.35 });
+
+  sections.forEach(s => observer.observe(s));
+}
+
+/* ========== COPY TO CLIPBOARD ========== */
+function setupContactCopy() {
+  const items = document.querySelectorAll('.contact-item');
+  items.forEach(item => {
+    const valueEl = item.querySelector('.contact-value');
+    if (!valueEl) return;
+    const originalText = valueEl.textContent;
+    item.addEventListener('click', () => {
+      navigator.clipboard.writeText(originalText).then(() => {
+        item.classList.add('copied');
+        valueEl.textContent = '✓ Copié !';
+        toast(`"${originalText}" copié dans le presse-papier`, 'success', 2500);
+        setTimeout(() => {
+          valueEl.textContent = originalText;
+          item.classList.remove('copied');
+        }, 1500);
+      }).catch(() => {
+        toast('Impossible de copier', 'error');
+      });
+    });
+  });
+}
+
+function setupMenu(){
+  const toggle=document.getElementById('menu-toggle');
+  const navLinks=document.querySelector('.nav-links');
+  if(!toggle || !navLinks) return;
+  toggle.addEventListener('click',()=>{
+    navLinks.classList.toggle('active');
+    toggle.textContent=navLinks.classList.contains('active')?'✕':'☰';
+  });
+  navLinks.querySelectorAll('a').forEach(link=>{
+    link.addEventListener('click',()=>{
+      navLinks.classList.remove('active');
+      toggle.textContent='☰';
+    });
+  });
+}
+
+function setupScrollFeatures() {
+  const progressBar = document.getElementById('progress-bar');
+  const scrollTopBtn = document.getElementById('scroll-top');
+  const heroGlow = document.querySelector('.hero-glow');
+  const gridBg = document.querySelector('.grid-bg');
+  const shapes = document.querySelectorAll('.shape');
+  
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const nav = document.querySelector('nav');
+    
+    // Nav scrolled state
+    if (nav) {
+      if (scrollY > 80) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    }
+    
+    // Parallax
+    if (scrollY < window.innerHeight) {
+      if(heroGlow) heroGlow.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.3}px))`;
+      if(gridBg) gridBg.style.transform = `translateY(${scrollY * 0.15}px)`;
+      shapes.forEach((s, i) => {
+        s.style.transform = `translateY(${scrollY * (0.2 + i*0.15)}px)`;
+      });
+    }
+
+    // Progress Bar
+    if (progressBar) {
+      const scrollPx = document.documentElement.scrollTop;
+      const winHeightPx = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = `${(scrollPx / winHeightPx) * 100}%`;
+      progressBar.style.width = scrolled;
+    }
+    // Scroll To Top Button
+    if (scrollTopBtn) {
+      if (scrollY > 500) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    }
+  });
+}
+
+function setupTilt() {
+  const cards = document.querySelectorAll('.service-card, .project-card, .award-card, .blog-card');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const rx = (cy - y) / 15; // rotateX
+      const ry = (x - cx) / 15; // rotateY
+      
+      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02, 1.02, 1.02)`;
+      card.style.transition = 'none';
+      card.style.zIndex = "10";
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.transition = 'all 0.4s ease';
+      card.style.zIndex = "1";
+    });
+  });
+}
+
+function setupProjectModals() {
+  const modal = document.getElementById('project-modal');
+  const modalBody = document.getElementById('modal-content-body');
+  const closeBtn = document.querySelector('.modal-close');
+  const overlay = document.querySelector('.modal-overlay');
+
+  if (!modal) return;
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+  // ESC key to close
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+  document.querySelectorAll('.project-card').forEach(card => {
+    // Rendre la carte cliquable
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      const type = card.querySelector('.project-type').textContent;
+      const name = card.querySelector('.project-name').textContent;
+      const desc = card.querySelector('.project-desc').textContent;
+      const stackHtml = card.querySelector('.project-stack').innerHTML;
+      
+      modalBody.innerHTML = `
+        <span class="project-type">${type}</span>
+        <h3 class="project-name">${name}</h3>
+        <p class="project-desc">${desc}</p>
+        <div class="project-stack">${stackHtml}</div>
+        <a href="#contact" class="modal-btn" onclick="document.getElementById('project-modal').classList.add('hidden'); document.body.style.overflow='';">Demander un projet similaire</a>
+      `;
+      
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Empêcher le défilement de fond
+    });
+  });
+}
+
+/* ========== TESTIMONIALS SLIDER ========== */
+function setupTestimonials() {
+  const track = document.getElementById('testi-track');
+  const prevBtn = document.getElementById('testi-prev');
+  const nextBtn = document.getElementById('testi-next');
+  const dotsContainer = document.getElementById('testi-dots');
+  
+  if (!track || !prevBtn || !nextBtn) return;
+  
+  const cards = track.querySelectorAll('.testi-card');
+  const total = cards.length;
+  let current = 0;
+  let autoPlayTimer = null;
+  
+  // Determine how many cards to show based on screen width
+  const getVisibleCount = () => {
+    if (window.innerWidth <= 720) return 1;
+    if (window.innerWidth <= 960) return 2;
+    return 3;
+  };
+  
+  // Create dots
+  const createDots = () => {
+    dotsContainer.innerHTML = '';
+    const visibleCount = getVisibleCount();
+    const maxSlide = Math.max(0, total - visibleCount);
+    for (let i = 0; i <= maxSlide; i++) {
+      const dot = document.createElement('button');
+      dot.className = `testi-dot${i === 0 ? ' active' : ''}`;
+      dot.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(dot);
+    }
+  };
+  
+  const updateDots = () => {
+    dotsContainer.querySelectorAll('.testi-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === current);
+    });
+  };
+  
+  const goTo = (index) => {
+    const visibleCount = getVisibleCount();
+    const maxSlide = Math.max(0, total - visibleCount);
+    current = Math.max(0, Math.min(index, maxSlide));
+    const cardWidth = cards[0].offsetWidth + 24; // 24 = gap (1.5rem)
+    track.style.transform = `translateX(-${current * cardWidth}px)`;
+    updateDots();
+  };
+  
+  prevBtn.addEventListener('click', () => { goTo(current - 1); resetAutoPlay(); });
+  nextBtn.addEventListener('click', () => { goTo(current + 1); resetAutoPlay(); });
+  
+  // Auto-play
+  const startAutoPlay = () => {
+    autoPlayTimer = setInterval(() => {
+      const visibleCount = getVisibleCount();
+      const maxSlide = Math.max(0, total - visibleCount);
+      goTo(current >= maxSlide ? 0 : current + 1);
+    }, 5000);
+  };
+  
+  const resetAutoPlay = () => {
+    clearInterval(autoPlayTimer);
+    startAutoPlay();
+  };
+  
+  // Touch/swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goTo(current + 1);
+      else goTo(current - 1);
+      resetAutoPlay();
+    }
+  }, { passive: true });
+  
+  // Handle resize
+  window.addEventListener('resize', () => { createDots(); goTo(Math.min(current, Math.max(0, total - getVisibleCount()))); });
+  
+  createDots();
+  startAutoPlay();
 }
 
 function initPage(){
@@ -258,12 +705,33 @@ function initPage(){
   draw();
   setupObservers();
   setupForm();
+  setupFilters();
+  setupTheme();
+  setupChatbot();
+  setupMenu();
+  setupScrollFeatures();
+  setupTilt();
+  setupProjectModals();
+  setupActiveNav();
+  setupContactCopy();
+  setupTestimonials();
   handleVisibility();
-  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    setTimeout(typeWord,1000);
-  } else {
-    twEl.textContent=words[lang][0];
-  }
+  
+  // Preloader logic
+  const preloader = document.getElementById('preloader');
+  setTimeout(() => {
+    if (preloader) {
+      preloader.style.opacity = '0';
+      preloader.style.visibility = 'hidden';
+      setTimeout(() => preloader.remove(), 500);
+    }
+    document.body.classList.add('loaded');
+    if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      setTimeout(typeWord, 500);
+    } else {
+      twEl.textContent=words[lang][0];
+    }
+  }, 1500);
 }
 
 window.addEventListener('DOMContentLoaded', initPage);
