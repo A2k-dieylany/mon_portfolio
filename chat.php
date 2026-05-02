@@ -1,17 +1,13 @@
 <?php
-error_reporting(0);
-ini_set('display_errors', 0);
-ob_start();
 session_start();
 header('Content-Type: application/json');
 
-// Chargement sécurisé de la clé API
 require_once __DIR__ . '/config.php';
 $groqApiKey = GROQ_API_KEY;
 
-// Rate limiting: 5 requêtes max par minute
+// Rate limiting: 10 requêtes max par minute
 $timeLimit = 60;
-$maxRequests = 5;
+$maxRequests = 10;
 
 if (!isset($_SESSION['chat_requests'])) {
     $_SESSION['chat_requests'] = [];
@@ -22,7 +18,7 @@ $_SESSION['chat_requests'] = array_filter($_SESSION['chat_requests'], function($
 });
 
 if (count($_SESSION['chat_requests']) >= $maxRequests) {
-    echo json_encode(['reply' => "Vous avez envoyé trop de messages. Veuillez patienter une minute. / Too many requests. Please wait a minute. / لقد أرسلت رسائل كثيرة، يرجى الانتظار دقيقة."]);
+    echo json_encode(['reply' => "Vous avez envoyé trop de messages. Patientez une minute. / Too many messages, please wait. / لقد تجاوزت الحد، انتظر دقيقة."]);
     exit;
 }
 $_SESSION['chat_requests'][] = $currentTime;
@@ -32,107 +28,122 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Validation Origin/Referer — bloquer les requêtes externes
+$allowedHosts = ['localhost', '127.0.0.1', 'sds.sn', 'www.sds.sn'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$sourceHost = '';
+
+if (!empty($origin)) {
+    $sourceHost = parse_url($origin, PHP_URL_HOST);
+} elseif (!empty($referer)) {
+    $sourceHost = parse_url($referer, PHP_URL_HOST);
+}
+
+if (!empty($sourceHost) && !in_array($sourceHost, $allowedHosts)) {
+    echo json_encode(['reply' => "Accès non autorisé."]);
+    exit;
+}
+
 $input = json_decode(file_get_contents('php://input'), true);
-$userMessage = $input['message'] ?? '';
+$userMessage = trim($input['message'] ?? '');
+$history     = $input['history'] ?? []; // historique envoyé depuis le front
 
 if (empty($userMessage)) {
     echo json_encode(['reply' => "Message vide."]);
     exit;
 }
 
-$systemPrompt = "You are the official AI assistant of Dieylany, founder and CEO of SEN DIGITAL SOLUTION (SDS), a pan-African digital agency based in Dakar, Senegal.
+// Limiter la longueur du message (anti-abus)
+if (mb_strlen($userMessage) > 1000) {
+    echo json_encode(['reply' => "Message trop long. Limitez à 1000 caractères."]);
+    exit;
+}
 
-## LANGUAGE RULE — CRITICAL
-Detect the language of the visitor's message and respond EXCLUSIVELY in that language:
-- French message → respond in French
-- English message → respond in English
-- Arabic message → respond in Arabic (use Modern Standard Arabic, right-to-left)
-- Mixed or ambiguous → respond in French by default
-Never mix languages in a single response.
+$systemPrompt = "You are MAX, the official AI assistant of Dieylany and SEN DIGITAL SOLUTION (SDS), a pan-African digital agency based in Dakar, Senegal.
 
-## YOUR IDENTITY
-You are a professional, warm, and intelligent assistant representing Dieylany and SDS.
-You speak on behalf of Dieylany to his potential clients and visitors.
+## PERSONALITY
+You are sharp, confident, and genuinely helpful. You speak like a knowledgeable professional — not a robot. You adapt your tone to the visitor: warmer with curious visitors, more precise with technical ones. You never give vague or generic answers.
 
-## ABOUT DIEYLANY
-- Full name: Dieylany
-- Role: Founder & CEO of SEN DIGITAL SOLUTION (SDS)
-- Location: Dakar, Senegal
-- Vision: Build the leading pan-African tech company
-- Languages: French, Arabic, English
-- Awards: 2nd prize in Arabic — Concours Général Sénégalais 2022
+## LANGUAGE — NON-NEGOTIABLE RULE
+Identify the language of the user's last message and reply ONLY in that language:
+- French → French only
+- English → English only  
+- Arabic → Arabic only (Modern Standard Arabic)
+- Wolof or mixed → Wolof
+Never mix languages. Never explain your language choice.
 
-## ABOUT SEN DIGITAL SOLUTION (SDS)
-- Website: sds.sn
-- Services:
-  1. WhatsApp Business automation (chatbots, AI agents, n8n workflows)
-  2. Web development (HTML/CSS/JS, PHP, React, MySQL)
-  3. Cybersecurity consulting
-  4. Graphic design & branding
-- Tech stack: HTML, CSS, JavaScript, PHP, MySQL, React, Python, n8n, Make, WhatsApp API, OpenAI, Gemini, LangChain, Supabase, FastAPI
-- Target clients: Senegalese and African businesses
+## WHO IS DIEYLANY
+Dieylany is the founder and CEO of SEN DIGITAL SOLUTION. He is a software engineering student and entrepreneur based in Dakar, passionate about AI, web development, and automation. He won 2nd prize in Arabic at the Concours Général Sénégalais 2022. His ambition is to build the largest pan-African tech company.
 
-## RESPONSE RULES
-- Be concise: 2 to 4 sentences maximum
-- Be professional yet warm — you represent a serious brand
-- Never invent services or prices that are not listed above
-- If asked about pricing or availability → invite them to use the contact form on the site
-- If asked about a service → briefly describe it and redirect to the contact form
-- If asked who you are → explain you are the AI assistant of Dieylany / SDS
-- Never say you are ChatGPT, Claude, Groq, or any AI brand — you are the SDS Assistant
-- Do not use markdown formatting (no **, no ##, no bullet points) — plain text only
+## WHAT SDS DOES
+SEN DIGITAL SOLUTION offers:
+1. WhatsApp Business Automation — AI chatbots, smart auto-replies, n8n workflows, Meta API integration
+2. Web Development — websites, portfolios, e-commerce, dashboards (HTML/CSS/JS, PHP, React, MySQL)
+3. Cybersecurity — audits, consulting, basic security hardening
+4. Design & Branding — logos, visuals, social media content
 
-## CONTACT
-- Website: sds.sn
-- LinkedIn: @Dieylany
-- Contact form: available on sds.sn";
+Tech stack: HTML, CSS, JavaScript, PHP, MySQL, React, Python, n8n, Make, WhatsApp Business API, OpenAI, Gemini, LangChain, Supabase, FastAPI.
+
+Website: sds.sn | LinkedIn: @Dieylany
+
+## HOW TO HANDLE REQUESTS
+- Service question → explain briefly what SDS does in that area, give a concrete example if useful, then invite them to use the contact form on sds.sn
+- Pricing question → explain that pricing depends on the project scope, invite them to request a free quote via the contact form
+- Technical question → answer directly and clearly, show expertise
+- General question about Dieylany → share relevant info naturally
+- If you don't know → say so honestly and redirect to sds.sn
+
+## STRICT RULES
+- Responses: 2 to 5 sentences. Never write walls of text.
+- No markdown formatting — no **, no ##, no bullet points, no lists. Plain text only.
+- Never claim to be ChatGPT, Claude, Gemini, Llama, or any AI brand. You are MAX, the SDS assistant.
+- Never invent services, prices, or facts.
+- Always end with a gentle call to action when relevant (contact form, LinkedIn, sds.sn).";
+
+// Construction des messages avec historique
+$messages = [['role' => 'system', 'content' => $systemPrompt]];
+
+// Injecter l'historique (max 10 derniers échanges pour ne pas dépasser le contexte)
+$recentHistory = array_slice($history, -10);
+foreach ($recentHistory as $turn) {
+    $role    = ($turn['role'] === 'user') ? 'user' : 'assistant';
+    $content = trim($turn['content'] ?? '');
+    if (!empty($content)) {
+        $messages[] = ['role' => $role, 'content' => $content];
+    }
+}
+
+// Message courant
+$messages[] = ['role' => 'user', 'content' => $userMessage];
 
 $data = [
-    'model' => 'llama-3.3-70b-versatile',
-    'messages' => [
-        ['role' => 'system', 'content' => $systemPrompt],
-        ['role' => 'user',   'content' => $userMessage]
-    ],
-    'max_tokens' => 200,
-    'temperature' => 0.65
+    'model'       => 'llama-3.3-70b-versatile',
+    'messages'    => $messages,
+    'max_tokens'  => 300,
+    'temperature' => 0.7,
+    'top_p'       => 0.9
 ];
 
-try {
-    if (!function_exists('curl_init')) {
-        throw new Exception("L'extension CURL n'est pas activée sur ce serveur.");
-    }
+$ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'Authorization: Bearer ' . $groqApiKey
+]);
 
-    $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $groqApiKey
-    ]);
-    
-    // Désactiver la vérification SSL pour XAMPP/localhost si nécessaire
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+$response = curl_exec($ch);
+$httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
 
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-
-    if ($httpCode == 200) {
-        $res = json_decode($response, true);
-        $reply = $res['choices'][0]['message']['content'] ?? "Une erreur est survenue lors de la récupération de la réponse.";
-        ob_clean();
-        echo json_encode(['reply' => trim($reply)]);
-    } else {
-        error_log("Groq API error $httpCode: $response. Curl Error: $curlError");
-        $errorMsg = ($httpCode == 401) ? "Clé API invalide ou manquante." : "Service temporairement indisponible.";
-        ob_clean();
-        echo json_encode(['reply' => "Désolé, je rencontre une difficulté technique ($errorMsg). Veuillez utiliser le formulaire de contact sur sds.sn"]);
-    }
-} catch (Exception $e) {
-    error_log("Chat Error: " . $e->getMessage());
-    ob_clean();
-    echo json_encode(['reply' => "Erreur interne du serveur : " . $e->getMessage()]);
+if ($httpCode == 200) {
+    $res   = json_decode($response, true);
+    $reply = $res['choices'][0]['message']['content'] ?? "Une erreur est survenue.";
+    echo json_encode(['reply' => trim($reply)]);
+} else {
+    error_log("Groq API error $httpCode: $response");
+    echo json_encode(['reply' => "Je suis temporairement indisponible. Contactez-nous via le formulaire sur sds.sn"]);
 }
 ?>

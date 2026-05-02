@@ -1,6 +1,9 @@
 
 config.php
+csrf.php
 
 # Divers
 .DS_Store
 *.log
+.vscode/
+patch.py

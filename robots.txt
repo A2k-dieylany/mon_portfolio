@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Fichiers sensibles
+Disallow: /config.php
+Disallow: /csrf.php
+Disallow: /cv_download.php
+Disallow: /chat.php
+Disallow: /contact.php
+Disallow: /database.sql
+Disallow: /patch.py
+Disallow: /.git/
+
+Sitemap: https://sds.sn/sitemap.xml
