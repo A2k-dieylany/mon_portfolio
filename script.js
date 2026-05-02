@@ -383,15 +383,86 @@ function setupChatbot() {
   toggle.addEventListener('click', () => win.classList.remove('hidden'));
   closeBtn.addEventListener('click', () => win.classList.add('hidden'));
 
-  const appendMsg = (text, sender) => {
+  const parseMarkdown = (text) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--dark);font-weight:bold;text-decoration:underline;">$1</a>')
+      .replace(/\n/g, '<br>')
+      .replace(/- (.*?)<br>/g, '• $1<br>');
+  };
+
+  const rebuildHistory = () => {
+    chatHistory = [];
+    const msgElements = Array.from(messages.querySelectorAll('.chat-msg'));
+    for (let i = 1; i < msgElements.length; i++) {
+      const el = msgElements[i];
+      const raw = el.dataset.raw;
+      if (raw) {
+        if (el.classList.contains('user-msg')) {
+          chatHistory.push({ role: 'user', content: raw });
+        } else {
+          chatHistory.push({ role: 'assistant', content: raw });
+        }
+      }
+    }
+  };
+
+  const appendMsg = (text, sender, animate = false) => {
     const d = document.createElement('div');
     d.className = `chat-msg ${sender}-msg`;
+    d.dataset.raw = text;
+
     if (sender === 'bot') {
-      d.innerHTML = `<div class="chat-avatar-mini">🤖</div><div class="chat-bubble"></div>`;
-      d.querySelector('.chat-bubble').textContent = text;
+      d.innerHTML = `
+        <div class="chat-avatar-mini"><img src="img/max.jpg" alt="MAX" onerror="this.style.display='none'; this.parentNode.innerHTML='M'"></div>
+        <div class="chat-bubble"></div>
+        <button class="chat-copy-btn" title="Copier la réponse">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      `;
+      const bubble = d.querySelector('.chat-bubble');
+      bubble.innerHTML = parseMarkdown(text);
+      
+      const copyBtn = d.querySelector('.chat-copy-btn');
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+          copyBtn.style.color = 'var(--green)';
+          setTimeout(() => {
+            copyBtn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+            copyBtn.style.color = '';
+          }, 2000);
+        });
+      });
+      
+      if (animate) {
+        bubble.style.opacity = '0';
+        bubble.style.transform = 'translateY(10px)';
+        bubble.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        setTimeout(() => {
+          bubble.style.opacity = '1';
+          bubble.style.transform = 'translateY(0)';
+        }, 50);
+      }
     } else {
-      d.innerHTML = `<div class="chat-bubble"></div>`;
+      d.innerHTML = `<button class="chat-edit-btn" title="Modifier ce message">✎</button><div class="chat-bubble"></div>`;
       d.querySelector('.chat-bubble').textContent = text;
+      
+      d.querySelector('.chat-edit-btn').addEventListener('click', () => {
+        const typing = messages.querySelector('.typing-indicator');
+        if (typing) typing.remove();
+        input.value = text;
+        input.focus();
+        let next = d.nextElementSibling;
+        while(next) {
+          const toRemove = next;
+          next = next.nextElementSibling;
+          toRemove.remove();
+        }
+        d.remove();
+        rebuildHistory();
+      });
     }
     messages.appendChild(d);
     messages.scrollTop = messages.scrollHeight;
@@ -436,7 +507,7 @@ function setupChatbot() {
       messages.removeChild(typing);
 
       const reply = data.reply || "Désolé, une erreur s'est produite.";
-      appendMsg(reply, 'bot');
+      appendMsg(reply, 'bot', true);
 
       // Ajouter la réponse du bot à l'historique
       chatHistory.push({ role: 'assistant', content: reply });
@@ -449,7 +520,7 @@ function setupChatbot() {
     } catch (err) {
       console.error('Chatbot Error:', err);
       if (messages.contains(typing)) messages.removeChild(typing);
-      appendMsg("Erreur de connexion au serveur.", 'bot');
+      appendMsg("Erreur de connexion au serveur.", 'bot', true);
     }
   };
 
@@ -669,7 +740,7 @@ function setupProjectModals() {
         galleryHtml = `
           <div class="modal-gallery">
             <div class="modal-main-img-wrap">
-              <img src="${images[0]}" id="modal-main-img" class="modal-main-img" alt="${name}" loading="lazy">
+              <img src="${images[0]}" id="modal-main-img" class="modal-main-img" alt="${name}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'800\\\' height=\\\'450\\\'><rect width=\\\'800\\\' height=\\\'450\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'18\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image non disponible</text></svg>'">
               ${images.length > 1 ? `
                 <button class="gallery-arrow gallery-prev" id="gallery-prev">&#8249;</button>
                 <button class="gallery-arrow gallery-next" id="gallery-next">&#8250;</button>
@@ -709,10 +780,18 @@ function setupProjectModals() {
         <div class="modal-links">${liveBtn}${githubBtn}</div>
       `;
 
+      // --- Ouverture d'image ---
+      const mainImg = modalBody.querySelector('#modal-main-img');
+      if (mainImg) {
+        mainImg.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.open(mainImg.src, '_blank');
+        });
+      }
+
       // --- Galerie interactive ---
       if (images.length > 1) {
         let current = 0;
-        const mainImg = modalBody.querySelector('#modal-main-img');
         const thumbs2 = modalBody.querySelectorAll('.modal-thumb');
         const prevBtn2 = modalBody.querySelector('#gallery-prev');
         const nextBtn2 = modalBody.querySelector('#gallery-next');
@@ -876,6 +955,27 @@ function initPage() {
       twEl.textContent = words[lang][0];
     }
   }, 1500);
+
+  // Compteur de visiteurs
+  const setupVisitors = async () => {
+    try {
+      const res = await fetch('visitors.php');
+      const data = await res.json();
+      if (data.status === 'ok') {
+        const vc = document.getElementById('visitor-counter');
+        const vt = document.getElementById('v-today');
+        const vtot = document.getElementById('v-total');
+        if (vc && vt && vtot) {
+          vt.textContent = data.today;
+          vtot.textContent = data.total;
+          vc.style.display = 'flex';
+        }
+      }
+    } catch (e) {
+      console.log('Erreur compteur visiteurs:', e);
+    }
+  };
+  setupVisitors();
 
   // CV button handler
   const cvBtn = document.getElementById('btn-cv');

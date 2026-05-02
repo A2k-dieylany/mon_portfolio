@@ -20,6 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -302,11 +303,40 @@
      <div class="projects-grid">
 
   <div class="project-card reveal d1" data-category="web"
+    data-live=""
+    data-github="https://github.com/A2k-dieylany/SupermarcheApp"
+    data-images="img/projects/super1.jpg,img/projects/super2.jpg"
+    data-long-desc="Application Full-Stack complète simulant le fonctionnement réel d'un supermarché. Elle gère simultanément le flux des clients en caisse et le suivi financier par le gérant. Se distingue par une architecture robuste en C++ communicant en temps réel avec une interface web.<br><br><b>Fonctionnalités :</b><br>• Caisse interactive (algorithme de file d'attente, tickets)<br>• Autopilot (moteur IA générant des clients pour tester la charge)<br>• Dashboard Gérant (graphiques dynamiques avec Chart.js, inventaire CRUD)<br>• Architecture Serveur Thread-Safe (C++ avec mutex).">
+    <div class="project-shine"></div>
+    <div class="project-cover">
+      <img src="img/projects/super1.jpg" alt="Gestion de Supermarché" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Supermarché non dispo</text></svg>'">
+    </div>
+    <div class="project-header">
+      <div>
+        <div class="project-type">Full-Stack · C++ / Web</div>
+        <div class="project-name">Système de Gestion Supermarché</div>
+      </div>
+      <span class="project-status status-build">Personnel</span>
+    </div>
+    <div class="project-body">
+      <div class="project-desc">Application Full-Stack temps réel gérant l'encaissement et le dashboard financier via serveur C++.</div>
+      <div class="project-stack">
+        <span class="stack-tag">C++ / SQLite</span>
+        <span class="stack-tag">JS Vanilla</span>
+        <span class="stack-tag">REST API</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="project-card reveal d1" data-category="web"
     data-live="https://amethboll.netlify.app"
     data-github="https://github.com/A2k-dieylany/DIBITERIE-RESTAURANT-AMETH-BOLL"
     data-images="img/projects/ameth1.jpg,img/projects/ameth2.jpg"
     data-long-desc="Site web complet pour un restaurant dakarois. Le client peut passer commande directement via WhatsApp avec génération automatique d'un ticket numéroté. L'admin peut configurer les prix et le menu via un fichier config.js sans toucher au code. Déployé sur Netlify avec CI/CD automatique.">
     <div class="project-shine"></div>
+    <div class="project-cover">
+      <img src="img/projects/ameth1.jpg" alt="Dibiterie Ameth Boll" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Ameth non disponible</text></svg>'">
+    </div>
     <div class="project-header">
       <div>
         <div class="project-type">Client · Restaurant</div>
@@ -330,6 +360,9 @@
     data-images="img/projects/luxe1.jpg,img/projects/luxe2.jpg, img/projects/luxe3.jpg"
     data-long-desc="Plateforme e-commerce haut de gamme pour une bijouterie dakaroise. Interface élégante avec catalogue produits, panier dynamique et tunnel de paiement. Design luxe orienté conversion avec palette dorée et typographie premium.">
     <div class="project-shine"></div>
+    <div class="project-cover">
+      <img src="img/projects/luxe1.jpg" alt="LuxeGold Platform" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image LuxeGold non disponible</text></svg>'">
+    </div>
     <div class="project-header">
       <div>
         <div class="project-type">E-Commerce · Luxe</div>
@@ -353,6 +386,9 @@
     data-images="img/projects/bot1.jpg,img/projects/bot2.jpg"
     data-long-desc="Agent IA déployé sur WhatsApp via n8n Cloud et la Meta WhatsApp Business API. Les clients envoient leurs commandes en langage naturel, OpenAI interprète et répond, Google Sheets enregistre chaque transaction. Service 24h/24 sans intervention humaine.">
     <div class="project-shine"></div>
+    <div class="project-cover">
+      <img src="img/projects/bot1.jpg" alt="WhatsApp Bot" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Bot non disponible</text></svg>'">
+    </div>
     <div class="project-header">
       <div>
         <div class="project-type">Automatisation · Boutique</div>
@@ -376,6 +412,9 @@
     data-images="img/projects/event1.jpg,img/projects/event2.jpg"
     data-long-desc="Plateforme événementielle et générateur d'affiches de mariage premium. Design HTML/CSS pur orienté luxe avec animations et palette personnalisable. Utilisé pour des événements haut de gamme à Dakar.">
     <div class="project-shine"></div>
+    <div class="project-cover">
+      <img src="img/projects/event1.jpg" alt="SEN-EVENT" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Event non disponible</text></svg>'">
+    </div>
     <div class="project-header">
       <div>
         <div class="project-type">Événementiel · Design</div>
@@ -399,6 +438,9 @@
     data-images="img/projects/school1.jpg,img/projects/school2.jpg"
     data-long-desc="Application web de gestion des inscriptions et paiements de scolarité pour le Groupe Scolaire Notre Dame de Liban. Développée en PHP/MySQL avec architecture Merise. Constitue le mémoire de fin de BTS Génie Logiciel 2025.">
     <div class="project-shine"></div>
+    <div class="project-cover">
+      <img src="img/projects/school1.jpg" alt="Système Scolaire" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image School non disponible</text></svg>'">
+    </div>
     <div class="project-header">
       <div>
         <div class="project-type">BTS Mémoire · EdTech</div>
@@ -696,14 +738,15 @@
   <div id="chatbot-container">
     <button id="chatbot-toggle" title="Discuter avec mon assistant IA">
       <span class="chatbot-pulse"></span>
-      🤖
+      <img src="img/max.jpg" class="chatbot-toggle-img" alt="MAX AI" onerror="this.outerHTML='<span style=\\\'font-size:1.6rem;font-weight:bold;color:var(--gold);z-index:1;position:relative;\\\'>M</span>'">
+      <div class="chatbot-online-badge"></div>
     </button>
     <div id="chatbot-window" class="hidden">
       <div class="chatbot-header">
         <div class="chatbot-header-info">
-          <div class="chatbot-avatar">🤖</div>
+          <img src="img/max.jpg" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);flex-shrink:0;" alt="MAX" onerror="this.outerHTML='<div class=\\\'chatbot-avatar\\\' style=\\\'background:var(--card);color:var(--gold);\\\'>M</div>'">
           <div>
-            <strong>Assistant IA — SDS</strong>
+            <strong>MAX</strong>
             <div class="chatbot-status"><span class="status-dot"></span> En ligne</div>
           </div>
         </div>
@@ -790,12 +833,28 @@
     </div>
     <div class="footer-bottom">
       <p>© 2025 <span>Dieylany</span> · SEN DIGITAL SOLUTION</p>
+      <div id="visitor-counter" class="visitor-counter" style="display:none;">
+        <div class="visitor-pulse" title="En direct"></div>
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <span title="Visiteurs aujourd'hui">Aujourd'hui : <span id="v-today" class="visitor-today">0</span></span>
+        <span class="visitor-separator">|</span>
+        <span title="Visiteurs au total">Total : <span id="v-total" class="visitor-count">0</span></span>
+      </div>
       <p data-i18n="footer">Fait avec 🔥 à Dakar, Sénégal</p>
     </div>
   </footer>
 
   <button id="scroll-top" title="Retour en haut">↑</button>
   <script src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.log('SW registration failed: ', err);
+        });
+      });
+    }
+  </script>
 </body>
 
 </html>

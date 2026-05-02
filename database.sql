@@ -9,3 +9,12 @@ CREATE TABLE IF NOT EXISTS messages (
     message TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS visitors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_hash VARCHAR(64) NOT NULL,
+    country VARCHAR(50) DEFAULT '',
+    visited_at DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_visit (ip_hash, visited_at)
+);

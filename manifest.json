@@ -1,0 +1,17 @@
+{
+  "name": "Dieylany – SEN DIGITAL SOLUTION",
+  "short_name": "A2K Portfolio",
+  "description": "Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal.",
+  "start_url": "./sds.html",
+  "display": "standalone",
+  "background_color": "#0A0A0F",
+  "theme_color": "#0A0A0F",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
