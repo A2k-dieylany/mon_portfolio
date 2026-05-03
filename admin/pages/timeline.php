@@ -1,9 +1,13 @@
-<!-- Timeline Page Fragment -->
-<div class="data-card">
-    <div class="data-card-header">
-        <h3>Parcours & Expériences</h3>
-        <button class="btn btn-primary" onclick="openTmModal()">+ Ajouter une étape</button>
+<div class="cms-module">
+  <div class="cms-header">
+    <div>
+      <h2>🎓 Parcours & Expériences</h2>
+      <p class="cms-subtitle">Gérez vos formations et votre historique professionnel</p>
     </div>
+    <button class="btn btn-primary" onclick="openTmModal()">+ Ajouter une étape</button>
+  </div>
+
+  <div class="data-card">
     
     <div id="timeline-table-wrap">
         <table>
@@ -22,6 +26,7 @@
             </tbody>
         </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal Timeline -->
@@ -37,11 +42,11 @@
             <div style="display:flex;gap:12px;margin-bottom:16px">
                 <div style="flex:1">
                     <label class="meta-label">Année (FR) *</label>
-                    <input type="text" id="tm-year-fr" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: 2022 - Présent" required>
+                    <input type="text" id="tm-year-fr" class="form-input" style="min-height:40px;height:40px" placeholder="ex: 2022 - Présent" required>
                 </div>
                 <div style="flex:1">
                     <label class="meta-label">Badge (FR) *</label>
-                    <input type="text" id="tm-badge-fr" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: Diplôme, Emploi..." required>
+                    <input type="text" id="tm-badge-fr" class="form-input" style="min-height:40px;height:40px" placeholder="ex: Diplôme, Emploi..." required>
                 </div>
             </div>
 
@@ -49,14 +54,14 @@
             <div style="display:flex;gap:12px;margin-bottom:16px">
                 <div style="flex:1">
                     <label class="meta-label">Titre (FR) *</label>
-                    <input type="text" id="tm-title-fr" class="notes-area" style="min-height:40px;height:40px" required>
+                    <input type="text" id="tm-title-fr" class="form-input" style="min-height:40px;height:40px" required>
                 </div>
             </div>
 
             <!-- Descriptions -->
             <div style="margin-bottom:16px">
                 <label class="meta-label">Description (FR) *</label>
-                <textarea id="tm-desc-fr" class="notes-area" required></textarea>
+                <textarea id="tm-desc-fr" class="form-input" required></textarea>
             </div>
 
             <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
@@ -64,29 +69,29 @@
 
             <div style="display:flex;gap:12px;margin-bottom:12px">
                 <div style="flex:1">
-                    <input type="text" id="tm-year-en" class="notes-area" style="min-height:35px;height:35px" placeholder="Année (EN)">
+                    <input type="text" id="tm-year-en" class="form-input" style="min-height:35px;height:35px" placeholder="Année (EN)">
                 </div>
                 <div style="flex:1">
-                    <input type="text" id="tm-badge-en" class="notes-area" style="min-height:35px;height:35px" placeholder="Badge (EN)">
+                    <input type="text" id="tm-badge-en" class="form-input" style="min-height:35px;height:35px" placeholder="Badge (EN)">
                 </div>
                 <div style="flex:1">
-                    <input type="text" id="tm-title-en" class="notes-area" style="min-height:35px;height:35px" placeholder="Titre (EN)">
+                    <input type="text" id="tm-title-en" class="form-input" style="min-height:35px;height:35px" placeholder="Titre (EN)">
                 </div>
             </div>
-            <textarea id="tm-desc-en" class="notes-area" style="min-height:50px;margin-bottom:16px" placeholder="Description (EN)"></textarea>
+            <textarea id="tm-desc-en" class="form-input" style="min-height:50px;margin-bottom:16px" placeholder="Description (EN)"></textarea>
 
             <div style="display:flex;gap:12px;margin-bottom:12px">
                 <div style="flex:1">
-                    <input type="text" id="tm-year-ar" class="notes-area" style="min-height:35px;height:35px" placeholder="Année (AR)" dir="rtl">
+                    <input type="text" id="tm-year-ar" class="form-input" style="min-height:35px;height:35px" placeholder="Année (AR)" dir="rtl">
                 </div>
                 <div style="flex:1">
-                    <input type="text" id="tm-badge-ar" class="notes-area" style="min-height:35px;height:35px" placeholder="Badge (AR)" dir="rtl">
+                    <input type="text" id="tm-badge-ar" class="form-input" style="min-height:35px;height:35px" placeholder="Badge (AR)" dir="rtl">
                 </div>
                 <div style="flex:1">
-                    <input type="text" id="tm-title-ar" class="notes-area" style="min-height:35px;height:35px" placeholder="Titre (AR)" dir="rtl">
+                    <input type="text" id="tm-title-ar" class="form-input" style="min-height:35px;height:35px" placeholder="Titre (AR)" dir="rtl">
                 </div>
             </div>
-            <textarea id="tm-desc-ar" class="notes-area" style="min-height:50px;margin-bottom:16px" placeholder="Description (AR)" dir="rtl"></textarea>
+            <textarea id="tm-desc-ar" class="form-input" style="min-height:50px;margin-bottom:16px" placeholder="Description (AR)" dir="rtl"></textarea>
 
             <div style="margin-bottom:16px">
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer">

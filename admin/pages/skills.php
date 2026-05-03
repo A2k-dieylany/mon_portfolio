@@ -1,9 +1,13 @@
-<!-- Skills Page Fragment -->
-<div class="data-card">
-    <div class="data-card-header">
-        <h3>Compétences Techniques</h3>
-        <button class="btn btn-primary" onclick="openSkillModal()">+ Ajouter une compétence</button>
+<div class="cms-module">
+  <div class="cms-header">
+    <div>
+      <h2>⚡ Compétences Techniques</h2>
+      <p class="cms-subtitle">Gérez vos technologies et niveaux de maîtrise</p>
     </div>
+    <button class="btn btn-primary" onclick="openSkillModal()">+ Ajouter une compétence</button>
+  </div>
+
+  <div class="data-card">
     
     <div id="skills-table-wrap">
         <table>
@@ -22,6 +26,7 @@
             </tbody>
         </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal Skill -->
@@ -37,28 +42,28 @@
             <div style="display:flex;gap:12px;margin-bottom:16px">
                 <div style="flex:1">
                     <label class="meta-label">Groupe (FR)</label>
-                    <input type="text" id="skill-group-fr" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: Frontend, Backend..." required>
+                    <input type="text" id="skill-group-fr" class="form-input" style="min-height:40px;height:40px" placeholder="ex: Frontend, Backend..." required>
                 </div>
                 <div style="width:60px">
                     <label class="meta-label">Icône</label>
-                    <input type="text" id="skill-icon" class="notes-area" style="min-height:40px;height:40px;text-align:center" placeholder="💻">
+                    <input type="text" id="skill-icon" class="form-input" style="min-height:40px;height:40px;text-align:center" placeholder="💻">
                 </div>
             </div>
 
             <div style="display:flex;gap:12px;margin-bottom:16px">
                 <div style="flex:1">
                     <label class="meta-label">Groupe (EN)</label>
-                    <input type="text" id="skill-group-en" class="notes-area" style="min-height:40px;height:40px" placeholder="(Optionnel)">
+                    <input type="text" id="skill-group-en" class="form-input" style="min-height:40px;height:40px" placeholder="(Optionnel)">
                 </div>
                 <div style="flex:1">
                     <label class="meta-label">Groupe (AR)</label>
-                    <input type="text" id="skill-group-ar" class="notes-area" style="min-height:40px;height:40px" placeholder="(Optionnel)">
+                    <input type="text" id="skill-group-ar" class="form-input" style="min-height:40px;height:40px" placeholder="(Optionnel)">
                 </div>
             </div>
 
             <div style="margin-bottom:16px">
                 <label class="meta-label">Nom de la compétence</label>
-                <input type="text" id="skill-name" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: React, PHP, MySQL..." required>
+                <input type="text" id="skill-name" class="form-input" style="min-height:40px;height:40px" placeholder="ex: React, PHP, MySQL..." required>
             </div>
 
             <div style="margin-bottom:16px">

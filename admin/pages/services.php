@@ -1,9 +1,13 @@
-<!-- Services Page Fragment -->
-<div class="data-card">
-    <div class="data-card-header">
-        <h3>Services de l'Agence</h3>
-        <button class="btn btn-primary" onclick="openSrvModal()">+ Ajouter un service</button>
+<div class="cms-module">
+  <div class="cms-header">
+    <div>
+      <h2>🛠️ Services de l'Agence</h2>
+      <p class="cms-subtitle">Gérez les solutions et expertises que vous proposez</p>
     </div>
+    <button class="btn btn-primary" onclick="openSrvModal()">+ Ajouter un service</button>
+  </div>
+
+  <div class="data-card">
     
     <div id="services-table-wrap">
         <table>
@@ -22,6 +26,7 @@
             </tbody>
         </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal Service -->
@@ -36,44 +41,44 @@
             
             <div style="margin-bottom:16px">
                 <label class="meta-label">Icône (SVG ou Emoji)</label>
-                <input type="text" id="srv-icon" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: 📱 ou code SVG">
+                <input type="text" id="srv-icon" class="form-input" style="min-height:40px;height:40px" placeholder="ex: 📱 ou code SVG">
             </div>
 
             <!-- Titres -->
             <div style="display:flex;gap:12px;margin-bottom:16px">
                 <div style="flex:1">
                     <label class="meta-label">Titre (FR) *</label>
-                    <input type="text" id="srv-title-fr" class="notes-area" style="min-height:40px;height:40px" required>
+                    <input type="text" id="srv-title-fr" class="form-input" style="min-height:40px;height:40px" required>
                 </div>
                 <div style="flex:1">
                     <label class="meta-label">Titre (EN)</label>
-                    <input type="text" id="srv-title-en" class="notes-area" style="min-height:40px;height:40px">
+                    <input type="text" id="srv-title-en" class="form-input" style="min-height:40px;height:40px">
                 </div>
                 <div style="flex:1">
                     <label class="meta-label">Titre (AR)</label>
-                    <input type="text" id="srv-title-ar" class="notes-area" style="min-height:40px;height:40px" dir="rtl">
+                    <input type="text" id="srv-title-ar" class="form-input" style="min-height:40px;height:40px" dir="rtl">
                 </div>
             </div>
 
             <!-- Descriptions -->
             <div style="margin-bottom:16px">
                 <label class="meta-label">Description (FR) *</label>
-                <textarea id="srv-desc-fr" class="notes-area" required></textarea>
+                <textarea id="srv-desc-fr" class="form-input" required></textarea>
             </div>
             <div style="display:flex;gap:12px;margin-bottom:16px">
                 <div style="flex:1">
                     <label class="meta-label">Description (EN)</label>
-                    <textarea id="srv-desc-en" class="notes-area" style="min-height:60px"></textarea>
+                    <textarea id="srv-desc-en" class="form-input" style="min-height:60px"></textarea>
                 </div>
                 <div style="flex:1">
                     <label class="meta-label">Description (AR)</label>
-                    <textarea id="srv-desc-ar" class="notes-area" style="min-height:60px" dir="rtl"></textarea>
+                    <textarea id="srv-desc-ar" class="form-input" style="min-height:60px" dir="rtl"></textarea>
                 </div>
             </div>
 
             <div style="margin-bottom:16px">
                 <label class="meta-label">Tags (séparés par des virgules)</label>
-                <input type="text" id="srv-tags" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: Web, Mobile, SEO">
+                <input type="text" id="srv-tags" class="form-input" style="min-height:40px;height:40px" placeholder="ex: Web, Mobile, SEO">
             </div>
 
             <div style="margin-bottom:16px">

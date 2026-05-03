@@ -1,9 +1,13 @@
-<!-- Projects Page Fragment -->
-<div class="data-card">
-    <div class="data-card-header">
-        <h3>Projets Portfolio</h3>
-        <button class="btn btn-primary" onclick="openProjModal()">+ Ajouter un projet</button>
+<div class="cms-module">
+  <div class="cms-header">
+    <div>
+      <h2>📂 Projets Portfolio</h2>
+      <p class="cms-subtitle">Gérez vos réalisations et études de cas</p>
     </div>
+    <button class="btn btn-primary" onclick="openProjModal()">+ Ajouter un projet</button>
+  </div>
+
+  <div class="data-card">
     
     <div id="projects-table-wrap">
         <table>
@@ -22,6 +26,7 @@
             </tbody>
         </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal Project -->
@@ -38,64 +43,64 @@
             <div style="flex:1">
                 <div style="margin-bottom:16px">
                     <label class="meta-label">Titre (FR) *</label>
-                    <input type="text" id="proj-title-fr" class="notes-area" style="min-height:40px;height:40px" required>
+                    <input type="text" id="proj-title-fr" class="form-input" style="min-height:40px;height:40px" required>
                 </div>
                 <div style="display:flex;gap:12px;margin-bottom:16px">
                     <div style="flex:1">
                         <label class="meta-label">Titre (EN)</label>
-                        <input type="text" id="proj-title-en" class="notes-area" style="min-height:40px;height:40px">
+                        <input type="text" id="proj-title-en" class="form-input" style="min-height:40px;height:40px">
                     </div>
                     <div style="flex:1">
                         <label class="meta-label">Titre (AR)</label>
-                        <input type="text" id="proj-title-ar" class="notes-area" style="min-height:40px;height:40px" dir="rtl">
+                        <input type="text" id="proj-title-ar" class="form-input" style="min-height:40px;height:40px" dir="rtl">
                     </div>
                 </div>
 
                 <div style="margin-bottom:16px">
                     <label class="meta-label">Catégorie (FR) *</label>
-                    <input type="text" id="proj-category-fr" class="notes-area" style="min-height:40px;height:40px" placeholder="ex: Application Web" required>
+                    <input type="text" id="proj-category-fr" class="form-input" style="min-height:40px;height:40px" placeholder="ex: Application Web" required>
                 </div>
                 <div style="display:flex;gap:12px;margin-bottom:16px">
                     <div style="flex:1">
                         <label class="meta-label">Catégorie (EN)</label>
-                        <input type="text" id="proj-category-en" class="notes-area" style="min-height:40px;height:40px">
+                        <input type="text" id="proj-category-en" class="form-input" style="min-height:40px;height:40px">
                     </div>
                     <div style="flex:1">
                         <label class="meta-label">Catégorie (AR)</label>
-                        <input type="text" id="proj-category-ar" class="notes-area" style="min-height:40px;height:40px" dir="rtl">
+                        <input type="text" id="proj-category-ar" class="form-input" style="min-height:40px;height:40px" dir="rtl">
                     </div>
                 </div>
 
                 <div style="margin-bottom:16px">
                     <label class="meta-label">Description (FR)</label>
-                    <textarea id="proj-desc-fr" class="notes-area" style="min-height:80px"></textarea>
+                    <textarea id="proj-desc-fr" class="form-input" style="min-height:80px"></textarea>
                 </div>
 
                 <div style="display:flex;gap:12px;margin-bottom:16px">
                     <div style="flex:1">
                         <label class="meta-label">Client</label>
-                        <input type="text" id="proj-client" class="notes-area" style="min-height:40px;height:40px">
+                        <input type="text" id="proj-client" class="form-input" style="min-height:40px;height:40px">
                     </div>
                     <div style="flex:1">
                         <label class="meta-label">Date</label>
-                        <input type="date" id="proj-date" class="notes-area" style="min-height:40px;height:40px">
+                        <input type="date" id="proj-date" class="form-input" style="min-height:40px;height:40px">
                     </div>
                 </div>
 
                 <div style="display:flex;gap:12px;margin-bottom:16px">
                     <div style="flex:1">
                         <label class="meta-label">Lien Site (Live)</label>
-                        <input type="url" id="proj-live" class="notes-area" style="min-height:40px;height:40px" placeholder="https://...">
+                        <input type="url" id="proj-live" class="form-input" style="min-height:40px;height:40px" placeholder="https://...">
                     </div>
                     <div style="flex:1">
                         <label class="meta-label">Lien GitHub</label>
-                        <input type="url" id="proj-github" class="notes-area" style="min-height:40px;height:40px" placeholder="https://...">
+                        <input type="url" id="proj-github" class="form-input" style="min-height:40px;height:40px" placeholder="https://...">
                     </div>
                 </div>
 
                 <div style="margin-bottom:16px">
                     <label class="meta-label">Tags (séparés par des virgules)</label>
-                    <input type="text" id="proj-tags" class="notes-area" style="min-height:40px;height:40px" placeholder="HTML, CSS, React">
+                    <input type="text" id="proj-tags" class="form-input" style="min-height:40px;height:40px" placeholder="HTML, CSS, React">
                 </div>
 
                 <div style="margin-bottom:16px">

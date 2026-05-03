@@ -1,8 +1,8 @@
-<!-- Messages Page Fragment — CRM léger -->
-<div class="data-card">
-    <div class="data-card-header">
-        <h3>Boîte de réception</h3>
-        <span class="count" id="messages-count">Chargement...</span>
+<div class="cms-module">
+  <div class="cms-header">
+    <div>
+      <h2>📩 Boîte de réception</h2>
+      <p class="cms-subtitle" id="messages-count">Chargement...</p>
     </div>
     <div class="data-filters">
         <button class="filter-btn active" data-status="all" onclick="msgFilter(this, '')">Tous</button>
@@ -12,6 +12,9 @@
         <button class="filter-btn" data-status="archived" onclick="msgFilter(this, 'archived')">📦 Archivés</button>
         <input type="text" class="search-input" id="msg-search" placeholder="🔍 Rechercher..." oninput="msgSearch(this.value)">
     </div>
+  </div>
+
+  <div class="data-card">
     <div id="messages-table-wrap">
         <table>
             <thead>
@@ -29,6 +32,7 @@
             </tbody>
         </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal détail message -->
@@ -55,7 +59,7 @@
             </div>
             <div class="msg-content" id="modal-msg-body">—</div>
             <div class="meta-label" style="margin-bottom:6px">Notes internes</div>
-            <textarea class="notes-area" id="modal-msg-notes" placeholder="Ajoutez vos notes ici..."></textarea>
+            <textarea class="form-input" id="modal-msg-notes" placeholder="Ajoutez vos notes ici..."></textarea>
         </div>
         <div class="modal-footer">
             <button class="btn btn-danger" onclick="deleteMsg()">🗑️ Supprimer</button>

@@ -3,12 +3,16 @@ session_start();
 require_once __DIR__ . '/../includes/auth_check.php';
 require_auth();
 ?>
-<div class="module-header">
-    <h2>✍️ Blog & Publications</h2>
-    <button class="btn-primary" onclick="openBlogModal()">+ Nouvel Article</button>
-</div>
+<div class="cms-module">
+  <div class="cms-header">
+      <div>
+        <h2>✍️ Blog & Publications</h2>
+        <p class="cms-subtitle">Gérez les articles de votre blog trilingue</p>
+      </div>
+      <button class="btn btn-primary" onclick="openBlogModal()">+ Nouvel Article</button>
+  </div>
 
-<div class="card">
+  <div class="data-card">
     <div class="table-responsive">
         <table class="data-table">
             <thead>
@@ -27,17 +31,19 @@ require_auth();
             </tbody>
         </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal -->
-<div class="modal" id="blog-modal">
-    <div class="modal-content" style="max-width: 800px;">
+<div class="modal-overlay" id="blog-modal">
+    <div class="modal-panel" style="max-width: 800px;">
         <div class="modal-header">
             <h3 id="blog-modal-title">Nouvel Article</h3>
             <button class="modal-close" onclick="closeBlogModal()">✕</button>
         </div>
         <form id="blog-form" onsubmit="saveBlog(event)">
-            <input type="hidden" id="blog-id" name="id">
+            <div class="modal-body">
+                <input type="hidden" id="blog-id" name="id">
             
             <div class="form-row">
                 <div class="form-group" style="flex:1">
@@ -118,10 +124,11 @@ require_auth();
                     </label>
                 </div>
             </div>
+          </div>
 
-            <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
-                <button type="button" class="btn-secondary" onclick="closeBlogModal()">Annuler</button>
-                <button type="submit" class="btn-primary">Enregistrer</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeBlogModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
             </div>
         </form>
     </div>
@@ -150,9 +157,9 @@ async function loadBlogs() {
                     <td>${p.publish_date}</td>
                     <td>${status}</td>
                     <td>${p.sort_order}</td>
-                    <td class="action-cell">
-                        <button class="btn-icon" onclick="editBlog(${p.id})" title="Modifier">✏️</button>
-                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteBlog(${p.id})" title="Supprimer">🗑️</button>
+                    <td class="action-btns">
+                        <button class="action-btn" onclick="editBlog(${p.id})" title="Modifier">✏️</button>
+                        <button class="action-btn danger" onclick="deleteBlog(${p.id})" title="Supprimer">🗑️</button>
                     </td>
                 </tr>
             `;
