@@ -369,54 +369,40 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
         <p class="section-tag" data-i18n="blog.tag">Réflexions & Articles</p>
         <h2 class="section-title" data-i18n="blog.title">Blog & Publications LinkedIn</h2>
         <div class="divider"></div>
-        <p class="section-sub" data-i18n="blog.sub">Je partage mes réflexions sur l'IA, la tech africaine et
-          l'entrepreneuriat digital.</p>
+        <p class="section-sub" data-i18n="blog.sub">Je partage mes réflexions sur l'IA, la tech africaine et l'entrepreneuriat digital.</p>
       </div>
       <div class="blog-grid">
-        <div class="blog-card reveal d1">
+        <?php $bIdx = 0; foreach($blog_posts as $b): ?>
+        <div class="blog-card reveal d<?= ($bIdx++ % 3) + 1 ?>">
           <div class="blog-top">
-            <span class="blog-emoji">🌍</span>
-            <div class="blog-cat" data-i18n="bc1">IA · Afrique</div>
-            <div class="blog-title" data-i18n="bt1">L'IA va transformer l'économie africaine — voici comment en profiter
-              maintenant</div>
-            <div class="blog-excerpt" data-i18n="be1">Pendant que le monde débat des dangers de l'IA, l'Afrique a une
-              fenêtre d'opportunité unique. Les marchés moins rigides, la démographie jeune et le besoin criant
-              d'efficacité font de ce continent le terrain idéal pour une adoption rapide de l'intelligence
-              artificielle.</div>
+            <span class="blog-emoji"><?= htmlspecialchars($b['emoji']) ?></span>
+            <div class="blog-cat dynamic-i18n"
+                 data-fr="<?= htmlspecialchars($b['category_fr']) ?>"
+                 data-en="<?= htmlspecialchars($b['category_en'] ?: $b['category_fr']) ?>"
+                 data-ar="<?= htmlspecialchars($b['category_ar'] ?: $b['category_fr']) ?>">
+              <?= htmlspecialchars($b['category_fr']) ?>
+            </div>
+            <div class="blog-title dynamic-i18n"
+                 data-fr="<?= htmlspecialchars($b['title_fr']) ?>"
+                 data-en="<?= htmlspecialchars($b['title_en'] ?: $b['title_fr']) ?>"
+                 data-ar="<?= htmlspecialchars($b['title_ar'] ?: $b['title_fr']) ?>">
+              <?= htmlspecialchars($b['title_fr']) ?>
+            </div>
+            <div class="blog-excerpt dynamic-i18n"
+                 data-fr="<?= htmlspecialchars($b['excerpt_fr']) ?>"
+                 data-en="<?= htmlspecialchars($b['excerpt_en'] ?: $b['excerpt_fr']) ?>"
+                 data-ar="<?= htmlspecialchars($b['excerpt_ar'] ?: $b['excerpt_fr']) ?>">
+              <?= nl2br(htmlspecialchars($b['excerpt_fr'])) ?>
+            </div>
           </div>
           <div class="blog-footer">
-            <span class="blog-date" data-i18n="bd1">Mars 2025 · 4 min</span>
-            <a href="https://linkedin.com/in/dieylany-k97600a2a5" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
+            <span class="blog-date"><?= date('M Y', strtotime($b['publish_date'])) ?> · <?= htmlspecialchars($b['read_time']) ?></span>
+            <?php if(!empty($b['external_url'])): ?>
+            <a href="<?= htmlspecialchars($b['external_url']) ?>" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
+            <?php endif; ?>
           </div>
         </div>
-        <div class="blog-card reveal d2">
-          <div class="blog-top">
-            <span class="blog-emoji">💬</span>
-            <div class="blog-cat" data-i18n="bc2">Automatisation · PME</div>
-            <div class="blog-title" data-i18n="bt2">WhatsApp + IA = Le CRM des PME sénégalaises</div>
-            <div class="blog-excerpt" data-i18n="be2">95% des commerçants dakarois utilisent WhatsApp pour gérer leurs
-              clients. Pourtant, ils répondent manuellement à chaque message. Un agent IA bien configuré peut changer ça
-              — sans budget CRM, sans formation complexe, en 48h.</div>
-          </div>
-          <div class="blog-footer">
-            <span class="blog-date" data-i18n="bd2">Fév. 2025 · 3 min</span>
-            <a href="https://linkedin.com/in/dieylany-k97600a2a5" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
-          </div>
-        </div>
-        <div class="blog-card reveal d3">
-          <div class="blog-top">
-            <span class="blog-emoji">⚡</span>
-            <div class="blog-cat" data-i18n="bc3">Cas client · Automatisation</div>
-            <div class="blog-title" data-i18n="bt3">Comment j'ai automatisé un restaurant dakarois en 2 semaines</div>
-            <div class="blog-excerpt" data-i18n="be3">De la prise de commande manuelle sur WhatsApp à un système
-              automatique avec tickets, historique et tableau de bord admin. Retour d'expérience sur le projet Dibiterie
-              Ameth Boll — les choix techniques, les obstacles et les leçons apprises.</div>
-          </div>
-          <div class="blog-footer">
-            <span class="blog-date" data-i18n="bd3">Janv. 2025 · 5 min</span>
-            <a href="https://linkedin.com/in/dieylany-k97600a2a5" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
-          </div>
-        </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
