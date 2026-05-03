@@ -93,7 +93,7 @@ $admin = get_admin();
         <button class="menu-toggle-admin" id="admin-menu-toggle">☰</button>
         <h2 id="header-title">📊 Vue d'ensemble</h2>
         <div class="header-actions">
-            <a href="../index.html" target="_blank" class="header-btn">🌐 Voir le site</a>
+            <a href="../index.php" target="_blank" class="header-btn">🌐 Voir le site</a>
             <a href="logout.php" class="header-btn">🚪 Déconnexion</a>
         </div>
     </header>
