@@ -12,7 +12,7 @@ foreach ($projects as &$p) {
 }
 
 $services = $pdo->query("SELECT * FROM services WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
-$skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
+$skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY group_name_fr ASC, sort_order ASC, id ASC")->fetchAll();
 $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -327,30 +327,32 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
       <?php
       $groupedSkills = [];
       foreach($skills as $sk) {
-          $groupedSkills[$sk['category_fr']][] = $sk;
+          $groupedSkills[$sk['group_name_fr']][] = $sk;
       }
       $skIdx = 0;
       ?>
       <div class="skills-grid">
-        <?php foreach($groupedSkills as $cat_fr => $catSkills): ?>
-        <?php 
-        $cat_en = $catSkills[0]['category_en'] ?: $cat_fr;
-        $cat_ar = $catSkills[0]['category_ar'] ?: $cat_fr;
+        <?php foreach($groupedSkills as $gfr => $catSkills): ?>
+        <?php
+        $gen  = $catSkills[0]['group_name_en'] ?: $gfr;
+        $gar  = $catSkills[0]['group_name_ar'] ?: $gfr;
+        $icon = $catSkills[0]['group_icon'] ?? '';
         ?>
         <div class="skill-group reveal d<?= ($skIdx++ % 4) + 1 ?>">
-          <div class="skill-group-title dynamic-i18n" data-fr="<?= htmlspecialchars($cat_fr) ?>" data-en="<?= htmlspecialchars($cat_en) ?>" data-ar="<?= htmlspecialchars($cat_ar) ?>">
-            <?= htmlspecialchars($cat_fr) ?>
+          <div class="skill-group-title dynamic-i18n"
+               data-fr="<?= htmlspecialchars($icon.' '.$gfr) ?>"
+               data-en="<?= htmlspecialchars($icon.' '.$gen) ?>"
+               data-ar="<?= htmlspecialchars($icon.' '.$gar) ?>">
+            <?= htmlspecialchars($icon.' '.$gfr) ?>
           </div>
           <?php foreach($catSkills as $sk): ?>
           <div class="skill-row">
             <div class="skill-name">
-              <span class="dynamic-i18n" data-fr="<?= htmlspecialchars($sk['name_fr']) ?>" data-en="<?= htmlspecialchars($sk['name_en'] ?: $sk['name_fr']) ?>" data-ar="<?= htmlspecialchars($sk['name_ar'] ?: $sk['name_fr']) ?>">
-                <?= htmlspecialchars($sk['name_fr']) ?>
-              </span>
-              <span class="skill-pct"><?= htmlspecialchars($sk['proficiency']) ?>%</span>
+              <span><?= htmlspecialchars($sk['skill_name']) ?></span>
+              <span class="skill-pct"><?= intval($sk['percentage']) ?>%</span>
             </div>
             <div class="skill-bar">
-              <div class="skill-fill" data-w="<?= htmlspecialchars($sk['proficiency']) ?>"></div>
+              <div class="skill-fill" data-w="<?= intval($sk['percentage']) ?>"></div>
             </div>
           </div>
           <?php endforeach; ?>
