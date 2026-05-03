@@ -352,6 +352,48 @@ body {
     height: 260px;
 }
 
+/* ========== CMS MODULES ========== */
+.cms-module {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeInContent 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cms-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    padding: 24px 32px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+}
+.cms-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--accent), var(--gold));
+}
+.cms-header h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff, var(--text-dim));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.cms-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
 /* ========== TABLES ========== */
 .data-card {
     background: var(--card);
