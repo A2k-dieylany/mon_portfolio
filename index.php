@@ -16,6 +16,13 @@ $skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY group_
 $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
 $blog_posts = $pdo->query("SELECT * FROM blog_posts WHERE is_visible = 1 ORDER BY sort_order ASC, publish_date DESC")->fetchAll();
 $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND is_approved = 1 ORDER BY created_at DESC")->fetchAll();
+
+// Fetch settings
+$settingsData = $pdo->query("SELECT setting_key, setting_value FROM site_settings")->fetchAll();
+$settings = [];
+foreach($settingsData as $s) {
+    $settings[$s['setting_key']] = $s['setting_value'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
@@ -23,10 +30,10 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Dieylany – SEN DIGITAL SOLUTION</title>
+  <title>Dieylany – <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></title>
   <meta name="description"
-    content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal. Découvrez les services de SEN DIGITAL SOLUTION." />
-  <meta property="og:title" content="Dieylany – SEN DIGITAL SOLUTION" />
+    content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal. Découvrez les services de <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>." />
+  <meta property="og:title" content="Dieylany – <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>" />
   <meta property="og:description"
     content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal." />
   <meta property="og:type" content="website" />
@@ -50,12 +57,18 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
 
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --accent: <?= htmlspecialchars($settings['accent_color'] ?? '#6C63FF') ?>;
+      --gold: <?= htmlspecialchars($settings['gold_color'] ?? '#D4AF37') ?>;
+    }
+  </style>
 </head>
 
 <body>
   <div id="preloader">
     <div class="preloader-content">
-      <div class="preloader-logo">A2K<span></span></div>
+      <div class="preloader-logo"><?= htmlspecialchars($settings['logo_text'] ?? 'A2K') ?><span></span></div>
       <div class="preloader-bar">
         <div class="preloader-fill"></div>
       </div>
@@ -75,7 +88,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
 
   <!-- NAV -->
   <nav>
-    <div class="nav-logo">A2K<span>.</span></div>
+    <div class="nav-logo"><?= htmlspecialchars($settings['logo_text'] ?? 'A2K') ?><span>.</span></div>
     <ul class="nav-links">
       <li><a href="#about" data-i18n="nav.about">À propos</a></li>
       <li><a href="#timeline" data-i18n="nav.timeline">Parcours</a></li>
@@ -100,10 +113,12 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
     <div class="shape s1"></div>
     <div class="shape s2"></div>
     <div class="hero-content">
-      <div class="badge"><span class="dot-live"></span><span data-i18n="hero.badge">Disponible pour des collaborations –
-          Dakar, Sénégal</span></div>
+      <div class="badge"><span class="dot-live"></span><span class="dynamic-i18n"
+           data-fr="<?= htmlspecialchars($settings['hero_badge_fr'] ?? 'Disponible') ?>"
+           data-en="<?= htmlspecialchars($settings['hero_badge_en'] ?? 'Available') ?>"
+           data-ar="<?= htmlspecialchars($settings['hero_badge_ar'] ?? 'متاح') ?>"><?= htmlspecialchars($settings['hero_badge_fr'] ?? 'Disponible') ?></span></div>
       <h1><span data-i18n="hero.h1">Bonjour, je suis</span><br><span class="name">Dieylany</span></h1>
-      <p class="hero-sub"><strong data-i18n="hero.agency">SEN DIGITAL SOLUTION</strong> &nbsp;·&nbsp; <span
+      <p class="hero-sub"><strong data-i18n="hero.agency"><?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></strong> &nbsp;·&nbsp; <span
           class="typewriter" id="tw"></span></p>
       <div class="hero-cta">
         <a href="#projects" class="btn-primary" data-i18n="hero.btn1">Voir mes projets</a>
@@ -139,7 +154,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
         <div class="about-text reveal from-left">
           <p data-i18n="about.p1">Je suis étudiant en <strong>Génie Logiciel</strong> à l'Institut Superieur
             d'Informatique (ISI Suptech) de Dakar et
-            fondateur de <strong>SEN DIGITAL SOLUTION (SDS)</strong> — une agence digitale que je construis avec la
+            fondateur de <strong><?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?> (SDS)</strong> — une agence digitale que je construis avec la
             vision de
             devenir le leader tech de l'Afrique de l'Ouest.</p>
           <p data-i18n="about.p2">Ma mission : intégrer l'<strong>intelligence artificielle</strong> et l'automatisation
@@ -168,7 +183,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
             <div class="award-icon">🌍</div>
             <div>
               <div class="award-title" data-i18n="award3.title">Vision Pan-Africaine</div>
-              <div class="award-desc" data-i18n="award3.desc">Fondateur SEN DIGITAL SOLUTION · Dakar, Sénégal</div>
+              <div class="award-desc" data-i18n="award3.desc">Fondateur <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?> · Dakar, Sénégal</div>
             </div>
           </div>
           <div class="award-card">
@@ -221,7 +236,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
     <div class="container">
       <div class="reveal">
         <p class="section-tag" data-i18n="svc.tag">Ce que je fais</p>
-        <h2 class="section-title" data-i18n="svc.title">Services SEN DIGITAL SOLUTION</h2>
+        <h2 class="section-title">Services <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></h2>
         <div class="divider"></div>
         <p class="section-sub" data-i18n="svc.sub">Des solutions digitales pensées pour les entreprises africaines qui
           veulent passer à la vitesse supérieure.</p>
@@ -477,7 +492,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
             <div class="contact-icon">💼</div>
             <div>
               <div class="contact-label" data-i18n="ci2l">Agence</div>
-              <div class="contact-value">SEN DIGITAL SOLUTION</div>
+              <div class="contact-value"><?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></div>
             </div>
           </div>
           <div class="contact-item">
@@ -611,7 +626,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 <span>Dieylany</span> · SEN DIGITAL SOLUTION</p>
+      <p>© 2025 <span>Dieylany</span> · <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></p>
       <div id="visitor-counter" class="visitor-counter" style="display:none;">
         <div class="visitor-pulse" title="En direct"></div>
         <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
