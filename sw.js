@@ -1,7 +1,7 @@
 const CACHE_NAME = 'a2k-portfolio-v1';
 const ASSETS = [
   './',
-  './index.html',
+  './index.php',
   './style.css',
   './script.js',
   './favicon.svg',

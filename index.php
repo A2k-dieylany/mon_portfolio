@@ -1,4 +1,21 @@
-﻿<!DOCTYPE html>
+<?php
+require_once __DIR__ . '/admin/includes/db.php';
+$pdo = getDB();
+
+// Récupérer toutes les données publiques
+$projects = $pdo->query("SELECT * FROM projects WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
+// Fetch galleries for projects
+$imgStmt = $pdo->prepare("SELECT * FROM project_images WHERE project_id = ? ORDER BY sort_order ASC");
+foreach ($projects as &$p) {
+    $imgStmt->execute([$p['id']]);
+    $p['gallery'] = $imgStmt->fetchAll();
+}
+
+$services = $pdo->query("SELECT * FROM services WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
+$skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
+$timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
+?>
+<!DOCTYPE html>
 <html lang="fr" dir="ltr">
 
 <head>
@@ -19,6 +36,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
+  <!-- Inject PHP data as JSON for frontend JS to use -->
+  <script>
+    window.SDS_DATA = {
+        projects: <?php echo json_encode($projects); ?>,
+        services: <?php echo json_encode($services); ?>,
+        skills: <?php echo json_encode($skills); ?>,
+        timeline: <?php echo json_encode($timeline); ?>
+    };
+  </script>
+
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
