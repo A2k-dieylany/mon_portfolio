@@ -14,81 +14,98 @@ $admin = get_admin();
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg: #0A0A0F;
-            --surface: #12121A;
-            --card: #1A1A24;
-            --border: #2A2A3A;
-            --text: #E8E8ED;
-            --text-dim: #8888A0;
-            --accent: #6C63FF;
-            --gold: #D4AF37;
-        }
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .welcome {
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
-        .welcome h1 {
-            font-size: 2rem;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--accent), var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .welcome p { color: var(--text-dim); margin-bottom: 24px; }
-        .welcome .badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--gold);
-            margin-bottom: 24px;
-        }
-        .logout-btn {
-            padding: 12px 28px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-            font-family: inherit;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-        .logout-btn:hover { border-color: var(--accent); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <div class="welcome">
-        <div class="badge">🔐 <?= htmlspecialchars($admin['role']) ?></div>
-        <h1>Bienvenue, <?= htmlspecialchars($admin['display_name']) ?> 👋</h1>
-        <p>Le dashboard complet arrive en Phase 2. L'authentification fonctionne !</p>
-        <button class="logout-btn" onclick="logout()">Se déconnecter</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div>
+            <span>SDS Admin</span><br>
+            <small>Sen Digital Solution</small>
+        </div>
     </div>
-    <script>
-    async function logout() {
-        await fetch('api/auth.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'logout' })
-        });
-        window.location.href = 'index.php';
-    }
-    </script>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">Principal</div>
+        <button class="nav-item active" data-page="overview">
+            <span class="nav-icon">📊</span> Vue d'ensemble
+        </button>
+        <button class="nav-item" data-page="messages">
+            <span class="nav-icon">💬</span> Messages
+            <span class="nav-badge" id="msg-badge" style="display:none">0</span>
+        </button>
+
+        <div class="nav-section">Contenu</div>
+        <button class="nav-item" data-page="projects">
+            <span class="nav-icon">🚀</span> Projets
+        </button>
+        <button class="nav-item" data-page="services">
+            <span class="nav-icon">⚙️</span> Services
+        </button>
+        <button class="nav-item" data-page="skills">
+            <span class="nav-icon">🧠</span> Compétences
+        </button>
+        <button class="nav-item" data-page="blog">
+            <span class="nav-icon">✍️</span> Blog
+        </button>
+        <button class="nav-item" data-page="testimonials">
+            <span class="nav-icon">⭐</span> Témoignages
+        </button>
+        <button class="nav-item" data-page="timeline">
+            <span class="nav-icon">📅</span> Timeline
+        </button>
+
+        <div class="nav-section">Analytics</div>
+        <button class="nav-item" data-page="analytics">
+            <span class="nav-icon">👁️</span> Visiteurs
+        </button>
+        <button class="nav-item" data-page="chatbot">
+            <span class="nav-icon">🤖</span> Chatbot
+        </button>
+
+        <div class="nav-section">Système</div>
+        <button class="nav-item" data-page="appearance">
+            <span class="nav-icon">🎨</span> Apparence
+        </button>
+        <button class="nav-item" data-page="settings">
+            <span class="nav-icon">🔧</span> Paramètres
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar"><?= mb_substr($admin['display_name'], 0, 1) ?></div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name"><?= htmlspecialchars($admin['display_name']) ?></div>
+                <div class="sidebar-user-role"><?= htmlspecialchars($admin['role']) ?></div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+    <header class="header">
+        <button class="menu-toggle-admin" id="admin-menu-toggle">☰</button>
+        <h2 id="header-title">📊 Vue d'ensemble</h2>
+        <div class="header-actions">
+            <a href="../index.html" target="_blank" class="header-btn">🌐 Voir le site</a>
+            <a href="logout.php" class="header-btn">🚪 Déconnexion</a>
+        </div>
+    </header>
+
+    <div class="content" id="page-content">
+        <div class="page-loader"><div class="spinner"></div></div>
+    </div>
+</main>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="assets/admin.js"></script>
 </body>
 </html>
