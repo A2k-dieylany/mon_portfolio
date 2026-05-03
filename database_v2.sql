@@ -33,35 +33,35 @@ VALUES (
 );
 
 -- ========================================
--- 🚀 PROJETS
+-- 🚀 PROJETS (Trilingue + Galerie)
 -- ========================================
 CREATE TABLE IF NOT EXISTS projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    slug VARCHAR(200) NOT NULL UNIQUE,
-    category ENUM('web', 'ai', 'design', 'mobile') NOT NULL,
-    project_type VARCHAR(100) DEFAULT '',
-    short_desc TEXT NOT NULL,
-    long_desc TEXT NOT NULL,
-    status ENUM('live', 'done', 'wip', 'private') DEFAULT 'done',
-    live_url VARCHAR(500) DEFAULT '',
-    github_url VARCHAR(500) DEFAULT '',
+    title_fr VARCHAR(255) NOT NULL,
+    title_en VARCHAR(255),
+    title_ar VARCHAR(255),
+    desc_fr TEXT,
+    desc_en TEXT,
+    desc_ar TEXT,
+    category_fr VARCHAR(100),
+    category_en VARCHAR(100),
+    category_ar VARCHAR(100),
+    client_name VARCHAR(255),
+    project_date DATE,
+    live_url VARCHAR(255),
+    github_url VARCHAR(255),
+    main_image VARCHAR(255),
+    tags TEXT,
     sort_order INT DEFAULT 0,
-    is_visible TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    is_visible BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ========================================
--- 🖼️ IMAGES PROJETS (table dédiée)
--- ========================================
 CREATE TABLE IF NOT EXISTS project_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
-    filename VARCHAR(255) NOT NULL,
-    alt_text VARCHAR(255) DEFAULT '',
+    image_url VARCHAR(255) NOT NULL,
     sort_order INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

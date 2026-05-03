@@ -50,6 +50,15 @@ const Admin = {
             const res = await fetch(`${this.basePath}/pages/${page}.php`);
             if (!res.ok) throw new Error(`Page ${page} introuvable`);
             container.innerHTML = await res.text();
+            
+            // Ré-exécuter les scripts injectés (innerHTML ne le fait pas nativement)
+            Array.from(container.querySelectorAll('script')).forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+
             container.style.animation = 'none';
             container.offsetHeight; // force reflow
             container.style.animation = '';
