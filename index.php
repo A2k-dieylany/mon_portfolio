@@ -191,67 +191,25 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
       </div>
       <div class="tl-wrap">
         <div class="tl-line"></div>
-        <div class="tl-item reveal d1">
+        <?php foreach ($timeline as $idx => $t): ?>
+        <div class="tl-item reveal d<?= ($idx % 2) + 1 ?>">
           <div class="tl-dot"></div>
           <div class="tl-card">
-            <div class="tl-year" data-i18n="tl1.year">2022</div>
-            <div class="tl-title" data-i18n="tl1.title">Concours Général Sénégalais</div>
-            <div class="tl-desc" data-i18n="tl1.desc">2ème Prix national en Langue Arabe. Une distinction qui forge la
-              rigueur intellectuelle et la confiance en soi.</div>
-            <span class="tl-badge" data-i18n="tl1.badge">🏆 Excellence académique</span>
+            <div class="tl-year dynamic-i18n" data-fr="<?= htmlspecialchars($t['year_fr']) ?>" data-en="<?= htmlspecialchars($t['year_en'] ?: $t['year_fr']) ?>" data-ar="<?= htmlspecialchars($t['year_ar'] ?: $t['year_fr']) ?>">
+              <?= htmlspecialchars($t['year_fr']) ?>
+            </div>
+            <div class="tl-title dynamic-i18n" data-fr="<?= htmlspecialchars($t['title_fr']) ?>" data-en="<?= htmlspecialchars($t['title_en'] ?: $t['title_fr']) ?>" data-ar="<?= htmlspecialchars($t['title_ar'] ?: $t['title_fr']) ?>">
+              <?= htmlspecialchars($t['title_fr']) ?>
+            </div>
+            <div class="tl-desc dynamic-i18n" data-fr="<?= htmlspecialchars($t['desc_fr']) ?>" data-en="<?= htmlspecialchars($t['desc_en'] ?: $t['desc_fr']) ?>" data-ar="<?= htmlspecialchars($t['desc_ar'] ?: $t['desc_fr']) ?>">
+              <?= nl2br(htmlspecialchars($t['desc_fr'])) ?>
+            </div>
+            <span class="tl-badge dynamic-i18n" data-fr="<?= htmlspecialchars($t['badge_fr']) ?>" data-en="<?= htmlspecialchars($t['badge_en'] ?: $t['badge_fr']) ?>" data-ar="<?= htmlspecialchars($t['badge_ar'] ?: $t['badge_fr']) ?>">
+              <?= htmlspecialchars($t['badge_fr']) ?>
+            </span>
           </div>
         </div>
-        <div class="tl-item reveal d2">
-          <div class="tl-dot"></div>
-          <div class="tl-card">
-            <div class="tl-year" data-i18n="tl2.year">2024</div>
-            <div class="tl-title" data-i18n="tl2.title">Licence 1 en Génie Logiciel — Institut Polytechnique de
-              Dakar (IPD)</div>
-            <div class="tl-desc" data-i18n="tl2.desc">Début d'une formation intensive en ingénierie logicielle à Dakar.
-              Maîtrise des fondamentaux : algorithmes, bases de données, développement web.</div>
-            <span class="tl-badge" data-i18n="tl2.badge">📚 Formation technique</span>
-          </div>
-        </div>
-        <div class="tl-item reveal d1">
-          <div class="tl-dot"></div>
-          <div class="tl-card">
-            <div class="tl-year" data-i18n="tl3.year">Janv. 2024</div>
-            <div class="tl-title" data-i18n="tl3.title">Fondation de SEN DIGITAL SOLUTION</div>
-            <div class="tl-desc" data-i18n="tl3.desc">Création de l'agence digitale SDS avec une vision claire : devenir
-              le leader de la transformation numérique en Afrique de l'Ouest.</div>
-            <span class="tl-badge" data-i18n="tl3.badge">🚀 Lancement entrepreneurial</span>
-          </div>
-        </div>
-        <div class="tl-item reveal d2">
-          <div class="tl-dot"></div>
-          <div class="tl-card">
-            <div class="tl-year" data-i18n="tl4.year">Juin 2024</div>
-            <div class="tl-title" data-i18n="tl4.title">Premier client livré — Dibiterie Ameth Boll</div>
-            <div class="tl-desc" data-i18n="tl4.desc">Site web complet avec commandes WhatsApp et panneau admin.
-              Première preuve concrète que SDS peut livrer de la valeur réelle à des clients dakarois.</div>
-            <span class="tl-badge" data-i18n="tl4.badge">💼 Premier client</span>
-          </div>
-        </div>
-        <div class="tl-item reveal d1">
-          <div class="tl-dot"></div>
-          <div class="tl-card">
-            <div class="tl-year" data-i18n="tl5.year">Sept. 2025</div>
-            <div class="tl-title" data-i18n="tl5.title">WhatsApp Bot IA — SDS_Shop</div>
-            <div class="tl-desc" data-i18n="tl5.desc">Déploiement d'un agent IA sur WhatsApp via n8n et OpenAI :
-              commandes automatisées, logging Google Sheets, service 24h/24.</div>
-            <span class="tl-badge" data-i18n="tl5.badge">🤖 IA en production</span>
-          </div>
-        </div>
-        <div class="tl-item reveal d2">
-          <div class="tl-dot"></div>
-          <div class="tl-card">
-            <div class="tl-year" data-i18n="tl6.year">2025</div>
-            <div class="tl-title" data-i18n="tl6.title">Expert IA reconnu </div>
-            <div class="tl-desc" data-i18n="tl6.desc">Positionnement comme expert IA en Afrique de l'Ouest, personal
-              branding sur LinkedIn, finalisation du mémoire BTS sur la gestion scolaire.</div>
-            <span class="tl-badge" data-i18n="tl6.badge">⭐ En cours</span>
-          </div>
-        </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
@@ -267,47 +225,20 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
           veulent passer à la vitesse supérieure.</p>
       </div>
       <div class="services-grid">
-        <div class="service-card reveal d1">
-          <div class="service-icon">⚡</div>
-          <div class="service-title" data-i18n="s1.t">Automatisation WhatsApp Business</div>
-          <div class="service-desc" data-i18n="s1.d">Agents IA sur WhatsApp pour répondre aux clients 24/7, prendre des
-            commandes et gérer le support — sans intervention humaine.</div><span class="service-tag">n8n · WhatsApp API
-            · OpenAI</span>
+        <?php foreach ($services as $idx => $s): ?>
+        <div class="service-card reveal d<?= ($idx % 3) + 1 ?>">
+          <div class="service-icon"><?= htmlspecialchars($s['icon']) ?></div>
+          <div class="service-title dynamic-i18n" data-fr="<?= htmlspecialchars($s['title_fr']) ?>" data-en="<?= htmlspecialchars($s['title_en'] ?: $s['title_fr']) ?>" data-ar="<?= htmlspecialchars($s['title_ar'] ?: $s['title_fr']) ?>">
+            <?= htmlspecialchars($s['title_fr']) ?>
+          </div>
+          <div class="service-desc dynamic-i18n" data-fr="<?= htmlspecialchars($s['desc_fr']) ?>" data-en="<?= htmlspecialchars($s['desc_en'] ?: $s['desc_fr']) ?>" data-ar="<?= htmlspecialchars($s['desc_ar'] ?: $s['desc_fr']) ?>">
+            <?= htmlspecialchars($s['desc_fr']) ?>
+          </div>
+          <?php if (!empty($s['tags'])): ?>
+          <span class="service-tag"><?= htmlspecialchars($s['tags']) ?></span>
+          <?php endif; ?>
         </div>
-        <div class="service-card reveal d2">
-          <div class="service-icon">🌐</div>
-          <div class="service-title" data-i18n="s2.t">Développement Web</div>
-          <div class="service-desc" data-i18n="s2.d">Sites vitrines, e-commerce, dashboards admin et applications web
-            full-stack. Code propre, rapide, déployé sur Netlify.</div><span class="service-tag">HTML · CSS · JS ·
-            React</span>
-        </div>
-        <div class="service-card reveal d3">
-          <div class="service-icon">🤖</div>
-          <div class="service-title" data-i18n="s3.t">Intégration IA & Agents</div>
-          <div class="service-desc" data-i18n="s3.d">Intégration d'API OpenAI, création d'agents autonomes,
-            automatisation de workflows complexes avec Make et n8n.</div><span class="service-tag">OpenAI · LangChain ·
-            Make</span>
-        </div>
-        <div class="service-card reveal d1">
-          <div class="service-icon">🎨</div>
-          <div class="service-title" data-i18n="s4.t">Design Graphique & Branding</div>
-          <div class="service-desc" data-i18n="s4.d">Affiches événementielles, identité visuelle, supports marketing
-            digital. Un design moderne qui parle à l'audience africaine.</div><span class="service-tag">Canva · HTML/CSS
-            · UI Design</span>
-        </div>
-        <div class="service-card reveal d2">
-          <div class="service-icon">🔒</div>
-          <div class="service-title" data-i18n="s5.t">Cybersécurité</div>
-          <div class="service-desc" data-i18n="s5.d">Sensibilisation à la sécurité, audit basique et bonnes pratiques
-            pour protéger vos données et systèmes digitaux.</div><span class="service-tag">En développement</span>
-        </div>
-        <div class="service-card reveal d3">
-          <div class="service-icon">📊</div>
-          <div class="service-title" data-i18n="s6.t">Conseil Digital & Stratégie IA</div>
-          <div class="service-desc" data-i18n="s6.d">Accompagnement dans la transformation digitale : choix des outils,
-            automatisation des processus, formation des équipes.</div><span class="service-tag">Consulting ·
-            Formation</span>
-        </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
@@ -327,163 +258,60 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
         </div>
       </div>
       <!-- CARD 1 -->
-     <div class="projects-grid">
-
-  <div class="project-card reveal d1" data-category="web"
-    data-live=""
-    data-github="https://github.com/A2k-dieylany/SupermarcheApp"
-    data-images="img/projects/super1.jpg,img/projects/super2.jpg"
-    data-long-desc="Application Full-Stack complète simulant le fonctionnement réel d'un supermarché. Elle gère simultanément le flux des clients en caisse et le suivi financier par le gérant. Se distingue par une architecture robuste en C++ communicant en temps réel avec une interface web.<br><br><b>Fonctionnalités :</b><br>• Caisse interactive (algorithme de file d'attente, tickets)<br>• Autopilot (moteur IA générant des clients pour tester la charge)<br>• Dashboard Gérant (graphiques dynamiques avec Chart.js, inventaire CRUD)<br>• Architecture Serveur Thread-Safe (C++ avec mutex).">
-    <div class="project-shine"></div>
-    <div class="project-cover">
-      <img loading="lazy" src="img/projects/super1.jpg" alt="Gestion de Supermarché" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Supermarché non dispo</text></svg>'">
-    </div>
-    <div class="project-header">
-      <div>
-        <div class="project-type">Full-Stack · C++ / Web</div>
-        <div class="project-name">Système de Gestion Supermarché</div>
+          <div class="projects-grid">
+      <?php foreach ($projects as $idx => $p): 
+          $cat = strtolower($p['category_fr']);
+          $filterCat = 'all';
+          if(strpos($cat, 'web') !== false || strpos($cat, 'site') !== false || strpos($cat, 'plateforme') !== false) $filterCat = 'web';
+          elseif(strpos($cat, 'ia') !== false || strpos($cat, 'bot') !== false || strpos($cat, 'agent') !== false) $filterCat = 'ai';
+          elseif(strpos($cat, 'design') !== false) $filterCat = 'design';
+          
+          $images = [];
+          if(!empty($p['main_image'])) $images[] = htmlspecialchars($p['main_image']);
+          if(!empty($p['gallery'])) {
+              foreach($p['gallery'] as $g) {
+                  $images[] = htmlspecialchars($g['image_url']);
+              }
+          }
+          $imgString = implode(',', $images);
+          $coverImg = !empty($images) ? $images[0] : 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/></svg>';
+          
+          $tags = !empty($p['tags']) ? explode(',', $p['tags']) : [];
+      ?>
+      <div class="project-card reveal d<?= ($idx % 3) + 1 ?>" data-category="<?= $filterCat ?>"
+        data-live="<?= htmlspecialchars($p['live_url']) ?>"
+        data-github="<?= htmlspecialchars($p['github_url']) ?>"
+        data-images="<?= $imgString ?>"
+        data-long-desc-fr="<?= htmlspecialchars(nl2br($p['desc_fr'])) ?>"
+        data-long-desc-en="<?= htmlspecialchars(nl2br($p['desc_en'] ?: $p['desc_fr'])) ?>"
+        data-long-desc-ar="<?= htmlspecialchars(nl2br($p['desc_ar'] ?: $p['desc_fr'])) ?>">
+        <div class="project-shine"></div>
+        <div class="project-cover">
+          <img loading="lazy" src="<?= $coverImg ?>" alt="<?= htmlspecialchars($p['title_fr']) ?>" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image non dispo</text></svg>'">
+        </div>
+        <div class="project-header">
+          <div>
+            <div class="project-type dynamic-i18n" data-fr="<?= htmlspecialchars($p['category_fr']) ?>" data-en="<?= htmlspecialchars($p['category_en'] ?: $p['category_fr']) ?>" data-ar="<?= htmlspecialchars($p['category_ar'] ?: $p['category_fr']) ?>"><?= htmlspecialchars($p['category_fr']) ?></div>
+            <div class="project-name dynamic-i18n" data-fr="<?= htmlspecialchars($p['title_fr']) ?>" data-en="<?= htmlspecialchars($p['title_en'] ?: $p['title_fr']) ?>" data-ar="<?= htmlspecialchars($p['title_ar'] ?: $p['title_fr']) ?>"><?= htmlspecialchars($p['title_fr']) ?></div>
+          </div>
+          <?php if(empty($p['live_url'])): ?>
+          <span class="project-status status-build">Personnel</span>
+          <?php else: ?>
+          <span class="project-status status-live">Live</span>
+          <?php endif; ?>
+        </div>
+        <div class="project-body">
+          <div class="project-desc dynamic-i18n" data-fr="<?= htmlspecialchars($p['desc_fr']) ?>" data-en="<?= htmlspecialchars($p['desc_en'] ?: $p['desc_fr']) ?>" data-ar="<?= htmlspecialchars($p['desc_ar'] ?: $p['desc_fr']) ?>"><?= htmlspecialchars($p['desc_fr']) ?></div>
+          <div class="project-stack">
+            <?php foreach($tags as $tag): ?>
+            <?php if(trim($tag) !== ''): ?>
+            <span class="stack-tag"><?= htmlspecialchars(trim($tag)) ?></span>
+            <?php endif; ?>
+            <?php endforeach; ?>
+          </div>
+        </div>
       </div>
-      <span class="project-status status-build">Personnel</span>
-    </div>
-    <div class="project-body">
-      <div class="project-desc">Application Full-Stack temps réel gérant l'encaissement et le dashboard financier via serveur C++.</div>
-      <div class="project-stack">
-        <span class="stack-tag">C++ / SQLite</span>
-        <span class="stack-tag">JS Vanilla</span>
-        <span class="stack-tag">REST API</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="project-card reveal d1" data-category="web"
-    data-live="https://amethboll.netlify.app"
-    data-github="https://github.com/A2k-dieylany/DIBITERIE-RESTAURANT-AMETH-BOLL"
-    data-images="img/projects/ameth1.jpg,img/projects/ameth2.jpg"
-    data-long-desc="Site web complet pour un restaurant dakarois. Le client peut passer commande directement via WhatsApp avec génération automatique d'un ticket numéroté. L'admin peut configurer les prix et le menu via un fichier config.js sans toucher au code. Déployé sur Netlify avec CI/CD automatique.">
-    <div class="project-shine"></div>
-    <div class="project-cover">
-      <img loading="lazy" src="img/projects/ameth1.jpg" alt="Dibiterie Ameth Boll" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Ameth non disponible</text></svg>'">
-    </div>
-    <div class="project-header">
-      <div>
-        <div class="project-type">Client · Restaurant</div>
-        <div class="project-name">Dibiterie Ameth Boll</div>
-      </div>
-      <span class="project-status status-live" data-i18n="status.live">Live</span>
-    </div>
-    <div class="project-body">
-      <div class="project-desc" data-i18n="p1.d">Site web avec commandes WhatsApp, panneau admin, génération de tickets et architecture config.js. Déployé sur Netlify.</div>
-      <div class="project-stack">
-        <span class="stack-tag">HTML/CSS/JS</span>
-        <span class="stack-tag">WhatsApp API</span>
-        <span class="stack-tag">Netlify</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="project-card reveal d2" data-category="web"
-    data-live="https://luxegold.netlify.app"
-    data-github="https://github.com/a2k-dieylany/luxegold"
-    data-images="img/projects/luxe1.jpg,img/projects/luxe2.jpg, img/projects/luxe3.jpg"
-    data-long-desc="Plateforme e-commerce haut de gamme pour une bijouterie dakaroise. Interface élégante avec catalogue produits, panier dynamique et tunnel de paiement. Design luxe orienté conversion avec palette dorée et typographie premium.">
-    <div class="project-shine"></div>
-    <div class="project-cover">
-      <img loading="lazy" src="img/projects/luxe1.jpg" alt="LuxeGold Platform" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image LuxeGold non disponible</text></svg>'">
-    </div>
-    <div class="project-header">
-      <div>
-        <div class="project-type">E-Commerce · Luxe</div>
-        <div class="project-name">LuxeGold Platform</div>
-      </div>
-      <span class="project-status status-live" data-i18n="status.done">Réalisé</span>
-    </div>
-    <div class="project-body">
-      <div class="project-desc" data-i18n="p2.d">Plateforme e-commerce haut de gamme pour bijouterie. Interface élégante avec catalogue, panier et paiement.</div>
-      <div class="project-stack">
-        <span class="stack-tag">HTML/CSS/JS</span>
-        <span class="stack-tag">E-Commerce</span>
-        <span class="stack-tag">UI Design</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="project-card reveal d3" data-category="ai"
-    data-live=""
-    data-github="https://github.com/a2k-dieylany/sds-whatsapp-bot"
-    data-images="img/projects/bot1.jpg,img/projects/bot2.jpg"
-    data-long-desc="Agent IA déployé sur WhatsApp via n8n Cloud et la Meta WhatsApp Business API. Les clients envoient leurs commandes en langage naturel, OpenAI interprète et répond, Google Sheets enregistre chaque transaction. Service 24h/24 sans intervention humaine.">
-    <div class="project-shine"></div>
-    <div class="project-cover">
-      <img loading="lazy" src="img/projects/bot1.jpg" alt="WhatsApp Bot" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Bot non disponible</text></svg>'">
-    </div>
-    <div class="project-header">
-      <div>
-        <div class="project-type">Automatisation · Boutique</div>
-        <div class="project-name">SDS_Shop WhatsApp Bot</div>
-      </div>
-      <span class="project-status status-live" data-i18n="status.done">Réalisé</span>
-    </div>
-    <div class="project-body">
-      <div class="project-desc" data-i18n="p3.d">Agent IA WhatsApp : réponses OpenAI, logging Google Sheets, gestion commandes 24/7.</div>
-      <div class="project-stack">
-        <span class="stack-tag">n8n</span>
-        <span class="stack-tag">Meta WhatsApp API</span>
-        <span class="stack-tag">OpenAI</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="project-card reveal d1" data-category="design"
-    data-live=""
-    data-github="https://github.com/a2k-dieylany/sen-event"
-    data-images="img/projects/event1.jpg,img/projects/event2.jpg"
-    data-long-desc="Plateforme événementielle et générateur d'affiches de mariage premium. Design HTML/CSS pur orienté luxe avec animations et palette personnalisable. Utilisé pour des événements haut de gamme à Dakar.">
-    <div class="project-shine"></div>
-    <div class="project-cover">
-      <img loading="lazy" src="img/projects/event1.jpg" alt="SEN-EVENT" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image Event non disponible</text></svg>'">
-    </div>
-    <div class="project-header">
-      <div>
-        <div class="project-type">Événementiel · Design</div>
-        <div class="project-name">SEN-EVENT</div>
-      </div>
-      <span class="project-status status-live" data-i18n="status.done">Réalisé</span>
-    </div>
-    <div class="project-body">
-      <div class="project-desc" data-i18n="p4.d">Plateforme événementielle et affiches de mariage premium. Design HTML/CSS luxe pour événements haut de gamme.</div>
-      <div class="project-stack">
-        <span class="stack-tag">HTML/CSS</span>
-        <span class="stack-tag">UI/UX</span>
-        <span class="stack-tag">Design Luxe</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="project-card reveal d2" data-category="web"
-    data-live=""
-    data-github=""
-    data-images="img/projects/school1.jpg,img/projects/school2.jpg"
-    data-long-desc="Application web de gestion des inscriptions et paiements de scolarité pour le Groupe Scolaire Notre Dame de Liban. Développée en PHP/MySQL avec architecture Merise. Constitue le mémoire de fin de BTS Génie Logiciel 2025.">
-    <div class="project-shine"></div>
-    <div class="project-cover">
-      <img loading="lazy" src="img/projects/school1.jpg" alt="Système Scolaire" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'400\\\' height=\\\'250\\\'><rect width=\\\'400\\\' height=\\\'250\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'14\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image School non disponible</text></svg>'">
-    </div>
-    <div class="project-header">
-      <div>
-        <div class="project-type">BTS Mémoire · EdTech</div>
-        <div class="project-name" data-i18n="p5.name">Système Gestion Scolaire</div>
-      </div>
-      <span class="project-status status-build" data-i18n="status.wip">En cours</span>
-    </div>
-    <div class="project-body">
-      <div class="project-desc" data-i18n="p5.d">Application de gestion des inscriptions et paiements de scolarité. Mémoire BTS Génie Logiciel.</div>
-      <div class="project-stack">
-        <span class="stack-tag">Full-Stack</span>
-        <span class="stack-tag">BDD</span>
-        <span class="stack-tag">BTS GL</span>
-      </div>
-    </div>
-  </div>
+      <?php endforeach; ?>
       </div> <!-- /.projects-grid -->
     </div> <!-- /.container -->
   </section>
@@ -496,91 +324,38 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
         <h2 class="section-title" data-i18n="sk.title">Stack Technique</h2>
         <div class="divider"></div>
       </div>
+      <?php
+      $groupedSkills = [];
+      foreach($skills as $sk) {
+          $groupedSkills[$sk['category_fr']][] = $sk;
+      }
+      $skIdx = 0;
+      ?>
       <div class="skills-grid">
-        <div class="skill-group reveal d1">
-          <div class="skill-group-title" data-i18n="sg1">💻 Développement Web</div>
+        <?php foreach($groupedSkills as $cat_fr => $catSkills): ?>
+        <?php 
+        $cat_en = $catSkills[0]['category_en'] ?: $cat_fr;
+        $cat_ar = $catSkills[0]['category_ar'] ?: $cat_fr;
+        ?>
+        <div class="skill-group reveal d<?= ($skIdx++ % 4) + 1 ?>">
+          <div class="skill-group-title dynamic-i18n" data-fr="<?= htmlspecialchars($cat_fr) ?>" data-en="<?= htmlspecialchars($cat_en) ?>" data-ar="<?= htmlspecialchars($cat_ar) ?>">
+            <?= htmlspecialchars($cat_fr) ?>
+          </div>
+          <?php foreach($catSkills as $sk): ?>
           <div class="skill-row">
-            <div class="skill-name">HTML / CSS <span class="skill-pct">92%</span></div>
+            <div class="skill-name">
+              <span class="dynamic-i18n" data-fr="<?= htmlspecialchars($sk['name_fr']) ?>" data-en="<?= htmlspecialchars($sk['name_en'] ?: $sk['name_fr']) ?>" data-ar="<?= htmlspecialchars($sk['name_ar'] ?: $sk['name_fr']) ?>">
+                <?= htmlspecialchars($sk['name_fr']) ?>
+              </span>
+              <span class="skill-pct"><?= htmlspecialchars($sk['proficiency']) ?>%</span>
+            </div>
             <div class="skill-bar">
-              <div class="skill-fill" data-w="92"></div>
+              <div class="skill-fill" data-w="<?= htmlspecialchars($sk['proficiency']) ?>"></div>
             </div>
           </div>
-          <div class="skill-row">
-            <div class="skill-name">JavaScript <span class="skill-pct">80%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="80"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">React <span class="skill-pct">65%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="65"></div>
-            </div>
-          </div>
+          <?php endforeach; ?>
         </div>
-        <div class="skill-group reveal d2">
-          <div class="skill-group-title" data-i18n="sg2">⚡ Automatisation & IA</div>
-          <div class="skill-row">
-            <div class="skill-name">n8n <span class="skill-pct">85%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="85"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">Prompt Engineering <span class="skill-pct">88%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="88"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">Make <span class="skill-pct">75%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="75"></div>
-            </div>
-          </div>
-        </div>
-        <div class="skill-group reveal d3">
-          <div class="skill-group-title" data-i18n="sg3">🔗 APIs & Intégrations</div>
-          <div class="skill-row">
-            <div class="skill-name">OpenAI API <span class="skill-pct">82%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="82"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">WhatsApp Business API <span class="skill-pct">80%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="80"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">REST / JSON <span class="skill-pct">78%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="78"></div>
-            </div>
-          </div>
-        </div>
-        <div class="skill-group reveal d4">
-          <div class="skill-group-title" data-i18n="sg4">🛠️ Outils & DevOps</div>
-          <div class="skill-row">
-            <div class="skill-name">Git / GitHub <span class="skill-pct">75%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="75"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">Netlify / Vercel <span class="skill-pct">82%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="82"></div>
-            </div>
-          </div>
-          <div class="skill-row">
-            <div class="skill-name">Google Workspace <span class="skill-pct">85%</span></div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="85"></div>
-            </div>
-          </div>
-        </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>

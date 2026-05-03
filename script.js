@@ -1,4 +1,4 @@
-﻿let lang = 'fr', twIdx = 0, twChar = 0, twDel = false, twTimer = null;
+let lang = 'fr', twIdx = 0, twChar = 0, twDel = false, twTimer = null;
 const twEl = document.getElementById('tw');
 const cur = document.getElementById('cursor'), ring = document.getElementById('cursor-ring');
 let mx = 0, my = 0, rx = 0, ry = 0;
@@ -20,10 +20,15 @@ function setLang(l) {
     const k = el.dataset.i18nPlaceholder, v = T[l][k];
     if (v !== undefined) el.placeholder = v;
   });
+  document.querySelectorAll('.dynamic-i18n').forEach(el => {
+    const v = el.dataset[l];
+    if (v !== undefined && v.trim() !== "") el.innerHTML = v;
+  });
   document.querySelectorAll('.lang-btn:not(#theme-toggle)').forEach(b => b.classList.toggle('active', b.textContent === l.toUpperCase()));
   twIdx = 0; twChar = 0; twDel = false;
   clearTimeout(twTimer);
   twTimer = null;
+  typeWord();
 }
 
 function typeWord() {
@@ -563,7 +568,8 @@ function setupProjectModals() {
       const statusClass = statusEl ? statusEl.className.replace('project-status', '').trim() : '';
 
       // data attributes
-      const longDesc = card.dataset.longDesc || shortDesc;
+      const l = lang.charAt(0).toUpperCase() + lang.slice(1);
+      const longDesc = card.dataset['longDesc'+l] || card.dataset.longDescFr || card.dataset.longDesc || shortDesc;
       const liveUrl = card.dataset.live || '';
       const githubUrl = card.dataset.github || '';
       const images = card.dataset.images
