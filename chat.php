@@ -141,6 +141,23 @@ curl_close($ch);
 if ($httpCode == 200) {
     $res   = json_decode($response, true);
     $reply = $res['choices'][0]['message']['content'] ?? "Une erreur est survenue.";
+    
+    // Logger la conversation dans la base de données
+    try {
+        require_once __DIR__ . '/admin/includes/db.php';
+        $dbLog = getDB();
+        $sessionId = session_id();
+        $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . 'sds_salt_2025');
+        $lang = 'fr';
+        if (preg_match('/[\x{0600}-\x{06FF}]/u', $userMessage)) $lang = 'ar';
+        elseif (preg_match('/^[a-zA-Z\s\d\p{P}]+$/u', $userMessage)) $lang = 'en';
+        
+        $logStmt = $dbLog->prepare("INSERT INTO chatbot_logs (session_id, user_message, bot_response, language, ip_hash) VALUES (?, ?, ?, ?, ?)");
+        $logStmt->execute([$sessionId, $userMessage, trim($reply), $lang, $ipHash]);
+    } catch (Exception $e) {
+        error_log("Chatbot log error: " . $e->getMessage());
+    }
+    
     echo json_encode(['reply' => trim($reply)]);
 } else {
     error_log("Groq API error $httpCode: $response");
