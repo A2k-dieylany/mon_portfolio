@@ -14,6 +14,8 @@ foreach ($projects as &$p) {
 $services = $pdo->query("SELECT * FROM services WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
 $skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY group_name_fr ASC, sort_order ASC, id ASC")->fetchAll();
 $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
+$blog_posts = $pdo->query("SELECT * FROM blog_posts WHERE is_visible = 1 ORDER BY sort_order ASC, publish_date DESC")->fetchAll();
+$testimonials = $pdo->query("SELECT * FROM testimonials WHERE is_visible = 1 AND is_approved = 1 ORDER BY created_at DESC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="fr" dir="ltr">
@@ -419,42 +421,29 @@ $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER
       </div>
       <div class="testimonials-slider">
         <div class="testi-track" id="testi-track">
-          <div class="testi-card reveal d1">
-            <div class="testi-stars">★★★★★</div>
-            <p class="testi-text" data-i18n="t1.text">"Dieylany a transformé notre présence digitale. Le site web et le
-              bot WhatsApp ont boosté nos commandes de 40%. Très professionnel et réactif."</p>
+          <?php $tIdx = 0; foreach($testimonials as $t): ?>
+          <div class="testi-card reveal d<?= ($tIdx++ % 3) + 1 ?>">
+            <div class="testi-stars"><?= str_repeat('★', intval($t['stars'])) ?></div>
+            <p class="testi-text dynamic-i18n"
+               data-fr="<?= htmlspecialchars($t['text_fr']) ?>"
+               data-en="<?= htmlspecialchars($t['text_en'] ?: $t['text_fr']) ?>"
+               data-ar="<?= htmlspecialchars($t['text_ar'] ?: $t['text_fr']) ?>">
+              "<?= nl2br(htmlspecialchars($t['text_fr'])) ?>"
+            </p>
             <div class="testi-author">
-              <div class="testi-avatar">AB</div>
+              <div class="testi-avatar"><?= htmlspecialchars($t['client_initials']) ?></div>
               <div>
-                <div class="testi-name">Ameth Boll</div>
-                <div class="testi-role" data-i18n="t1.role">Gérant — Dibiterie Ameth Boll</div>
+                <div class="testi-name"><?= htmlspecialchars($t['client_name']) ?></div>
+                <div class="testi-role dynamic-i18n"
+                     data-fr="<?= htmlspecialchars($t['role_fr']) ?>"
+                     data-en="<?= htmlspecialchars($t['role_en'] ?: $t['role_fr']) ?>"
+                     data-ar="<?= htmlspecialchars($t['role_ar'] ?: $t['role_fr']) ?>">
+                  <?= htmlspecialchars($t['role_fr']) ?>
+                </div>
               </div>
             </div>
           </div>
-          <div class="testi-card reveal d2">
-            <div class="testi-stars">★★★★★</div>
-            <p class="testi-text" data-i18n="t2.text">"Un talent rare qui combine compétences techniques et vision
-              business. SDS a livré notre plateforme e-commerce dans les délais avec une qualité exceptionnelle."</p>
-            <div class="testi-author">
-              <div class="testi-avatar">MN</div>
-              <div>
-                <div class="testi-name">Mame Thierno Ba</div>
-                <div class="testi-role" data-i18n="t2.role">Directeur— LuxeGold Bijouterie</div>
-              </div>
-            </div>
-          </div>
-          <div class="testi-card reveal d3">
-            <div class="testi-stars">★★★★★</div>
-            <p class="testi-text" data-i18n="t3.text">"L'automatisation WhatsApp a révolutionné notre service client.
-              Nos clients sont servis 24h/24 et nous avons réduit nos coûts de support de 60%."</p>
-            <div class="testi-author">
-              <div class="testi-avatar">IF</div>
-              <div>
-                <div class="testi-name">Ibrahim Fall</div>
-                <div class="testi-role" data-i18n="t3.role">CEO — SDS_Shop</div>
-              </div>
-            </div>
-          </div>
+          <?php endforeach; ?>
         </div>
         <div class="testi-nav">
           <button class="testi-prev" id="testi-prev" aria-label="Précédent">‹</button>
