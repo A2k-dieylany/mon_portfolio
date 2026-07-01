@@ -1,0 +1,44 @@
+# ======================================
+# SDS — Sécurité racine du projet
+# ======================================
+
+# Bloquer l'accès aux fichiers sensibles
+<FilesMatch "\.(sql|py|log|env|bak|sh)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Bloquer config.php par accès direct
+<FilesMatch "^(config)\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Bloquer l'accès au dossier .git
+RedirectMatch 404 /\.git
+
+# Empêcher le listing de répertoire
+Options -Indexes
+
+# Headers de sécurité
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# Cache statique (CSS, JS, images)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+</IfModule>
+
+# Forcer UTF-8
+AddDefaultCharset utf-8

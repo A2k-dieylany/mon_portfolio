@@ -16,26 +16,26 @@ if (isset($_SESSION['admin_id'])) {
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #0A0A0F;
-            --surface: #12121A;
-            --card: #1A1A24;
-            --border: #2A2A3A;
+            --bg: #050508;
+            --surface: rgba(15,15,22,0.9);
+            --card: rgba(20,20,32,0.6);
+            --border: rgba(255,255,255,0.06);
             --text: #E8E8ED;
             --text-dim: #8888A0;
-            --accent: #6C63FF;
-            --accent-glow: rgba(108, 99, 255, 0.3);
-            --gold: #D4AF37;
-            --red: #FF4D6A;
-            --green: #00D68F;
+            --accent: #7C6AFF;
+            --accent-glow: rgba(124,106,255,0.25);
+            --gold: #E5C24A;
+            --red: #FB7185;
+            --green: #34D399;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -143,7 +143,7 @@ if (isset($_SESSION['admin_id'])) {
         .login-btn {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, var(--accent), #8B83FF);
+            background: linear-gradient(135deg, var(--accent), #9B8FFF);
             color: #fff;
             border: none;
             border-radius: 12px;
@@ -256,7 +256,7 @@ if (isset($_SESSION['admin_id'])) {
             </button>
         </form>
 
-        <div class="login-footer">© 2025 SEN DIGITAL SOLUTION — Accès restreint</div>
+        <div class="login-footer">© 2025 SEN DIGITAL SOLUTION — Accès restreint 🔒</div>
     </div>
 
     <script>

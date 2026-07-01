@@ -158,16 +158,17 @@ function setupForm() {
       if (data.status === 'success') {
         toast('Message envoyé avec succès !', 'success');
         form.reset();
-        // Rafraîchir le token CSRF pour le prochain envoi
-        fetchCsrfToken();
       } else {
         toast('Erreur : ' + (data.message || 'Erreur inconnue.'), 'error');
       }
     } catch (err) {
       toast('Erreur de connexion.', 'error');
+    } finally {
+      // Toujours rafraîchir le token CSRF, que l'envoi ait réussi ou échoué
+      fetchCsrfToken();
+      btn.innerHTML = originalText;
+      btn.disabled = false;
     }
-    btn.innerHTML = originalText;
-    btn.disabled = false;
   });
 }
 
@@ -215,169 +216,451 @@ function setupChatbot() {
   const toggle = document.getElementById('chatbot-toggle');
   const win = document.getElementById('chatbot-window');
   const closeBtn = document.getElementById('chatbot-close');
+  const minimizeBtn = document.getElementById('chatbot-minimize');
+  const clearBtn = document.getElementById('chatbot-clear');
   const input = document.getElementById('chat-input');
   const sendBtn = document.getElementById('chat-send');
   const messages = document.getElementById('chatbot-messages');
   const quickReplies = document.getElementById('quick-replies');
+  const charCount = document.getElementById('chat-char-count');
+  const unreadBadge = document.getElementById('chat-unread');
+  const notifPopup = document.getElementById('chatbot-notification');
+  const emojiBtn = document.getElementById('chat-emoji-btn');
 
   if (!toggle) return;
 
-  // ✅ Historique de la conversation (réinitialisé à chaque ouverture de page)
+  // ===== State =====
   let chatHistory = [];
+  let isOpen = false;
+  let isTyping = false;
+  const STORAGE_KEY = 'sds_chat_history';
+  const NOTIF_KEY = 'sds_chat_notif_dismissed';
 
-  toggle.addEventListener('click', () => win.classList.remove('hidden'));
-  closeBtn.addEventListener('click', () => win.classList.add('hidden'));
-
-  const parseMarkdown = (text) => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--dark);font-weight:bold;text-decoration:underline;">$1</a>')
-      .replace(/\n/g, '<br>')
-      .replace(/- (.*?)<br>/g, '• $1<br>');
+  // ===== Localized quick replies =====
+  const quickReplyGroups = {
+    initial: [
+      { emoji: '💼', label: { fr: 'Services', en: 'Services', ar: 'خدمات' }, msg: { fr: 'Quels sont vos services ?', en: 'What services do you offer?', ar: 'ما هي خدماتكم؟' } },
+      { emoji: '🚀', label: { fr: 'Projets', en: 'Projects', ar: 'مشاريع' }, msg: { fr: 'Montrez-moi vos projets', en: 'Show me your projects', ar: 'أرني مشاريعكم' } },
+      { emoji: '📩', label: { fr: 'Contact', en: 'Contact', ar: 'اتصل' }, msg: { fr: 'Comment vous contacter ?', en: 'How can I contact you?', ar: 'كيف أتواصل معكم؟' } },
+      { emoji: '👤', label: { fr: 'Profil', en: 'Profile', ar: 'الملف' }, msg: { fr: 'Parlez-moi de Dieylany', en: 'Tell me about Dieylany', ar: 'حدثني عن Dieylany' } }
+    ],
+    followUp: [
+      { emoji: '💰', label: { fr: 'Tarifs', en: 'Pricing', ar: 'أسعار' }, msg: { fr: 'Quels sont vos tarifs ?', en: 'What are your prices?', ar: 'ما هي أسعاركم؟' } },
+      { emoji: '⏱️', label: { fr: 'Délais', en: 'Timeline', ar: 'مواعيد' }, msg: { fr: 'Quels sont vos délais de livraison ?', en: 'What are your delivery timelines?', ar: 'ما هي مواعيد التسليم؟' } },
+      { emoji: '🤖', label: { fr: 'IA & Chatbot', en: 'AI & Chatbot', ar: 'ذكاء اصطناعي' }, msg: { fr: 'Comment intégrer un chatbot IA WhatsApp ?', en: 'How to integrate a WhatsApp AI chatbot?', ar: 'كيف أدمج بوت واتساب ذكي؟' } },
+      { emoji: '📞', label: { fr: 'Appeler', en: 'Call', ar: 'اتصال' }, msg: { fr: 'Je veux discuter par WhatsApp', en: 'I want to chat on WhatsApp', ar: 'أريد التحدث عبر واتساب' } }
+    ]
   };
 
-  const rebuildHistory = () => {
-    chatHistory = [];
-    const msgElements = Array.from(messages.querySelectorAll('.chat-msg'));
-    for (let i = 1; i < msgElements.length; i++) {
-      const el = msgElements[i];
-      const raw = el.dataset.raw;
-      if (raw) {
-        if (el.classList.contains('user-msg')) {
-          chatHistory.push({ role: 'user', content: raw });
+  // ===== Welcome messages =====
+  const welcomeMessages = {
+    fr: 'Bonjour ! 👋 Je suis **MAX**, l\'assistant IA de SEN DIGITAL SOLUTION. Comment puis-je vous aider ?',
+    en: 'Hello! 👋 I\'m **MAX**, the AI assistant of SEN DIGITAL SOLUTION. How can I help you?',
+    ar: 'مرحباً! 👋 أنا **MAX**، المساعد الذكي لـ SEN DIGITAL SOLUTION. كيف يمكنني مساعدتك؟'
+  };
+
+  // ===== Helpers =====
+  const getLang = () => document.documentElement.lang || 'fr';
+
+  const getTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const playSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 800;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    } catch (e) {}
+  };
+
+  // ===== Enhanced Markdown Parser =====
+  const parseMarkdown = (text) => {
+    // Split into lines for list handling
+    const lines = text.split('\n');
+    let result = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const listMatch = line.match(/^[\s]*[-*•]\s+(.+)/);
+
+      if (listMatch) {
+        if (!inList) { result.push('<ul class="chat-list">'); inList = true; }
+        const content = listMatch[1]
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        result.push(`<li>${content}</li>`);
+      } else {
+        if (inList) { result.push('</ul>'); inList = false; }
+        if (line.trim() === '') {
+          result.push('<br>');
         } else {
-          chatHistory.push({ role: 'assistant', content: raw });
+          let processed = line
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code class="chat-code">$1</code>')
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+          result.push(`<p>${processed}</p>`);
         }
       }
     }
+    if (inList) result.push('</ul>');
+
+    return result.join('');
   };
 
-  const appendMsg = (text, sender, animate = false) => {
+  // ===== Quick Replies =====
+  const renderQuickReplies = (group = 'initial') => {
+    const lang = getLang();
+    const replies = quickReplyGroups[group] || quickReplyGroups.initial;
+    quickReplies.innerHTML = '';
+    replies.forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'quick-reply-btn';
+      btn.dataset.msg = r.msg[lang] || r.msg.fr;
+      btn.textContent = `${r.emoji} ${r.label[lang] || r.label.fr}`;
+      btn.addEventListener('click', () => handleSend(btn.dataset.msg));
+      quickReplies.appendChild(btn);
+    });
+    quickReplies.style.display = 'flex';
+    quickReplies.classList.add('qr-animate');
+    setTimeout(() => quickReplies.classList.remove('qr-animate'), 500);
+  };
+
+  // ===== Append Message =====
+  const appendMsg = (text, sender, options = {}) => {
+    const { animate = false, skipHistory = false, time = null } = options;
+
     const d = document.createElement('div');
     d.className = `chat-msg ${sender}-msg`;
     d.dataset.raw = text;
 
+    const timeStr = time || getTime();
+
     if (sender === 'bot') {
       d.innerHTML = `
-        <div class="chat-avatar-mini"><img src="img/max.jpg" alt="MAX" onerror="this.style.display='none'; this.parentNode.innerHTML='M'"></div>
-        <div class="chat-bubble"></div>
-        <button class="chat-copy-btn" title="Copier la réponse">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
+        <div class="chat-avatar-mini"><img src="img/max.jpg" alt="MAX" onerror="this.style.display='none'; this.parentNode.textContent='M'"></div>
+        <div class="chat-bubble-wrap">
+          <div class="chat-bubble"></div>
+          <div class="chat-meta">
+            <span class="chat-time">${timeStr}</span>
+            <button class="chat-copy-btn" title="Copier">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+        </div>
       `;
       const bubble = d.querySelector('.chat-bubble');
-      bubble.innerHTML = parseMarkdown(text);
-      
+
+      if (animate) {
+        // Typewriter effect
+        d.style.opacity = '0';
+        d.style.transform = 'translateY(8px)';
+        messages.appendChild(d);
+        messages.scrollTop = messages.scrollHeight;
+
+        requestAnimationFrame(() => {
+          d.style.transition = 'opacity .3s ease, transform .3s ease';
+          d.style.opacity = '1';
+          d.style.transform = 'translateY(0)';
+        });
+
+        const words = text.split(' ');
+        let currentIndex = 0;
+        const typeInterval = setInterval(() => {
+          if (currentIndex < words.length) {
+            const partialText = words.slice(0, currentIndex + 1).join(' ');
+            bubble.innerHTML = parseMarkdown(partialText);
+            messages.scrollTop = messages.scrollHeight;
+            currentIndex++;
+          } else {
+            clearInterval(typeInterval);
+            bubble.innerHTML = parseMarkdown(text);
+            messages.scrollTop = messages.scrollHeight;
+          }
+        }, 35);
+      } else {
+        bubble.innerHTML = parseMarkdown(text);
+        messages.appendChild(d);
+      }
+
+      // Copy button
       const copyBtn = d.querySelector('.chat-copy-btn');
       copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(text).then(() => {
-          copyBtn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-          copyBtn.style.color = 'var(--green)';
+          copyBtn.innerHTML = '<svg width="13" height="13" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
           setTimeout(() => {
-            copyBtn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-            copyBtn.style.color = '';
+            copyBtn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
           }, 2000);
         });
       });
-      
-      if (animate) {
-        bubble.style.opacity = '0';
-        bubble.style.transform = 'translateY(10px)';
-        bubble.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-        setTimeout(() => {
-          bubble.style.opacity = '1';
-          bubble.style.transform = 'translateY(0)';
-        }, 50);
-      }
+
     } else {
-      d.innerHTML = `<button class="chat-edit-btn" title="Modifier ce message">✎</button><div class="chat-bubble"></div>`;
+      d.innerHTML = `
+        <div class="chat-bubble-wrap">
+          <div class="chat-bubble"></div>
+          <div class="chat-meta">
+            <span class="chat-time">${timeStr}</span>
+            <button class="chat-edit-btn" title="Modifier">✎</button>
+          </div>
+        </div>
+      `;
       d.querySelector('.chat-bubble').textContent = text;
-      
+      messages.appendChild(d);
+
       d.querySelector('.chat-edit-btn').addEventListener('click', () => {
         const typing = messages.querySelector('.typing-indicator');
         if (typing) typing.remove();
         input.value = text;
         input.focus();
         let next = d.nextElementSibling;
-        while(next) {
-          const toRemove = next;
-          next = next.nextElementSibling;
-          toRemove.remove();
-        }
+        while (next) { const rm = next; next = next.nextElementSibling; rm.remove(); }
         d.remove();
         rebuildHistory();
       });
     }
-    messages.appendChild(d);
+
     messages.scrollTop = messages.scrollHeight;
+
+    if (!skipHistory) {
+      chatHistory.push({ role: sender === 'bot' ? 'assistant' : 'user', content: text, time: timeStr });
+      saveHistory();
+    }
   };
 
+  // ===== History Persistence =====
+  const saveHistory = () => {
+    try {
+      const toSave = chatHistory.slice(-30);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch (e) {}
+  };
+
+  const loadHistory = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (saved.length > 0) {
+        saved.forEach(entry => {
+          const sender = entry.role === 'user' ? 'user' : 'bot';
+          appendMsg(entry.content, sender, { skipHistory: true, time: entry.time || '' });
+        });
+        chatHistory = saved;
+        quickReplies.style.display = 'none';
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  };
+
+  const rebuildHistory = () => {
+    chatHistory = [];
+    const msgElements = Array.from(messages.querySelectorAll('.chat-msg'));
+    msgElements.forEach(el => {
+      const raw = el.dataset.raw;
+      if (raw) {
+        chatHistory.push({
+          role: el.classList.contains('user-msg') ? 'user' : 'assistant',
+          content: raw,
+          time: el.querySelector('.chat-time')?.textContent || ''
+        });
+      }
+    });
+    saveHistory();
+  };
+
+  // ===== Send Message =====
   const handleSend = async (text) => {
     if (window.location.protocol === 'file:') {
-      appendMsg("Attention : Vous avez ouvert le fichier directement. Pour que le chatbot fonctionne, passez par http://localhost/...", 'bot');
+      appendMsg("⚠️ Ouvrez le site via **http://localhost/...** pour activer le chatbot.", 'bot');
       return;
     }
+    if (isTyping) return;
 
     const msg = (text || input.value).trim();
     if (!msg) return;
 
     appendMsg(msg, 'user');
     input.value = '';
+    updateCharCount();
+    quickReplies.style.display = 'none';
+    isTyping = true;
+    sendBtn.classList.add('sending');
 
-    // Cacher les suggestions rapides après le premier message
-    if (quickReplies) quickReplies.style.display = 'none';
-
-    // Ajouter le message user à l'historique
-    chatHistory.push({ role: 'user', content: msg });
-
-    // Indicateur de saisie
+    // Typing indicator
     const typing = document.createElement('div');
     typing.className = 'typing-indicator';
-    typing.innerHTML = '<span></span><span></span><span></span>';
+    typing.innerHTML = '<div class="typing-avatar"><img src="img/max.jpg" alt="M" onerror="this.textContent=\'M\'"></div><div class="typing-dots"><span></span><span></span><span></span></div>';
     messages.appendChild(typing);
     messages.scrollTop = messages.scrollHeight;
 
     try {
+      const historyPayload = chatHistory.filter(h => h.role).map(h => ({ role: h.role, content: h.content }));
+
       const res = await fetch('chat.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: msg,
-          history: chatHistory.slice(0, -1) // historique sans le message actuel (déjà dans 'message')
+          history: historyPayload.slice(0, -1)
         })
       });
 
       const data = await res.json();
-      messages.removeChild(typing);
+      if (messages.contains(typing)) typing.remove();
 
       const reply = data.reply || "Désolé, une erreur s'est produite.";
-      appendMsg(reply, 'bot', true);
+      appendMsg(reply, 'bot', { animate: true });
+      playSound();
 
-      // Ajouter la réponse du bot à l'historique
-      chatHistory.push({ role: 'assistant', content: reply });
+      // Show follow-up quick replies
+      setTimeout(() => renderQuickReplies('followUp'), 800);
 
-      // Limiter l'historique à 20 échanges pour éviter les requêtes trop lourdes
-      if (chatHistory.length > 20) {
-        chatHistory = chatHistory.slice(-20);
+      // Unread badge if window closed
+      if (!isOpen && unreadBadge) {
+        unreadBadge.classList.remove('hidden');
       }
 
     } catch (err) {
       console.error('Chatbot Error:', err);
-      if (messages.contains(typing)) messages.removeChild(typing);
-      appendMsg("Erreur de connexion au serveur.", 'bot', true);
+      if (messages.contains(typing)) typing.remove();
+      appendMsg("❌ Erreur de connexion. Réessayez ou contactez-nous via le formulaire.", 'bot', { animate: true });
+    } finally {
+      isTyping = false;
+      sendBtn.classList.remove('sending');
     }
   };
 
-  // Suggestions rapides
-  if (quickReplies) {
-    quickReplies.querySelectorAll('.quick-reply-btn').forEach(btn => {
-      btn.addEventListener('click', () => handleSend(btn.dataset.msg));
+  // ===== Character Counter =====
+  const updateCharCount = () => {
+    const len = input.value.length;
+    if (len > 800) {
+      charCount.textContent = `${len}/1000`;
+      charCount.style.color = len > 950 ? '#FF6B6B' : 'var(--gold)';
+      charCount.style.display = 'block';
+    } else {
+      charCount.style.display = 'none';
+    }
+  };
+
+  // ===== Init Welcome =====
+  const showWelcome = () => {
+    const lang = getLang();
+    const welcomeText = welcomeMessages[lang] || welcomeMessages.fr;
+    appendMsg(welcomeText, 'bot', { animate: false });
+    renderQuickReplies('initial');
+  };
+
+  // ===== Notification Popup =====
+  const showNotifPopup = () => {
+    if (localStorage.getItem(NOTIF_KEY)) return;
+    setTimeout(() => {
+      if (!isOpen && notifPopup) {
+        notifPopup.classList.remove('hidden');
+        setTimeout(() => {
+          if (!isOpen) notifPopup.classList.add('hidden');
+        }, 8000);
+      }
+    }, 12000);
+  };
+
+  // ===== Event Listeners =====
+  toggle.addEventListener('click', () => {
+    win.classList.remove('hidden');
+    isOpen = true;
+    if (unreadBadge) unreadBadge.classList.add('hidden');
+    if (notifPopup) notifPopup.classList.add('hidden');
+    setTimeout(() => {
+      input.focus();
+      messages.scrollTop = messages.scrollHeight;
+    }, 350);
+  });
+
+  closeBtn.addEventListener('click', () => { win.classList.add('hidden'); isOpen = false; });
+  if (minimizeBtn) minimizeBtn.addEventListener('click', () => { win.classList.add('hidden'); isOpen = false; });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      // Remove all messages except date separator
+      while (messages.children.length > 1) {
+        messages.removeChild(messages.lastChild);
+      }
+      chatHistory = [];
+      localStorage.removeItem(STORAGE_KEY);
+      showWelcome();
     });
   }
 
+  if (notifPopup) {
+    notifPopup.querySelector('.notif-close')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notifPopup.classList.add('hidden');
+      localStorage.setItem(NOTIF_KEY, '1');
+    });
+    notifPopup.addEventListener('click', () => {
+      notifPopup.classList.add('hidden');
+      toggle.click();
+    });
+  }
+
+  // Emoji quick insert
+  const emojis = ['👋', '👍', '🙏', '💡', '🔥', '✅', '❓', '💼'];
+  let emojiOpen = false;
+  if (emojiBtn) {
+    emojiBtn.addEventListener('click', () => {
+      if (emojiOpen) {
+        document.querySelector('.emoji-picker')?.remove();
+        emojiOpen = false;
+        return;
+      }
+      const picker = document.createElement('div');
+      picker.className = 'emoji-picker';
+      emojis.forEach(e => {
+        const btn = document.createElement('button');
+        btn.textContent = e;
+        btn.addEventListener('click', () => {
+          input.value += e;
+          input.focus();
+          picker.remove();
+          emojiOpen = false;
+          updateCharCount();
+        });
+        picker.appendChild(btn);
+      });
+      emojiBtn.parentNode.insertBefore(picker, emojiBtn);
+      emojiOpen = true;
+      setTimeout(() => {
+        document.addEventListener('click', function closeEmoji(ev) {
+          if (!picker.contains(ev.target) && ev.target !== emojiBtn) {
+            picker.remove();
+            emojiOpen = false;
+            document.removeEventListener('click', closeEmoji);
+          }
+        });
+      }, 50);
+    });
+  }
+
+  input.addEventListener('input', updateCharCount);
   sendBtn.addEventListener('click', () => handleSend());
-  input.addEventListener('keypress', e => { if (e.key === 'Enter') handleSend(); });
+  input.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+
+  // ===== Boot =====
+  const hasHistory = loadHistory();
+  if (!hasHistory) {
+    showWelcome();
+  }
+  showNotifPopup();
 }
 
 
@@ -805,7 +1088,12 @@ function initPage() {
   // Compteur de visiteurs
   const setupVisitors = async () => {
     try {
-      const res = await fetch('visitors.php');
+      const page = window.location.pathname.split('/').pop() || 'home';
+      const ref = document.referrer || '';
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/i.test(navigator.userAgent);
+      const device = isTablet ? 'tablet' : (isMobile ? 'mobile' : 'desktop');
+      const res = await fetch(`visitors.php?page=${page}&ref=${encodeURIComponent(ref)}&device=${device}`);
       const data = await res.json();
       if (data.status === 'ok') {
         const vc = document.getElementById('visitor-counter');

@@ -8,6 +8,10 @@
   </div>
 
   <div class="data-card">
+    <div class="data-card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Liste des projets</h3>
+        <input type="text" id="proj-search" class="search-input" placeholder="🔍 Rechercher..." onkeyup="searchProjects()">
+    </div>
     
     <div id="projects-table-wrap">
         <table>
@@ -18,7 +22,7 @@
                     <th>Titre (FR)</th>
                     <th>Catégorie</th>
                     <th>Statut</th>
-                    <th>Actions</th>
+                    <th style="text-align:right">Actions</th>
                 </tr>
             </thead>
             <tbody id="projects-tbody">
@@ -160,24 +164,55 @@ async function loadProjects() {
         const imgUrl = p.main_image ? '../' + p.main_image : '';
         const imgHtml = imgUrl ? `<div style="width:50px;height:35px;border-radius:4px;background:url('${imgUrl}') center/cover"></div>` : '—';
         return `
-            <tr>
-                <td style="color:var(--text-muted);cursor:ns-resize">↕️</td>
+            <tr data-id="${p.id}" style="transition:all 0.2s">
+                <td class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.2rem" title="Glisser pour réorganiser">↕</td>
                 <td>${imgHtml}</td>
-                <td style="font-weight:600">${esc(p.title_fr)}</td>
-                <td style="color:var(--text-dim)">${esc(p.category_fr)}</td>
+                <td style="font-weight:600;color:var(--text)">${esc(p.title_fr)}</td>
+                <td style="color:rgba(255,255,255,0.5)">${esc(p.category_fr)}</td>
                 <td>
-                    <span class="status ${p.is_visible ? 'status-read' : 'status-archived'}" style="cursor:pointer" onclick="toggleProjVis(${p.id}, ${p.is_visible})">
-                        ${p.is_visible ? 'Visible' : 'Masqué'}
+                    <span class="status ${p.is_visible ? 'status-read' : 'status-archived'}" style="cursor:pointer;opacity:0.9" onclick="toggleProjVis(${p.id}, ${p.is_visible})">
+                        <span style="color:${p.is_visible ? 'var(--green)' : 'inherit'}">●</span> ${p.is_visible ? 'Visible' : 'Masqué'}
                     </span>
                 </td>
-                <td>
-                    <div class="action-btns">
-                        <button class="action-btn" onclick="openProjModal(${p.id})">✏️ Editer</button>
-                        <button class="action-btn danger" onclick="deleteProj(${p.id})">🗑️</button>
+                <td style="text-align:right">
+                    <div class="action-btns" style="justify-content:flex-end">
+                        <button class="action-btn" onclick="openProjModal(${p.id})" title="Modifier">✏️</button>
+                        <button class="action-btn danger" onclick="deleteProj(${p.id})" title="Supprimer">🗑️</button>
                     </div>
                 </td>
             </tr>`;
     }).join('');
+
+    // Initialize Sortable
+    if (window.Sortable && !window.projSortable) {
+        window.projSortable = new Sortable(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function() {
+                saveProjOrder();
+            }
+        });
+    }
+}
+
+function searchProjects() {
+    const q = document.getElementById('proj-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#projects-tbody tr[data-id]');
+    rows.forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+
+async function saveProjOrder() {
+    const rows = document.querySelectorAll('#projects-tbody tr[data-id]');
+    const items = Array.from(rows).map((tr, index) => ({
+        id: tr.dataset.id,
+        sort_order: index
+    }));
+    
+    const data = await Admin.api('projects.php', { method: 'PUT', body: { reorder: true, items } });
+    if (data.success) Admin.toast('Ordre enregistré.');
 }
 
 function esc(str) {

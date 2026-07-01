@@ -1,9 +1,15 @@
 <?php
+/**
+ * SDS Admin API — Analytics
+ */
 session_start();
-if (!isset($_SESSION['admin_id'])) { http_response_code(401); echo json_encode(['error'=>'Non autorisé']); exit; }
-
-header('Content-Type: application/json');
+require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+require_auth();
+security_headers();
+
 $pdo = getDB();
 
 $action = $_GET['action'] ?? 'summary';
@@ -29,7 +35,7 @@ if ($action === 'summary') {
 
     // Messages
     $msgTotal  = $pdo->query("SELECT COUNT(*) FROM messages")->fetchColumn();
-    $msgUnread = $pdo->query("SELECT COUNT(*) FROM messages WHERE is_read = 0")->fetchColumn();
+    $msgUnread = $pdo->query("SELECT COUNT(*) FROM messages WHERE status = 'unread' OR status IS NULL")->fetchColumn();
 
     echo json_encode([
         'visitors_total'  => (int)$total,

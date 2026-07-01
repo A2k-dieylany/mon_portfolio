@@ -1,9 +1,10 @@
 -- ================================================================
 -- SDS ADMIN DASHBOARD — Script de migration V2
 -- Base : portfolio_sds
--- Date : 03 Mai 2026
+-- Date : 11 Mai 2026 (consolidé — table visitors ajoutée)
 -- ================================================================
 
+CREATE DATABASE IF NOT EXISTS portfolio_sds;
 USE portfolio_sds;
 
 -- ========================================
@@ -216,6 +217,19 @@ CREATE TABLE IF NOT EXISTS chatbot_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================================
+-- 👁️ VISITEURS (Compteur unique par jour)
+-- ========================================
+CREATE TABLE IF NOT EXISTS visitors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_hash VARCHAR(64) NOT NULL,
+    country VARCHAR(50) DEFAULT '',
+    visited_at DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_visit (ip_hash, visited_at),
+    INDEX idx_date (visited_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================
 -- 👁️ PAGE VIEWS (Analytics détaillé)
 -- ========================================
 CREATE TABLE IF NOT EXISTS page_views (
@@ -231,9 +245,40 @@ CREATE TABLE IF NOT EXISTS page_views (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================================
--- 💬 MISE À JOUR TABLE MESSAGES (ajout statut)
+-- 💬 MESSAGES DE CONTACT
 -- ========================================
-ALTER TABLE messages
-    ADD COLUMN IF NOT EXISTS status ENUM('unread', 'read', 'replied', 'archived') DEFAULT 'unread' AFTER message,
-    ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '' AFTER status,
-    ADD COLUMN IF NOT EXISTS replied_at DATETIME NULL AFTER notes;
+CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    subject VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    status ENUM('unread', 'read', 'replied', 'archived') DEFAULT 'unread',
+    notes TEXT DEFAULT '',
+    replied_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_status (status),
+    INDEX idx_date (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================
+-- 💬 MISE À JOUR TABLE MESSAGES (pour bases existantes)
+-- ========================================
+-- Si la table messages existait déjà sans les colonnes statut/notes :
+-- ALTER TABLE messages
+--     ADD COLUMN IF NOT EXISTS status ENUM('unread', 'read', 'replied', 'archived') DEFAULT 'unread' AFTER message,
+--     ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '' AFTER status,
+--     ADD COLUMN IF NOT EXISTS replied_at DATETIME NULL AFTER notes;
+
+-- ========================================
+-- 🛡️ RATE LIMITING (Sécurité API)
+-- ========================================
+CREATE TABLE IF NOT EXISTS api_rate_limits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_hash VARCHAR(64) NOT NULL,
+    endpoint VARCHAR(50) NOT NULL,
+    requests_count INT DEFAULT 1,
+    window_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_ip_endpoint (ip_hash, endpoint),
+    INDEX idx_window (window_start)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

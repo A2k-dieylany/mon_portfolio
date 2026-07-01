@@ -2,7 +2,18 @@
 /**
  * Script de migration des données statiques (i18n.js) vers la Base de Données
  * À exécuter une seule fois !
+ * ⚠️ PROTÉGÉ — Nécessite une session admin active
  */
+session_start();
+require_once __DIR__ . '/includes/auth_check.php';
+require_auth();
+
+// Vérifier que c'est un superadmin
+$admin = get_admin();
+if ($admin['role'] !== 'superadmin') {
+    die('Accès réservé au superadmin.');
+}
+
 require_once __DIR__ . '/includes/db.php';
 $pdo = getDB();
 

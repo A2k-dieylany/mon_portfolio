@@ -4,13 +4,14 @@
       <h2>📩 Boîte de réception</h2>
       <p class="cms-subtitle" id="messages-count">Chargement...</p>
     </div>
-    <div class="data-filters">
-        <button class="filter-btn active" data-status="all" onclick="msgFilter(this, '')">Tous</button>
-        <button class="filter-btn" data-status="unread" onclick="msgFilter(this, 'unread')">📩 Non lus</button>
-        <button class="filter-btn" data-status="read" onclick="msgFilter(this, 'read')">✅ Lus</button>
-        <button class="filter-btn" data-status="replied" onclick="msgFilter(this, 'replied')">↩️ Répondus</button>
-        <button class="filter-btn" data-status="archived" onclick="msgFilter(this, 'archived')">📦 Archivés</button>
-        <input type="text" class="search-input" id="msg-search" placeholder="🔍 Rechercher..." oninput="msgSearch(this.value)">
+    <div class="data-filters" style="border:none;padding:0;margin-top:20px;gap:12px">
+        <button class="filter-btn active" data-status="all" onclick="msgFilter(this, '')" style="padding:8px 16px">Tous</button>
+        <button class="filter-btn" data-status="unread" onclick="msgFilter(this, 'unread')" style="padding:8px 16px"><span style="color:var(--blue)">●</span> Non lus</button>
+        <button class="filter-btn" data-status="read" onclick="msgFilter(this, 'read')" style="padding:8px 16px"><span style="color:var(--green)">●</span> Lus</button>
+        <button class="filter-btn" data-status="replied" onclick="msgFilter(this, 'replied')" style="padding:8px 16px"><span style="color:var(--accent)">●</span> Répondus</button>
+        <button class="filter-btn" data-status="archived" onclick="msgFilter(this, 'archived')" style="padding:8px 16px"><span style="color:var(--text-dim)">●</span> Archivés</button>
+        <div style="flex:1"></div>
+        <input type="text" class="search-input" id="msg-search" placeholder="🔍 Rechercher un nom, email..." oninput="msgSearch(this.value)" style="width:280px">
     </div>
   </div>
 
@@ -96,18 +97,25 @@ async function loadMessages(status = '', search = '') {
     tbody.innerHTML = msgs.map(m => {
         const statusCls = 'status-' + (m.status || 'unread');
         const statusLabel = m.status || 'unread';
-        const date = new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+        const date = new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const initials = m.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+        
         return `
             <tr onclick="openMsg(${m.id})">
-                <td><strong>${esc(m.name)}</strong></td>
-                <td class="truncate" style="color:var(--text-dim)">${esc(m.email)}</td>
-                <td class="truncate">${esc(m.subject)}</td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-glow);color:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">${initials}</div>
+                        <strong style="font-size:0.85rem">${esc(m.name)}</strong>
+                    </div>
+                </td>
+                <td class="truncate" style="color:rgba(255,255,255,0.5)">${esc(m.email)}</td>
+                <td class="truncate" style="font-weight:500">${esc(m.subject)}</td>
                 <td><span class="status ${statusCls}">${statusLabel}</span></td>
-                <td style="color:var(--text-dim);font-size:0.8rem;white-space:nowrap">${date}</td>
+                <td style="color:rgba(255,255,255,0.4);font-size:0.78rem;white-space:nowrap">${date}</td>
                 <td>
                     <div class="action-btns">
-                        <button class="action-btn" onclick="event.stopPropagation();quickStatus(${m.id},'read')" title="Marquer lu">✅</button>
-                        <button class="action-btn danger" onclick="event.stopPropagation();quickDelete(${m.id})" title="Supprimer">🗑️</button>
+                        <button class="action-btn" onclick="event.stopPropagation();quickStatus(${m.id},'read')" title="Marquer lu" style="background:rgba(52,211,153,0.1);color:var(--green);border:none">✓</button>
+                        <button class="action-btn danger" onclick="event.stopPropagation();quickDelete(${m.id})" title="Supprimer" style="background:rgba(251,113,133,0.1);color:var(--red);border:none">✕</button>
                     </div>
                 </td>
             </tr>`;

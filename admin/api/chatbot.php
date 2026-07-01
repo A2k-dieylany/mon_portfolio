@@ -1,9 +1,15 @@
 <?php
+/**
+ * SDS Admin API — Chatbot Logs
+ */
 session_start();
-if (!isset($_SESSION['admin_id'])) { http_response_code(401); echo json_encode(['error'=>'Non autorisé']); exit; }
-
-header('Content-Type: application/json');
+require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+require_auth();
+security_headers();
+
 $pdo = getDB();
 
 $method = $_SERVER['REQUEST_METHOD'];

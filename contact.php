@@ -2,23 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 
-// ===== Rate limiting : 3 requêtes max toutes les 5 minutes =====
-$timeLimit = 300;
-$maxRequests = 3;
 
-if (!isset($_SESSION['contact_requests'])) {
-    $_SESSION['contact_requests'] = [];
-}
-$currentTime = time();
-$_SESSION['contact_requests'] = array_filter($_SESSION['contact_requests'], function($ts) use ($currentTime, $timeLimit) {
-    return ($currentTime - $ts) < $timeLimit;
-});
-
-if (count($_SESSION['contact_requests']) >= $maxRequests) {
-    echo json_encode(['status' => 'error', 'message' => "Trop de tentatives. Veuillez réessayer plus tard."]);
-    exit;
-}
-$_SESSION['contact_requests'][] = $currentTime;
 
 // ===== Vérification méthode POST =====
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -34,6 +18,31 @@ if (empty($token) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['
 }
 // Invalider le token après usage (usage unique)
 unset($_SESSION['csrf_token']);
+
+require_once __DIR__ . '/admin/includes/db.php';
+require_once __DIR__ . '/config.php';
+
+// ===== Rate limiting DB : 3 requêtes max toutes les 5 minutes =====
+$timeLimit = 300;
+$maxRequests = 3;
+
+$ip_hash = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown');
+$pdo = getDB();
+$pdo->exec("DELETE FROM api_rate_limits WHERE window_start < (NOW() - INTERVAL $timeLimit SECOND)");
+
+$stmt = $pdo->prepare("SELECT requests_count FROM api_rate_limits WHERE ip_hash = ? AND endpoint = 'contact'");
+$stmt->execute([$ip_hash]);
+$row = $stmt->fetch();
+
+if ($row) {
+    if ($row['requests_count'] >= $maxRequests) {
+        echo json_encode(['status' => 'error', 'message' => "Trop de tentatives. Veuillez réessayer plus tard."]);
+        exit;
+    }
+    $pdo->prepare("UPDATE api_rate_limits SET requests_count = requests_count + 1 WHERE ip_hash = ? AND endpoint = 'contact'")->execute([$ip_hash]);
+} else {
+    $pdo->prepare("INSERT INTO api_rate_limits (ip_hash, endpoint, requests_count) VALUES (?, 'contact', 1)")->execute([$ip_hash]);
+}
 
 // ===== Anti-spam : Honeypot =====
 $website = trim($_POST['website'] ?? '');
@@ -71,51 +80,79 @@ $name    = str_replace(["\r", "\n", "\t"], '', $name);
 $email   = str_replace(["\r", "\n", "\t"], '', $email);
 $subject = str_replace(["\r", "\n", "\t"], '', $subject);
 
-// Échappement HTML pour stockage/affichage
-$safeName    = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-$safeSubject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
-$safeMessage = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
-
-// ===== Paramètres de l'email =====
-$to = 'dieylanya2k@gmail.com';
-$email_subject = "Nouveau message de $safeName: $safeSubject";
-$email_body  = "Nom: $safeName\n";
-$email_body .= "Email: $email\n\n";
-$email_body .= "Message:\n$safeMessage\n";
-
-// En-têtes sécurisées : From utilise une adresse du serveur, Reply-To l'adresse du visiteur
-$headers  = "From: noreply@sds.sn\r\n";
-$headers .= "Reply-To: $email\r\n";
-$headers .= "X-Mailer: PHP/" . phpversion();
-
 // ===== Sauvegarde en Base de Données (MySQL via PDO) =====
+// NOTE : on stocke les données BRUTES — l'échappement HTML se fait uniquement à l'affichage
 try {
-    require_once __DIR__ . '/config.php';
-    $host   = defined('DB_HOST') ? DB_HOST : 'localhost';
-    $dbname = defined('DB_NAME') ? DB_NAME : 'portfolio_sds';
-    $user   = defined('DB_USER') ? DB_USER : 'root';
-    $pass   = defined('DB_PASS') ? DB_PASS : '';
-
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     $stmt = $pdo->prepare("INSERT INTO messages (name, email, subject, message) VALUES (:name, :email, :subject, :message)");
     $stmt->execute([
-        ':name'    => $safeName,
+        ':name'    => $name,
         ':email'   => $email,
-        ':subject' => $safeSubject,
-        ':message' => $safeMessage
+        ':subject' => $subject,
+        ':message' => $message
     ]);
 } catch (PDOException $e) {
     error_log("SDS Contact DB Error: " . $e->getMessage());
     // On continue l'envoi d'email même si la DB échoue
 }
 
-// ===== Envoi de l'email =====
-if (mail($to, $email_subject, $email_body, $headers)) {
+// ===== Envoi de l'email via API Resend =====
+$resendApiKey = defined('RESEND_API_KEY') ? RESEND_API_KEY : '';
+
+if (empty($resendApiKey) || $resendApiKey === 'YOUR_RESEND_API_KEY') {
+    error_log("SDS Contact Error: Clé API Resend non configurée dans .env");
+    echo json_encode(['status' => 'error', 'message' => "Erreur de configuration serveur. Contactez-nous via WhatsApp."]);
+    exit;
+}
+
+$postData = json_encode([
+    'from' => 'onboarding@resend.dev', // Utiliser l'email par défaut de Resend pour le testing. À changer par un domaine vérifié en prod.
+    'to' => ['dieylany.dev@gmail.com'], 
+    'subject' => "Nouveau message de $name: $subject",
+    'html' => "<p><strong>Nom:</strong> " . htmlspecialchars($name) . "</p><p><strong>Email:</strong> " . htmlspecialchars($email) . "</p><p><strong>Message:</strong><br>" . nl2br(htmlspecialchars($message)) . "</p>",
+    'reply_to' => filter_var($email, FILTER_SANITIZE_EMAIL)
+]);
+
+$ch = curl_init('https://api.resend.com/emails');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $resendApiKey,
+    'Content-Type: application/json'
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+if ($httpCode >= 200 && $httpCode < 300) {
+    // ===== Envoi au Webhook CRM (n8n / Make) =====
+    $webhookUrl = defined('WEBHOOK_URL') ? WEBHOOK_URL : '';
+    if (!empty($webhookUrl)) {
+        $webhookData = json_encode([
+            'source' => 'sds_portfolio_contact_form',
+            'name' => $name,
+            'email' => $email,
+            'subject' => $subject,
+            'message' => $message,
+            'timestamp' => date('c')
+        ]);
+
+        $chWebhook = curl_init($webhookUrl);
+        curl_setopt($chWebhook, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($chWebhook, CURLOPT_POST, true);
+        curl_setopt($chWebhook, CURLOPT_POSTFIELDS, $webhookData);
+        curl_setopt($chWebhook, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($chWebhook, CURLOPT_TIMEOUT, 3); // Timeout de 3s pour ne pas ralentir la réponse frontend
+        curl_exec($chWebhook);
+        curl_close($chWebhook);
+    }
+
     echo json_encode(['status' => 'success', 'message' => 'Message envoyé avec succès.']);
 } else {
-    error_log("SDS Contact Mail Error: mail() failed for $email");
-    echo json_encode(['status' => 'error', 'message' => "Erreur lors de l'envoi. Réessayez ou contactez-nous via WhatsApp."]);
+    error_log("SDS Contact Mail Error API: HTTP $httpCode - Response: $response");
+    echo json_encode(['status' => 'error', 'message' => "Erreur lors de l'envoi de l'email. Réessayez ou contactez-nous via WhatsApp."]);
 }
 ?>

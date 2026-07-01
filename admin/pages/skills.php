@@ -8,6 +8,10 @@
   </div>
 
   <div class="data-card">
+    <div class="data-card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Liste des compétences</h3>
+        <input type="text" id="skill-search" class="search-input" placeholder="🔍 Rechercher..." onkeyup="searchSkills()">
+    </div>
     
     <div id="skills-table-wrap">
         <table>
@@ -102,8 +106,8 @@ async function loadSkills() {
 
     tbody.innerHTML = allSkills.map((s, index) => {
         return `
-            <tr>
-                <td style="color:var(--text-muted);cursor:ns-resize" title="Ordre actuel: ${s.sort_order}">↕️</td>
+            <tr data-id="${s.id}" style="transition:all 0.2s">
+                <td class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.2rem" title="Glisser pour réorganiser">↕</td>
                 <td><span style="margin-right:6px">${s.group_icon||''}</span> ${esc(s.group_name_fr)}</td>
                 <td style="font-weight:600">${esc(s.skill_name)}</td>
                 <td>
@@ -126,7 +130,39 @@ async function loadSkills() {
                     </div>
                 </td>
             </tr>`;
+        return html;
     }).join('');
+
+    // Initialize Sortable
+    if (window.Sortable && !window.skillsSortable) {
+        window.skillsSortable = new Sortable(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function() {
+                saveSkillsOrder();
+            }
+        });
+    }
+}
+
+function searchSkills() {
+    const q = document.getElementById('skill-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#skills-tbody tr[data-id]');
+    rows.forEach(tr => {
+        tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+
+async function saveSkillsOrder() {
+    const rows = document.querySelectorAll('#skills-tbody tr[data-id]');
+    const items = Array.from(rows).map((tr, index) => ({
+        id: tr.dataset.id,
+        sort_order: index
+    }));
+    
+    const data = await Admin.api('skills.php', { method: 'PUT', body: { reorder: true, items } });
+    if (data.success) Admin.toast('Ordre enregistré.');
 }
 
 function esc(str) {

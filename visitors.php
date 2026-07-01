@@ -1,25 +1,13 @@
 <?php
+/**
+ * SDS — Compteur de visiteurs publique
+ * Utilise la connexion PDO partagée via getDB()
+ */
 header('Content-Type: application/json');
-require_once __DIR__ . '/config.php';
-
-$host   = defined('DB_HOST') ? DB_HOST : 'localhost';
-$dbname = defined('DB_NAME') ? DB_NAME : 'portfolio_sds';
-$user   = defined('DB_USER') ? DB_USER : 'root';
-$pass   = defined('DB_PASS') ? DB_PASS : '';
+require_once __DIR__ . '/admin/includes/db.php';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Créer la table si elle n'existe pas
-    $pdo->exec("CREATE TABLE IF NOT EXISTS visitors (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        ip_hash VARCHAR(64) NOT NULL,
-        country VARCHAR(50) DEFAULT '',
-        visited_at DATE NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_visit (ip_hash, visited_at)
-    )");
+    $pdo = getDB();
 
     // Hash de l'IP pour la vie privée (on ne stocke jamais l'IP en clair)
     $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
@@ -29,6 +17,20 @@ try {
     // Enregistrer la visite (IGNORE si déjà visité aujourd'hui grâce à la clé unique)
     $stmt = $pdo->prepare("INSERT IGNORE INTO visitors (ip_hash, visited_at) VALUES (:hash, :today)");
     $stmt->execute([':hash' => $ipHash, ':today' => $today]);
+
+    // Enregistrer la vue de page
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    $session_id = session_id();
+    
+    $page = $_GET['page'] ?? 'home';
+    if ($page === '' || $page === 'index.php') $page = 'home';
+    $ref = $_GET['ref'] ?? '';
+    $device = $_GET['device'] ?? 'desktop';
+
+    $stmtView = $pdo->prepare("INSERT INTO page_views (session_id, page, referrer, device) VALUES (:sess, :page, :ref, :device)");
+    $stmtView->execute([':sess' => $session_id, ':page' => $page, ':ref' => $ref, ':device' => $device]);
 
     // Compter les statistiques
     $total = $pdo->query("SELECT COUNT(*) FROM visitors")->fetchColumn();

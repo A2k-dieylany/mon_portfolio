@@ -115,7 +115,7 @@ let currentTestis = [];
 
 async function loadTestimonials() {
     try {
-        const data = await Admin.api('api/testimonials.php?action=list');
+        const data = await Admin.api('testimonials.php?action=list');
         currentTestis = data.testimonials || [];
         const tbody = document.getElementById('testi-tbody');
         tbody.innerHTML = '';
@@ -176,7 +176,7 @@ function editTestimonial(id) {
     
     document.getElementById('testi-visible').checked = t.is_visible == 1;
     
-    document.getElementById('testi-modal-title').textContent = 'Modifier l\\'Avis';
+    document.getElementById('testi-modal-title').textContent = "Modifier l'Avis";
     document.getElementById('testi-modal').classList.add('active');
 }
 
@@ -184,7 +184,7 @@ async function saveTestimonial(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     try {
-        await Admin.api('api/testimonials.php?action=save', {
+        await Admin.api('testimonials.php?action=save', {
             method: 'POST',
             body: formData
         });
@@ -201,7 +201,7 @@ async function deleteTestimonial(id) {
         const fd = new FormData();
         fd.append('id', id);
         try {
-            await Admin.api('api/testimonials.php?action=delete', {
+            await Admin.api('testimonials.php?action=delete', {
                 method: 'POST',
                 body: fd
             });

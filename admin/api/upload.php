@@ -42,8 +42,14 @@ if (!in_array($mimeType, $allowedMimeTypes)) {
     exit;
 }
 
-// Nettoyer le nom du fichier et générer un nom unique
-$ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+// Forcer l'extension en fonction du type MIME réel (sécurité contre usurpation)
+$mimeToExt = [
+    'image/jpeg' => 'jpg',
+    'image/png'  => 'png',
+    'image/webp' => 'webp',
+    'image/gif'  => 'gif'
+];
+$ext = $mimeToExt[$mimeType] ?? 'jpg';
 $filename = uniqid('proj_') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
 
 // Chemin de destination: sds/images/projects/

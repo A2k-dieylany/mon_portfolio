@@ -7,8 +7,13 @@ Disallow: /csrf.php
 Disallow: /cv_download.php
 Disallow: /chat.php
 Disallow: /contact.php
+Disallow: /visitors.php
 Disallow: /database.sql
+Disallow: /database_v2.sql
 Disallow: /patch.py
 Disallow: /.git/
+
+# Admin — zone restreinte
+Disallow: /admin/
 
 Sitemap: https://sds.sn/sitemap.xml

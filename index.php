@@ -4,12 +4,25 @@ $pdo = getDB();
 
 // Récupérer toutes les données publiques
 $projects = $pdo->query("SELECT * FROM projects WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
-// Fetch galleries for projects
-$imgStmt = $pdo->prepare("SELECT * FROM project_images WHERE project_id = ? ORDER BY sort_order ASC");
-foreach ($projects as &$p) {
-    $imgStmt->execute([$p['id']]);
-    $p['gallery'] = $imgStmt->fetchAll();
+// Fetch galleries for all visible projects in a single query to avoid N+1 problem
+$projectIds = array_column($projects, 'id');
+$galleriesByProject = [];
+
+if (!empty($projectIds)) {
+    $in = str_repeat('?,', count($projectIds) - 1) . '?';
+    $imgStmt = $pdo->prepare("SELECT * FROM project_images WHERE project_id IN ($in) ORDER BY sort_order ASC");
+    $imgStmt->execute($projectIds);
+    $allImages = $imgStmt->fetchAll();
+    
+    foreach ($allImages as $img) {
+        $galleriesByProject[$img['project_id']][] = $img;
+    }
 }
+
+foreach ($projects as &$p) {
+    $p['gallery'] = $galleriesByProject[$p['id']] ?? [];
+}
+unset($p);
 
 $services = $pdo->query("SELECT * FROM services WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
 $skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY group_name_fr ASC, sort_order ASC, id ASC")->fetchAll();
@@ -45,18 +58,40 @@ foreach($settingsData as $s) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
+    
+  <!-- SEO JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "<?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>",
+    "founder": {
+      "@type": "Person",
+      "name": "Dieylany"
+    },
+    "description": "Expert en développement web, création de sites vitrines et IA basé à Dakar, Sénégal.",
+    "url": "https://sds.sn/",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Dakar",
+      "addressCountry": "SN"
+    }
+  }
+  </script>
+
   <!-- Inject PHP data as JSON for frontend JS to use -->
   <script>
     window.SDS_DATA = {
-        projects: <?php echo json_encode($projects); ?>,
-        services: <?php echo json_encode($services); ?>,
-        skills: <?php echo json_encode($skills); ?>,
-        timeline: <?php echo json_encode($timeline); ?>
+        projects: <?php echo json_encode($projects, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>,
+        services: <?php echo json_encode($services, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>,
+        skills: <?php echo json_encode($skills, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>,
+        timeline: <?php echo json_encode($timeline, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>
     };
   </script>
 
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
+  <link rel="canonical" href="https://sds.sn/" />
   <style>
     :root {
       --accent: <?= htmlspecialchars($settings['accent_color'] ?? '#6C63FF') ?>;
@@ -85,6 +120,8 @@ foreach($settingsData as $s) {
         d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
     </svg>
   </a>
+
+  <main>
 
   <!-- NAV -->
   <nav>
@@ -530,37 +567,51 @@ foreach($settingsData as $s) {
 
   <!-- CHATBOT IA -->
   <div id="chatbot-container">
+    <div id="chatbot-notification" class="chatbot-notif hidden">
+      <span>👋 Besoin d'aide ? Discutons !</span>
+      <button class="notif-close" aria-label="Fermer">✕</button>
+    </div>
     <button id="chatbot-toggle" title="Discuter avec mon assistant IA">
       <span class="chatbot-pulse"></span>
-      <img loading="lazy" src="img/max.jpg" class="chatbot-toggle-img" alt="MAX AI" onerror="this.outerHTML='<span style=\\\'font-size:1.6rem;font-weight:bold;color:var(--gold);z-index:1;position:relative;\\\'>M</span>'">
+      <img loading="lazy" src="img/max.jpg" class="chatbot-toggle-img" alt="MAX AI" onerror="this.outerHTML='<span style=\'font-size:1.6rem;font-weight:bold;color:var(--gold);z-index:1;position:relative;\'>M</span>'">
       <div class="chatbot-online-badge"></div>
+      <span id="chat-unread" class="chat-unread-badge hidden">1</span>
     </button>
     <div id="chatbot-window" class="hidden">
       <div class="chatbot-header">
         <div class="chatbot-header-info">
-          <img loading="lazy" src="img/max.jpg" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);flex-shrink:0;" alt="MAX" onerror="this.outerHTML='<div class=\\\'chatbot-avatar\\\' style=\\\'background:var(--card);color:var(--gold);\\\'>M</div>'">
+          <div class="chatbot-header-avatar">
+            <img loading="lazy" src="img/max.jpg" alt="MAX" onerror="this.outerHTML='<span>M</span>'">
+            <span class="header-status-dot"></span>
+          </div>
           <div>
             <strong>MAX</strong>
-            <div class="chatbot-status"><span class="status-dot"></span> En ligne</div>
+            <div class="chatbot-status"><span class="status-dot"></span> <span data-i18n="chat.online">En ligne</span></div>
           </div>
         </div>
-        <button id="chatbot-close">✕</button>
-      </div>
-      <div id="chatbot-messages">
-        <div class="chat-msg bot-msg">
-          <div class="chat-avatar-mini">🤖</div>
-          <div class="chat-bubble">Bonjour ! 👋 Je suis l'assistant IA de Dieylany. Comment puis-je vous aider ?</div>
+        <div class="chatbot-header-actions">
+          <button id="chatbot-clear" title="Nouvelle conversation" aria-label="Effacer la conversation">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/></svg>
+          </button>
+          <button id="chatbot-minimize" title="Réduire" aria-label="Réduire">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+          </button>
+          <button id="chatbot-close" title="Fermer" aria-label="Fermer">✕</button>
         </div>
       </div>
-      <div class="chatbot-quick-replies" id="quick-replies">
-        <button class="quick-reply-btn" data-msg="Quels sont vos services ?">💼 Services</button>
-        <button class="quick-reply-btn" data-msg="Montrez-moi vos projets">🚀 Projets</button>
-        <button class="quick-reply-btn" data-msg="Comment vous contacter ?">📩 Contact</button>
-        <button class="quick-reply-btn" data-msg="Parlez-moi de Dieylany">👤 Profil</button>
+      <div id="chatbot-messages">
+        <div class="chat-date-separator">
+          <span>Aujourd'hui</span>
+        </div>
       </div>
+      <div class="chatbot-quick-replies" id="quick-replies"></div>
       <div class="chatbot-input">
-        <input type="text" id="chat-input" placeholder="Écrivez un message..." autocomplete="off">
-        <button id="chat-send">➤</button>
+        <button id="chat-emoji-btn" title="Emoji" aria-label="Ajouter un emoji">😊</button>
+        <input type="text" id="chat-input" placeholder="Écrivez un message..." autocomplete="off" maxlength="1000">
+        <span id="chat-char-count" class="chat-char-count"></span>
+        <button id="chat-send" aria-label="Envoyer">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -576,6 +627,8 @@ foreach($settingsData as $s) {
     </div>
   </div>
 
+  </main> <!-- /main -->
+
   <footer>
     <div class="footer-grid">
       <div class="footer-brand">
@@ -583,7 +636,7 @@ foreach($settingsData as $s) {
         <p class="footer-desc" data-i18n="footer.desc">Solutions digitales innovantes pour les entreprises africaines.
           IA, automatisation et développement web.</p>
         <div class="footer-socials">
-          <a href="https://linkedin.com/in/dieylany-k97600a2a5" class="social-link" title="LinkedIn" target="_blank"
+          <a href="https://linkedin.com/in/dieylany-khouma" class="social-link" title="LinkedIn" target="_blank"
             rel="noopener">
             <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -620,21 +673,21 @@ foreach($settingsData as $s) {
       </div>
       <div class="footer-links">
         <h4 data-i18n="footer.contact">Contact</h4>
-        <a href="mailto:contact@sds.sn">contact@sds.sn</a>
+        <a href="mailto:sendigitalsolution@gmail.com">sendigitalsolution@gmail.com</a>
         <a href="https://wa.me/221780152522">+221 78 015 25 22</a>
         <a href="#">Dakar, Sénégal</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 <span>Dieylany</span> · <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></p>
+      <p>© 2025–<?= date('Y') ?> <span>Dieylany</span> · <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></p>
       <div id="visitor-counter" class="visitor-counter" style="display:none;">
         <div class="visitor-pulse" title="En direct"></div>
         <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
         <span title="Visiteurs aujourd'hui">Aujourd'hui : <span id="v-today" class="visitor-today">0</span></span>
-        <span class="visitor-separator">|</span>
+        <span class="visitor-separator">SEN DIGITAL SOLUTION|</span>
         <span title="Visiteurs au total">Total : <span id="v-total" class="visitor-count">0</span></span>
       </div>
-      <p data-i18n="footer">Fait avec 🔥 à Dakar, Sénégal</p>
+      <p data-i18n="footer"></p>
     </div>
   </footer>
 

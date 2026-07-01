@@ -13,8 +13,8 @@ require_auth();
   </div>
 
   <div class="data-card">
-    <div class="table-responsive">
-        <table class="data-table">
+    <div id="blog-table-wrap">
+        <table>
             <thead>
                 <tr>
                     <th>Emoji</th>
@@ -22,8 +22,8 @@ require_auth();
                     <th>Catégorie</th>
                     <th>Date</th>
                     <th>Statut</th>
-                    <th>Ordre</th>
-                    <th>Actions</th>
+                    <th style="width:60px;text-align:center">Ordre</th>
+                    <th style="text-align:right">Actions</th>
                 </tr>
             </thead>
             <tbody id="blog-tbody">
@@ -139,7 +139,7 @@ let currentBlogs = [];
 
 async function loadBlogs() {
     try {
-        const data = await Admin.api('api/blog.php?action=list');
+        const data = await Admin.api('blog.php?action=list');
         currentBlogs = data.posts || [];
         const tbody = document.getElementById('blog-tbody');
         tbody.innerHTML = '';
@@ -148,18 +148,28 @@ async function loadBlogs() {
             return;
         }
         currentBlogs.forEach(p => {
-            const status = p.is_visible ? '<span class="status-badge status-read">Visible</span>' : '<span class="status-badge status-unread">Caché</span>';
+            const isVisible = p.is_visible == 1;
+            const statusLabel = isVisible ? 'Visible' : 'Caché';
+            const statusClass = isVisible ? 'status-read' : 'status-archived';
+            const statusColor = isVisible ? 'var(--green)' : 'inherit';
+            
             tbody.innerHTML += `
-                <tr>
-                    <td style="font-size:1.5rem;">${p.emoji}</td>
-                    <td><strong>${p.title_fr}</strong></td>
-                    <td>${p.category_fr}</td>
-                    <td>${p.publish_date}</td>
-                    <td>${status}</td>
-                    <td>${p.sort_order}</td>
-                    <td class="action-btns">
-                        <button class="action-btn" onclick="editBlog(${p.id})" title="Modifier">✏️</button>
-                        <button class="action-btn danger" onclick="deleteBlog(${p.id})" title="Supprimer">🗑️</button>
+                <tr style="transition:all 0.2s">
+                    <td style="font-size:1.5rem;text-align:center">${p.emoji}</td>
+                    <td style="font-weight:600;color:var(--text)">${p.title_fr}</td>
+                    <td style="color:rgba(255,255,255,0.5)">${p.category_fr}</td>
+                    <td style="color:rgba(255,255,255,0.4);font-size:0.8rem">${p.publish_date}</td>
+                    <td>
+                        <span class="status ${statusClass}" style="opacity:0.9">
+                            <span style="color:${statusColor}">●</span> ${statusLabel}
+                        </span>
+                    </td>
+                    <td style="text-align:center;color:var(--text-dim)">${p.sort_order}</td>
+                    <td style="text-align:right">
+                        <div class="action-btns" style="justify-content:flex-end">
+                            <button class="action-btn" onclick="editBlog(${p.id})" title="Modifier">✏️</button>
+                            <button class="action-btn danger" onclick="deleteBlog(${p.id})" title="Supprimer">🗑️</button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -206,7 +216,7 @@ function editBlog(id) {
     document.getElementById('blog-sort').value = p.sort_order;
     document.getElementById('blog-visible').checked = p.is_visible == 1;
     
-    document.getElementById('blog-modal-title').textContent = 'Modifier l\\'Article';
+    document.getElementById('blog-modal-title').textContent = "Modifier l'Article";
     document.getElementById('blog-modal').classList.add('active');
 }
 
@@ -214,7 +224,7 @@ async function saveBlog(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     try {
-        await Admin.api('api/blog.php?action=save', {
+        await Admin.api('blog.php?action=save', {
             method: 'POST',
             body: formData
         });
@@ -231,7 +241,7 @@ async function deleteBlog(id) {
         const fd = new FormData();
         fd.append('id', id);
         try {
-            await Admin.api('api/blog.php?action=delete', {
+            await Admin.api('blog.php?action=delete', {
                 method: 'POST',
                 body: fd
             });
