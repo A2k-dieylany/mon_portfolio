@@ -29,17 +29,36 @@ function loadEnv($path) {
 loadEnv(__DIR__ . '/.env');
 
 /**
- * URL d'un asset statique, suffixée d'une empreinte de version.
+ * Empreinte de version des assets, calculée une seule fois par requête.
  *
- * Les fichiers ne sont pas nommés avec un hash, donc sans ce paramètre on ne
- * peut pas les mettre en cache longue durée sans risquer de servir du CSS
- * périmé après un déploiement. Le mtime change à chaque déploiement Vercel.
+ * Vercel normalise les dates de modification des fichiers au build : filemtime
+ * renvoie la même valeur fixe à chaque déploiement et ne peut donc pas servir
+ * de cache-buster. On se base sur l'identifiant du déploiement, unique par build.
+ */
+function sds_asset_version(): string {
+    static $v = null;
+    if ($v !== null) {
+        return $v;
+    }
+    foreach (['VERCEL_DEPLOYMENT_ID', 'VERCEL_GIT_COMMIT_SHA', 'VERCEL_URL'] as $key) {
+        $candidate = getenv($key) ?: ($_SERVER[$key] ?? '');
+        if ($candidate !== '') {
+            return $v = substr(hash('crc32b', $candidate), 0, 8);
+        }
+    }
+    // Hors Vercel (XAMPP en local) : le mtime reflète bien les modifications.
+    return $v = (string) (@filemtime(__DIR__ . '/style.css') ?: time());
+}
+
+/**
+ * URL d'un asset statique, suffixée de l'empreinte du déploiement.
+ *
+ * Les fichiers ne sont pas nommés avec un hash ; sans ce paramètre on ne peut
+ * pas les servir en cache immutable sans risquer du CSS périmé après un
+ * déploiement.
  */
 function sds_asset(string $path): string {
-    $clean = '/' . ltrim($path, '/');
-    $file  = __DIR__ . $clean;
-    $v     = @filemtime($file) ?: 1;
-    return $clean . '?v=' . $v;
+    return '/' . ltrim($path, '/') . '?v=' . sds_asset_version();
 }
 
 // ===== Constantes Globales (Rétrocompatibilité avec le code existant) =====
