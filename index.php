@@ -61,10 +61,10 @@ foreach($settingsData as $s) {
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Dieylany Khouma — Développeur Web &amp; Automatisation IA à Dakar" />
   <meta name="twitter:description" content="Création de sites web, e-commerce et automatisation WhatsApp avec l'IA pour les entreprises sénégalaises." />
-  <meta name="twitter:image" content="https://dieylany.dev/img/projects/luxe1.jpg" />
+  <meta name="twitter:image" content="https://dieylany.dev/img/og/default.jpg" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://dieylany.dev/" />
-  <meta property="og:image" content="https://dieylany.dev/img/projects/luxe1.jpg" />
+  <meta property="og:image" content="https://dieylany.dev/img/og/default.jpg" />
   <meta name="theme-color" content="#0A0A0F" />
   <meta name="google-site-verification" content="usAYIO1JnU6AhHftvc9i42hBIOAQEcBj7efoATT9VyU" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -259,7 +259,7 @@ foreach($settingsData as $s) {
           <p data-i18n="about.p3">Je combine développement web, automatisation no-code/low-code (<strong>n8n,
               Make</strong>), et intégration d'APIs IA pour livrer des solutions concrètes et mesurables.</p>
           <p data-i18n="about.p4">Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en
-            devenir, laureát du Concours Général Sénégalais 2022.</p>
+            devenir, lauréat du Concours Général Sénégalais 2022.</p>
         </div>
         <div class="reveal from-right d1">
           <div class="award-card">
@@ -756,10 +756,23 @@ foreach($settingsData as $s) {
       </div>
       <div class="footer-links">
         <h4 data-i18n="footer.services">Services</h4>
-        <a href="#services" data-i18n="s1.t">Automatisation WhatsApp</a>
-        <a href="#services" data-i18n="s2.t">Développement Web</a>
-        <a href="#services" data-i18n="s3.t">Intégration IA</a>
-        <a href="#services" data-i18n="s6.t">Conseil Digital</a>
+        <?php
+        // Le pied de page est le maillage interne le plus lu : il doit mener
+        // aux pages services, pas à l'ancre #services de l'accueil.
+        $footerServices = array_values(array_filter(
+            $services,
+            static fn($sv) => !empty($sv['slug']) && !empty($sv['has_detail'])
+        ));
+        ?>
+        <?php foreach (array_slice($footerServices, 0, 6) as $sv): ?>
+        <a href="/services/<?= htmlspecialchars($sv['slug']) ?>" class="dynamic-i18n"
+           data-fr="<?= htmlspecialchars($sv['title_fr']) ?>"
+           data-en="<?= htmlspecialchars($sv['title_en'] ?: $sv['title_fr']) ?>"
+           data-ar="<?= htmlspecialchars($sv['title_ar'] ?: $sv['title_fr']) ?>"><?= htmlspecialchars($sv['title_fr']) ?></a>
+        <?php endforeach; ?>
+        <?php if (!$footerServices): ?>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <?php endif; ?>
       </div>
       <div class="footer-links">
         <h4 data-i18n="footer.contact">Contact</h4>

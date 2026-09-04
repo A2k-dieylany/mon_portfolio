@@ -8,7 +8,7 @@ const T = {
     'about.p1': 'Je suis étudiant en <strong>Génie Logiciel</strong> à l\'Institut Supérieur d\'Informatique (ISI Suptech) de Dakar et fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de devenir le leader tech de l\'Afrique de l\'Ouest.',
     'about.p2': 'Ma mission : intégrer l\' <strong>intelligence artificielle</strong> et l\'automatisation dans les workflows des entreprises africaines pour les rendre plus compétitives à l\'échelle mondiale.',
     'about.p3': 'Je combine développement web, automatisation no-code/low-code (<strong>n8n, Make</strong>), et intégration d\'APIs IA pour livrer des solutions concrètes et mesurables.',
-    'about.p4': 'Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en devenir, laureát du Concours Général Sénégalais 2022.',
+    'about.p4': 'Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en devenir, lauréat du Concours Général Sénégalais 2022.',
     'award1.title': 'Lauréat – Concours Général Sénégalais 2022', 'award1.desc': '2ème Prix · Langue Arabe · Distinction nationale',
     'award2.title': 'Expert IA & Automatisation', 'award2.desc': 'n8n · Make · OpenAI API · WhatsApp Business API',
     'award3.title': 'Vision Pan-Africaine', 'award3.desc': 'Fondateur SEN DIGITAL SOLUTION · Dakar, Sénégal',

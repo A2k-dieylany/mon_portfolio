@@ -6,6 +6,67 @@
 require_once __DIR__ . '/admin/includes/db.php';
 $pdo = getDB();
 
+/**
+ * Meta description destinée au SERP : une accroche, pas un résumé tronqué.
+ *
+ * On part de l'accroche client (headline), on complète avec la description
+ * tant qu'il reste de la place, puis on termine par le prix, le délai et
+ * l'appel à l'action — c'est ce trio qui déclenche le clic dans Google.
+ * La coupe se fait toujours sur un espace : plus de « livré en l ».
+ */
+function sds_meta_description(array $service, int $max = 155): string {
+    $norm = static fn($t) => trim(preg_replace('/\s+/u', ' ', strip_tags((string) $t)));
+
+    $head = $norm($service['headline_fr'] ?? '') ?: $norm($service['title_fr']) . ' à Dakar';
+    $head = rtrim($head, ' .') . '.';
+
+    $ucfirstU = static fn($t) => mb_strtoupper(mb_substr($t, 0, 1), 'UTF-8') . mb_substr($t, 1);
+    // Le délai suit un tiret, pas une virgule : « …la séance, Séances de 2 h »
+    // se lisait mal. On le passe en minuscule sauf s'il commence par un sigle.
+    $lcfirstU = static function ($t) {
+        $first = mb_substr($t, 0, 1);
+        $second = mb_substr($t, 1, 1);
+        if ($second !== '' && $second === mb_strtoupper($second, 'UTF-8')) {
+            return $t; // « IA », « RDV »… : on ne touche pas
+        }
+        return mb_strtolower($first, 'UTF-8') . mb_substr($t, 1);
+    };
+
+    $tail = '';
+    if (!empty($service['price_from'])) {
+        $tail .= ' ' . $ucfirstU(rtrim($norm($service['price_from']), ' .'));
+        if (!empty($service['delay_text'])) {
+            $tail .= ' — ' . $lcfirstU(rtrim($norm($service['delay_text']), ' .'));
+        }
+        $tail .= '.';
+    }
+    $tail .= ' Diagnostic gratuit.';
+
+    $room = $max - mb_strlen($head) - mb_strlen($tail) - 1;
+    $middle = '';
+    if ($room > 30) {
+        $desc = $norm($service['desc_fr']);
+        if (mb_strlen($desc) > $room) {
+            // On coupe sur un séparateur de clause, pas sur un simple espace :
+            // « prêtes à… » se lit mal, « templates premium » se lit bien.
+            $cut  = mb_substr($desc, 0, $room);
+            $stop = 0;
+            foreach ([',', ' :', ';', '.', ' —'] as $sep) {
+                $at = mb_strrpos($cut, $sep);
+                if ($at !== false && $at > $stop) {
+                    $stop = $at;
+                }
+            }
+            $desc = $stop > 20 ? rtrim(mb_substr($cut, 0, $stop), " ,;:—-") : '';
+        }
+        if ($desc !== '') {
+            $middle = ' ' . $desc . (str_ends_with($desc, '.') ? '' : '.');
+        }
+    }
+
+    return $head . $middle . $tail;
+}
+
 $slug = $_GET['slug'] ?? '';
 $slug = preg_replace('/[^a-z0-9\-]/', '', strtolower($slug));
 
@@ -57,12 +118,30 @@ $logoText = $settings['logo_text'] ?? 'A2K';
   <meta name="robots" content="noindex" />
   <?php else: ?>
   <title><?= htmlspecialchars($service['title_fr']) ?> à Dakar — <?= htmlspecialchars($siteName) ?></title>
-  <meta name="description" content="<?= htmlspecialchars(mb_substr(strip_tags($service['desc_fr']), 0, 155)) ?>" />
+  <?php
+    $metaDesc = sds_meta_description($service);
+    $svcUrl   = 'https://dieylany.dev/services/' . $service['slug'];
+    // Carte partagée : une image par service serait mieux qu'un visuel générique.
+    $svcImage = 'https://dieylany.dev/img/og/' . $service['slug'] . '.jpg';
+    if (!is_file(__DIR__ . '/img/og/' . $service['slug'] . '.jpg')) {
+        $svcImage = 'https://dieylany.dev/img/og/default.jpg';
+        if (!is_file(__DIR__ . '/img/og/default.jpg')) {
+            $svcImage = 'https://dieylany.dev/img/projects/luxe1.jpg';
+        }
+    }
+  ?>
+  <meta name="description" content="<?= htmlspecialchars($metaDesc) ?>" />
   <meta property="og:title" content="<?= htmlspecialchars($service['title_fr']) ?> — <?= htmlspecialchars($siteName) ?>" />
-  <meta property="og:description" content="<?= htmlspecialchars(mb_substr(strip_tags($service['desc_fr']), 0, 155)) ?>" />
+  <meta property="og:description" content="<?= htmlspecialchars($metaDesc) ?>" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://dieylany.dev/services/<?= htmlspecialchars($service['slug']) ?>" />
-  <meta property="og:image" content="https://dieylany.dev/img/projects/luxe1.jpg" />
+  <meta property="og:locale" content="fr_SN" />
+  <meta property="og:site_name" content="<?= htmlspecialchars($siteName) ?>" />
+  <meta property="og:url" content="<?= htmlspecialchars($svcUrl) ?>" />
+  <meta property="og:image" content="<?= htmlspecialchars($svcImage) ?>" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="<?= htmlspecialchars($service['title_fr']) ?> — <?= htmlspecialchars($siteName) ?>" />
+  <meta name="twitter:description" content="<?= htmlspecialchars($metaDesc) ?>" />
+  <meta name="twitter:image" content="<?= htmlspecialchars($svcImage) ?>" />
   <link rel="canonical" href="https://dieylany.dev/services/<?= htmlspecialchars($service['slug']) ?>" />
   <script type="application/ld+json">
   {

@@ -1,4 +1,5 @@
 .env
+.env*
 .env.example
 *.sql
 *.sql.bak
@@ -8,3 +9,4 @@ admin/.htaccess
 .vscode/
 patch.py
 *.bak
+tools/
