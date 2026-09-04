@@ -552,6 +552,7 @@ foreach($settingsData as $s) {
   </section>
 
   <!-- TESTIMONIALS -->
+  <?php if ($testimonials): // section masquée tant qu'aucun témoignage vérifié n'est publié ?>
   <section id="testimonials" style="background:var(--dark2);">
     <div class="container">
       <div class="reveal">
@@ -595,6 +596,7 @@ foreach($settingsData as $s) {
       </div>
     </div>
   </section>
+  <?php endif; ?>
 
   <!-- CONTACT -->
   <section id="contact">
