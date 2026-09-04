@@ -1,7 +1,5 @@
 
-# Fichiers de configuration sensibles
-config.php
-csrf.php
+# Secrets (les valeurs viennent de .env en local / variables d'env Vercel en prod)
 .env
 *.env
 
@@ -22,3 +20,8 @@ Thumbs.db
 
 # Uploads utilisateurs (si ajoutés plus tard)
 uploads/
+.vercel
+.env*
+
+# Sauvegardes locales (optimisation images, etc.)
+*.bak

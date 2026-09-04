@@ -24,7 +24,13 @@ foreach ($projects as &$p) {
 }
 unset($p);
 
-$services = $pdo->query("SELECT * FROM services WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
+// On évite SELECT * : les colonnes detail_fr/en/ar pèsent ~90 Ko et ne servent
+// que sur les pages /services/<slug>. Ici on n'a besoin que d'un booléen.
+$services = $pdo->query(
+    "SELECT id, icon, title_fr, title_en, title_ar, desc_fr, desc_en, desc_ar, tags, slug,
+            (detail_fr IS NOT NULL AND detail_fr <> '') AS has_detail
+     FROM services WHERE is_visible = 1 ORDER BY sort_order ASC, id ASC"
+)->fetchAll();
 $skills = $pdo->query("SELECT * FROM skills WHERE is_visible = 1 ORDER BY group_name_fr ASC, sort_order ASC, id ASC")->fetchAll();
 $timeline = $pdo->query("SELECT * FROM timeline_items WHERE is_visible = 1 ORDER BY sort_order ASC, id DESC")->fetchAll();
 $blog_posts = $pdo->query("SELECT * FROM blog_posts WHERE is_visible = 1 ORDER BY sort_order ASC, publish_date DESC")->fetchAll();
@@ -43,55 +49,109 @@ foreach($settingsData as $s) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Dieylany – <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></title>
+  <title>Dieylany Khouma — Développeur Web &amp; Automatisation IA à Dakar | <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></title>
   <meta name="description"
-    content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal. Découvrez les services de <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>." />
-  <meta property="og:title" content="Dieylany – <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>" />
+    content="Développeur full-stack à Dakar : création de sites web, e-commerce et automatisation WhatsApp avec l'IA pour les entreprises sénégalaises. Diagnostic gratuit." />
+  <meta name="keywords" content="développeur web Dakar, création site internet Sénégal, automatisation WhatsApp, agent IA, chatbot WhatsApp Sénégal, e-commerce Dakar" />
+  <meta property="og:title" content="Dieylany Khouma — Développeur Web &amp; Automatisation IA à Dakar" />
   <meta property="og:description"
-    content="Portfolio de Dieylany, expert en développement web et IA basé à Dakar, Sénégal." />
+    content="Création de sites web, e-commerce et automatisation WhatsApp avec l'IA pour les entreprises sénégalaises. Diagnostic gratuit." />
+  <meta property="og:locale" content="fr_SN" />
+  <meta property="og:site_name" content="<?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dieylany Khouma — Développeur Web &amp; Automatisation IA à Dakar" />
+  <meta name="twitter:description" content="Création de sites web, e-commerce et automatisation WhatsApp avec l'IA pour les entreprises sénégalaises." />
+  <meta name="twitter:image" content="https://dieylany.dev/img/projects/luxe1.jpg" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://sds.sn/" />
-  <meta property="og:image" content="https://sds.sn/img/projects/luxe1.jpg" />
+  <meta property="og:url" content="https://dieylany.dev/" />
+  <meta property="og:image" content="https://dieylany.dev/img/projects/luxe1.jpg" />
   <meta name="theme-color" content="#0A0A0F" />
+  <meta name="google-site-verification" content="usAYIO1JnU6AhHftvc9i42hBIOAQEcBj7efoATT9VyU" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
     
-  <!-- SEO JSON-LD -->
+  <!-- SEO JSON-LD : la personne, l'entreprise locale et les services proposés -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    "name": "<?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?>",
-    "founder": {
-      "@type": "Person",
-      "name": "Dieylany"
-    },
-    "description": "Expert en développement web, création de sites vitrines et IA basé à Dakar, Sénégal.",
-    "url": "https://sds.sn/",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Dakar",
-      "addressCountry": "SN"
-    }
+  <?php
+  $siteNameLd = $settings['site_name'] ?? 'SEN DIGITAL SOLUTION';
+  $serviceOffers = [];
+  foreach ($services as $sv) {
+      $offer = [
+          '@type' => 'Offer',
+          'itemOffered' => [
+              '@type' => 'Service',
+              'name' => $sv['title_fr'],
+              'description' => mb_substr(strip_tags($sv['desc_fr']), 0, 200),
+          ],
+      ];
+      if (!empty($sv['slug']) && !empty($sv['has_detail'])) {
+          $offer['url'] = 'https://dieylany.dev/services/' . $sv['slug'];
+      }
+      $serviceOffers[] = $offer;
   }
+
+  echo json_encode([
+      '@context' => 'https://schema.org',
+      '@graph' => [
+          [
+              '@type' => 'Person',
+              '@id' => 'https://dieylany.dev/#person',
+              'name' => 'Dieylany Khouma',
+              'jobTitle' => 'Développeur Full-Stack & Spécialiste Automatisation IA',
+              'url' => 'https://dieylany.dev/',
+              'sameAs' => [
+                  'https://github.com/A2k-dieylany',
+                  'https://linkedin.com/in/dieylany-khouma',
+              ],
+              'address' => [
+                  '@type' => 'PostalAddress',
+                  'addressLocality' => 'Dakar',
+                  'addressCountry' => 'SN',
+              ],
+              'knowsLanguage' => ['fr', 'en', 'ar', 'wo'],
+              'worksFor' => ['@id' => 'https://dieylany.dev/#organization'],
+          ],
+          [
+              '@type' => ['ProfessionalService', 'LocalBusiness'],
+              '@id' => 'https://dieylany.dev/#organization',
+              'name' => $siteNameLd,
+              'url' => 'https://dieylany.dev/',
+              'description' => "Développement web, e-commerce et automatisation IA (WhatsApp Business API, n8n, OpenAI) pour les entreprises sénégalaises.",
+              'founder' => ['@id' => 'https://dieylany.dev/#person'],
+              'telephone' => '+221780152522',
+              'email' => 'sendigitalsolution@gmail.com',
+              'address' => [
+                  '@type' => 'PostalAddress',
+                  'addressLocality' => 'Dakar',
+                  'addressCountry' => 'SN',
+              ],
+              'areaServed' => [
+                  ['@type' => 'City', 'name' => 'Dakar'],
+                  ['@type' => 'Country', 'name' => 'Sénégal'],
+              ],
+              'availableLanguage' => ['Français', 'English', 'العربية', 'Wolof'],
+              'sameAs' => [
+                  'https://share.google/sP6xAYZoLLQ8kAKZa',
+                  'https://github.com/A2k-dieylany',
+                  'https://linkedin.com/in/dieylany-khouma',
+              ],
+              'hasOfferCatalog' => [
+                  '@type' => 'OfferCatalog',
+                  'name' => 'Services',
+                  'itemListElement' => $serviceOffers,
+              ],
+          ],
+      ],
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+  ?>
   </script>
 
-  <!-- Inject PHP data as JSON for frontend JS to use -->
-  <script>
-    window.SDS_DATA = {
-        projects: <?php echo json_encode($projects, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>,
-        services: <?php echo json_encode($services, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>,
-        skills: <?php echo json_encode($skills, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>,
-        timeline: <?php echo json_encode($timeline, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>
-    };
-  </script>
-
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="<?= sds_asset('style.css') ?>">
   <link rel="manifest" href="manifest.json">
-  <link rel="canonical" href="https://sds.sn/" />
+  <link rel="canonical" href="https://dieylany.dev/" />
   <style>
     :root {
       --accent: <?= htmlspecialchars($settings['accent_color'] ?? '#6C63FF') ?>;
@@ -126,7 +186,7 @@ foreach($settingsData as $s) {
   <!-- NAV -->
   <nav>
     <div class="nav-logo"><?= htmlspecialchars($settings['logo_text'] ?? 'A2K') ?><span>.</span></div>
-    <ul class="nav-links">
+    <ul class="nav-links" id="nav-links">
       <li><a href="#about" data-i18n="nav.about">À propos</a></li>
       <li><a href="#timeline" data-i18n="nav.timeline">Parcours</a></li>
       <li><a href="#services" data-i18n="nav.services">Services</a></li>
@@ -135,12 +195,12 @@ foreach($settingsData as $s) {
       <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
     </ul>
     <div class="lang-switcher">
-      <button class="lang-btn" id="theme-toggle" title="Thème Clair/Sombre">🌓</button>
-      <button class="lang-btn active" onclick="setLang('fr')">FR</button>
-      <button class="lang-btn" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" onclick="setLang('ar')">AR</button>
+      <button class="lang-btn" id="theme-toggle" title="Thème Clair/Sombre" aria-label="Basculer entre le thème clair et sombre"><span aria-hidden="true">🌓</span></button>
+      <button class="lang-btn active" onclick="setLang('fr')" lang="fr" aria-label="Afficher le site en français">FR</button>
+      <button class="lang-btn" onclick="setLang('en')" lang="en" aria-label="Display the site in English">EN</button>
+      <button class="lang-btn" onclick="setLang('ar')" lang="ar" aria-label="عرض الموقع بالعربية">AR</button>
     </div>
-    <button class="menu-toggle" id="menu-toggle" aria-label="Menu" title="Menu">☰</button>
+    <button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="nav-links" title="Menu"><span aria-hidden="true">☰</span></button>
   </nav>
 
   <!-- HERO -->
@@ -189,7 +249,7 @@ foreach($settingsData as $s) {
       </div>
       <div class="about-grid">
         <div class="about-text reveal from-left">
-          <p data-i18n="about.p1">Je suis étudiant en <strong>Génie Logiciel</strong> à l'Institut Superieur
+          <p data-i18n="about.p1">Je suis étudiant en <strong>Génie Logiciel</strong> à l'Institut Supérieur
             d'Informatique (ISI Suptech) de Dakar et
             fondateur de <strong><?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?> (SDS)</strong> — une agence digitale que je construis avec la
             vision de
@@ -205,7 +265,7 @@ foreach($settingsData as $s) {
           <div class="award-card">
             <div class="award-icon">🏆</div>
             <div>
-              <div class="award-title" data-i18n="award1.title">Laureát – Concours Général Sénégalais 2022</div>
+              <div class="award-title" data-i18n="award1.title">Lauréat – Concours Général Sénégalais 2022</div>
               <div class="award-desc" data-i18n="award1.desc">2ème Prix · Langue Arabe · Distinction nationale</div>
             </div>
           </div>
@@ -291,6 +351,9 @@ foreach($settingsData as $s) {
           <?php if (!empty($s['tags'])): ?>
           <span class="service-tag"><?= htmlspecialchars($s['tags']) ?></span>
           <?php endif; ?>
+          <?php if (!empty($s['slug']) && !empty($s['has_detail'])): ?>
+          <a href="/services/<?= htmlspecialchars($s['slug']) ?>" class="service-more">En savoir plus →</a>
+          <?php endif; ?>
         </div>
         <?php endforeach; ?>
       </div>
@@ -304,12 +367,14 @@ foreach($settingsData as $s) {
         <p class="section-tag" data-i18n="proj.tag">Réalisations</p>
         <h2 class="section-title" data-i18n="proj.title">Projets & Travaux</h2>
         <div class="divider"></div>
-        <div class="project-filters">
-          <button class="filter-btn active" data-filter="all">Tous</button>
-          <button class="filter-btn" data-filter="web">Web</button>
-          <button class="filter-btn" data-filter="ai">IA & Bot</button>
-          <button class="filter-btn" data-filter="design">Design</button>
+        <div class="project-filters" role="group" aria-label="Filtrer les projets par catégorie">
+          <button class="filter-btn active" data-filter="all" aria-pressed="true">Tous</button>
+          <button class="filter-btn" data-filter="web" aria-pressed="false">Web</button>
+          <button class="filter-btn" data-filter="ai" aria-pressed="false">IA & Bot</button>
+          <button class="filter-btn" data-filter="design" aria-pressed="false">Design</button>
         </div>
+        <!-- Annonce le résultat du filtrage aux lecteurs d'écran -->
+        <p id="filter-status" class="sr-only" role="status" aria-live="polite"></p>
       </div>
       <!-- CARD 1 -->
           <div class="projects-grid">
@@ -348,10 +413,12 @@ foreach($settingsData as $s) {
             <div class="project-type dynamic-i18n" data-fr="<?= htmlspecialchars($p['category_fr']) ?>" data-en="<?= htmlspecialchars($p['category_en'] ?: $p['category_fr']) ?>" data-ar="<?= htmlspecialchars($p['category_ar'] ?: $p['category_fr']) ?>"><?= htmlspecialchars($p['category_fr']) ?></div>
             <div class="project-name dynamic-i18n" data-fr="<?= htmlspecialchars($p['title_fr']) ?>" data-en="<?= htmlspecialchars($p['title_en'] ?: $p['title_fr']) ?>" data-ar="<?= htmlspecialchars($p['title_ar'] ?: $p['title_fr']) ?>"><?= htmlspecialchars($p['title_fr']) ?></div>
           </div>
-          <?php if(empty($p['live_url'])): ?>
-          <span class="project-status status-build">Personnel</span>
+          <?php if(!empty($p['live_url'])): ?>
+          <span class="project-status status-live dynamic-i18n" data-fr="Live" data-en="Live" data-ar="مباشر">Live</span>
+          <?php elseif(!empty($p['github_url'])): ?>
+          <span class="project-status status-code dynamic-i18n" data-fr="Code dispo" data-en="Source available" data-ar="الكود متاح">Code dispo</span>
           <?php else: ?>
-          <span class="project-status status-live">Live</span>
+          <span class="project-status status-build dynamic-i18n" data-fr="Personnel" data-en="Personal" data-ar="شخصي">Personnel</span>
           <?php endif; ?>
         </div>
         <div class="project-body">
@@ -363,6 +430,29 @@ foreach($settingsData as $s) {
             <?php endif; ?>
             <?php endforeach; ?>
           </div>
+          <?php if (!empty($p['live_url']) || !empty($p['github_url'])): ?>
+          <!-- Vrais liens côté serveur : visibles par le visiteur ET crawlables par Google -->
+          <div class="project-links">
+            <?php if (!empty($p['live_url'])): ?>
+            <a href="<?= htmlspecialchars($p['live_url']) ?>" class="project-link" target="_blank" rel="noopener"
+               onclick="event.stopPropagation()"
+               aria-label="Voir la démo en ligne de <?= htmlspecialchars($p['title_fr']) ?>">
+              <span aria-hidden="true">🔗</span>
+              <span class="dynamic-i18n" data-fr="Voir le site" data-en="View site" data-ar="زيارة الموقع">Voir le site</span>
+            </a>
+            <?php endif; ?>
+            <?php if (!empty($p['github_url'])): ?>
+            <a href="<?= htmlspecialchars($p['github_url']) ?>" class="project-link" target="_blank" rel="noopener"
+               onclick="event.stopPropagation()"
+               aria-label="Voir le code de <?= htmlspecialchars($p['title_fr']) ?> sur GitHub">
+              <svg class="project-link-icon" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+              <span>GitHub</span>
+            </a>
+            <?php endif; ?>
+          </div>
+          <?php endif; ?>
         </div>
       </div>
       <?php endforeach; ?>
@@ -452,7 +542,7 @@ foreach($settingsData as $s) {
           <div class="blog-footer">
             <span class="blog-date"><?= date('M Y', strtotime($b['publish_date'])) ?> · <?= htmlspecialchars($b['read_time']) ?></span>
             <?php if(!empty($b['external_url'])): ?>
-            <a href="<?= htmlspecialchars($b['external_url']) ?>" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Lire sur LinkedIn →</a>
+            <a href="<?= htmlspecialchars($b['external_url']) ?>" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Voir sur LinkedIn →</a>
             <?php endif; ?>
           </div>
         </div>
@@ -571,7 +661,7 @@ foreach($settingsData as $s) {
       <span>👋 Besoin d'aide ? Discutons !</span>
       <button class="notif-close" aria-label="Fermer">✕</button>
     </div>
-    <button id="chatbot-toggle" title="Discuter avec mon assistant IA">
+    <button id="chatbot-toggle" title="Discuter avec mon assistant IA" aria-label="Ouvrir le chat avec MAX, l'assistant IA">
       <span class="chatbot-pulse"></span>
       <img loading="lazy" src="img/max.jpg" class="chatbot-toggle-img" alt="MAX AI" onerror="this.outerHTML='<span style=\'font-size:1.6rem;font-weight:bold;color:var(--gold);z-index:1;position:relative;\'>M</span>'">
       <div class="chatbot-online-badge"></div>
@@ -620,7 +710,7 @@ foreach($settingsData as $s) {
   <div id="project-modal" class="hidden">
     <div class="modal-overlay"></div>
     <div class="modal-content">
-      <button class="modal-close">✕</button>
+      <button class="modal-close" aria-label="Fermer la fenêtre du projet"><span aria-hidden="true">✕</span></button>
       <div class="modal-body" id="modal-content-body">
         <!-- Content injected by JS -->
       </div>
@@ -675,25 +765,17 @@ foreach($settingsData as $s) {
         <h4 data-i18n="footer.contact">Contact</h4>
         <a href="mailto:sendigitalsolution@gmail.com">sendigitalsolution@gmail.com</a>
         <a href="https://wa.me/221780152522">+221 78 015 25 22</a>
-        <a href="#">Dakar, Sénégal</a>
+        <span class="footer-location">Dakar, Sénégal</span>
       </div>
     </div>
     <div class="footer-bottom">
       <p>© 2025–<?= date('Y') ?> <span>Dieylany</span> · <?= htmlspecialchars($settings['site_name'] ?? 'SEN DIGITAL SOLUTION') ?></p>
-      <div id="visitor-counter" class="visitor-counter" style="display:none;">
-        <div class="visitor-pulse" title="En direct"></div>
-        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-        <span title="Visiteurs aujourd'hui">Aujourd'hui : <span id="v-today" class="visitor-today">0</span></span>
-        <span class="visitor-separator">SEN DIGITAL SOLUTION|</span>
-        <span title="Visiteurs au total">Total : <span id="v-total" class="visitor-count">0</span></span>
-      </div>
-      <p data-i18n="footer"></p>
     </div>
   </footer>
 
-  <button id="scroll-top" title="Retour en haut">↑</button>
-  <script src="i18n.js"></script>
-  <script src="script.js"></script>
+  <button id="scroll-top" title="Retour en haut" aria-label="Revenir en haut de la page"><span aria-hidden="true">↑</span></button>
+  <script src="<?= sds_asset('i18n.js') ?>"></script>
+  <script src="<?= sds_asset('script.js') ?>"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

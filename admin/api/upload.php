@@ -1,9 +1,13 @@
 <?php
 /**
  * SDS Admin API — Upload Images
+ *
+ * Le disque de la fonction Vercel n'est pas persistant : les images sont
+ * envoyées à Vercel Blob (stockage objet) via son API REST au lieu d'être
+ * écrites sur le disque local.
  */
-session_start();
 require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../../config.php';
 
 require_auth();
 
@@ -51,20 +55,49 @@ $mimeToExt = [
 ];
 $ext = $mimeToExt[$mimeType] ?? 'jpg';
 $filename = uniqid('proj_') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+$pathname = 'projects/' . $filename;
 
-// Chemin de destination: sds/images/projects/
-$uploadDir = __DIR__ . '/../../images/projects/';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-}
-
-$destPath = $uploadDir . $filename;
-
-if (move_uploaded_file($file['tmp_name'], $destPath)) {
-    // Renvoyer le chemin relatif pour la base de données
-    $relativePath = 'images/projects/' . $filename;
-    echo json_encode(['success' => true, 'url' => $relativePath]);
-} else {
+if (BLOB_READ_WRITE_TOKEN === '') {
     http_response_code(500);
-    echo json_encode(['error' => 'Erreur lors de l\'écriture du fichier sur le serveur.']);
+    echo json_encode(['error' => 'Stockage non configuré (BLOB_READ_WRITE_TOKEN manquant).']);
+    exit;
 }
+
+$fileData = file_get_contents($file['tmp_name']);
+// rawurlencode puis restauration des "/" : on veut encoder le nom de fichier
+// mais garder le séparateur de dossier "projects/" intact dans l'URL.
+$encodedPathname = str_replace('%2F', '/', rawurlencode($pathname));
+
+$ch = curl_init("https://blob.vercel-storage.com/?pathname={$encodedPathname}");
+curl_setopt_array($ch, [
+    CURLOPT_CUSTOMREQUEST  => 'PUT',
+    CURLOPT_POSTFIELDS     => $fileData,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER     => [
+        'access: public',
+        'authorization: Bearer ' . BLOB_READ_WRITE_TOKEN,
+        'x-api-version: 10',
+        'x-content-type: ' . $mimeType,
+    ],
+    CURLOPT_TIMEOUT => 30,
+]);
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
+curl_close($ch);
+
+if ($response === false || $httpCode !== 200) {
+    error_log("SDS Upload — Vercel Blob error ({$httpCode}): " . ($curlError ?: $response));
+    http_response_code(500);
+    echo json_encode(['error' => 'Erreur lors de l\'envoi du fichier vers le stockage.']);
+    exit;
+}
+
+$blobResult = json_decode($response, true);
+if (!isset($blobResult['url'])) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Réponse inattendue du service de stockage.']);
+    exit;
+}
+
+echo json_encode(['success' => true, 'url' => $blobResult['url']]);

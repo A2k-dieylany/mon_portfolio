@@ -5,6 +5,7 @@
  */
 header('Content-Type: application/json');
 require_once __DIR__ . '/admin/includes/db.php';
+require_once __DIR__ . '/session_bootstrap.php';
 
 try {
     $pdo = getDB();
@@ -19,9 +20,7 @@ try {
     $stmt->execute([':hash' => $ipHash, ':today' => $today]);
 
     // Enregistrer la vue de page
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    sds_session_start();
     $session_id = session_id();
     
     $page = $_GET['page'] ?? 'home';

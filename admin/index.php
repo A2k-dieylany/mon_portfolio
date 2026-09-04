@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../session_bootstrap.php';
+sds_session_start();
 // Si déjà connecté, rediriger vers le dashboard
 if (isset($_SESSION['admin_id'])) {
     header('Location: dashboard.php');

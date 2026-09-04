@@ -1,0 +1,46 @@
+{
+  "builds": [
+    {
+      "src": "_app.php",
+      "use": "vercel-php@0.9.0"
+    },
+    {
+      "src": "**/*.{css,js,svg,json,xml,txt,png,jpg,jpeg,gif,webp,ico,woff,woff2}",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/.*[.](css|js)$",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/.*[.](png|jpe?g|gif|webp|svg|ico|woff2?)$",
+      "headers": {
+        "Cache-Control": "public, max-age=2592000"
+      },
+      "continue": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/_app.php"
+    }
+  ]
+}

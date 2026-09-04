@@ -5,11 +5,11 @@ const T = {
     'hero.badge': 'Disponible pour des collaborations – Dakar, Sénégal', 'hero.h1': 'Bonjour, je suis', 'hero.agency': 'SEN DIGITAL SOLUTION', 'hero.btn1': 'Voir mes projets', 'hero.btn2': 'Me contacter', 'hero.cv': '📄 Télécharger CV',
     'stat.projects': 'Projets livrés', 'stat.years': "Ans d'expérience", 'stat.agency': 'Agence fondée',
     'about.tag': 'Qui suis-je ?', 'about.title': 'Passionné de tech, ancré dans l\'Afrique',
-    'about.p1': 'Je suis étudiant en <strong>Génie Logiciel</strong> à l\'Institut Superieur d\'informatique (ISI Suptech) de Dakar et fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de devenir le leader tech de l\'Afrique de l\'Ouest.',
+    'about.p1': 'Je suis étudiant en <strong>Génie Logiciel</strong> à l\'Institut Supérieur d\'Informatique (ISI Suptech) de Dakar et fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de devenir le leader tech de l\'Afrique de l\'Ouest.',
     'about.p2': 'Ma mission : intégrer l\' <strong>intelligence artificielle</strong> et l\'automatisation dans les workflows des entreprises africaines pour les rendre plus compétitives à l\'échelle mondiale.',
     'about.p3': 'Je combine développement web, automatisation no-code/low-code (<strong>n8n, Make</strong>), et intégration d\'APIs IA pour livrer des solutions concrètes et mesurables.',
     'about.p4': 'Au-delà du code, je construis ma <strong>marque personnelle</strong> — conférencier en devenir, laureát du Concours Général Sénégalais 2022.',
-    'award1.title': 'Laureát – Concours Général Sénégalais 2022', 'award1.desc': '2ème Prix · Langue Arabe · Distinction nationale',
+    'award1.title': 'Lauréat – Concours Général Sénégalais 2022', 'award1.desc': '2ème Prix · Langue Arabe · Distinction nationale',
     'award2.title': 'Expert IA & Automatisation', 'award2.desc': 'n8n · Make · OpenAI API · WhatsApp Business API',
     'award3.title': 'Vision Pan-Africaine', 'award3.desc': 'Fondateur SEN DIGITAL SOLUTION · Dakar, Sénégal',
     'award4.title': 'Ingénieur en construction', 'award4.desc': 'Personal branding · LinkedIn · Prise de parole',
@@ -40,7 +40,7 @@ const T = {
     'bc1': 'IA · Afrique', 'bt1': 'L\'IA va transformer l\'économie africaine — voici comment en profiter maintenant', 'be1': 'Pendant que le monde débat des dangers de l\'IA, l\'Afrique a une fenêtre d\'opportunité unique. Les marchés moins rigides, la démographie jeune et le besoin criant d\'efficacité font de ce continent le terrain idéal pour une adoption rapide de l\'intelligence artificielle.', 'bd1': 'Mars 2025 · 4 min',
     'bc2': 'Automatisation · PME', 'bt2': 'WhatsApp + IA = Le CRM des PME sénégalaises', 'be2': '95% des commerçants dakarois utilisent WhatsApp pour gérer leurs clients. Pourtant, ils répondent manuellement à chaque message. Un agent IA bien configuré peut changer ça — sans budget CRM, sans formation complexe, en 48h.', 'bd2': 'Fév. 2025 · 3 min',
     'bc3': 'Cas client · Automatisation', 'bt3': 'Comment j\'ai automatisé un restaurant dakarois en 2 semaines', 'be3': 'De la prise de commande manuelle sur WhatsApp à un système automatique avec tickets, historique et tableau de bord admin. Retour d\'expérience sur le projet Dibiterie Ameth Boll — les choix techniques, les obstacles et les leçons apprises.', 'bd3': 'Janv. 2025 · 5 min',
-    'blink': 'Lire sur LinkedIn →',
+    'blink': 'Voir sur LinkedIn →',
     'ct.tag': 'Contact', 'ct.title': 'Travaillons ensemble', 'ct.sub': 'Un projet digital, une automatisation, un site web ? Écrivez-moi — je réponds toujours.',
     'ci1l': 'Localisation', 'ci2l': 'Agence', 'ci3l': 'Disponibilité', 'ci3v': 'Projets locaux & internationaux',
     'form.name': 'Votre nom', 'form.subject': 'Sujet du projet', 'form.msg': 'Décrivez votre projet…', 'form.send': 'Envoyer le message →',
@@ -48,7 +48,7 @@ const T = {
     't1.text': '"Dieylany a transformé notre présence digitale. Le site web et le bot WhatsApp ont boosté nos commandes de 40%. Très professionnel et réactif."', 't1.role': 'Gérant — Dibiterie Ameth Boll',
     't2.text': '"Un talent rare qui combine compétences techniques et vision business. SDS a livré notre plateforme e-commerce dans les délais avec une qualité exceptionnelle."', 't2.role': 'Directrice — LuxeGold Bijouterie',
     't3.text': '"L\'automatisation WhatsApp a révolutionné notre service client. Nos clients sont servis 24h/24 et nous avons réduit nos coûts de support de 60%."', 't3.role': 'CEO — SDS_Shop',
-    'footer': 'Fait avec 🔥 à Dakar, Sénégal', 'footer.desc': 'Solutions digitales innovantes pour les entreprises africaines. IA, automatisation et développement web.', 'footer.nav': 'Navigation', 'footer.services': 'Services', 'footer.contact': 'Contact'
+    'footer.desc': 'Solutions digitales innovantes pour les entreprises africaines. IA, automatisation et développement web.', 'footer.nav': 'Navigation', 'footer.services': 'Services', 'footer.contact': 'Contact'
   },
   en: {
     'nav.about': 'About', 'nav.timeline': 'Journey', 'nav.services': 'Services', 'nav.projects': 'Projects', 'nav.blog': 'Blog', 'nav.contact': 'Contact',
@@ -90,7 +90,7 @@ const T = {
     'bc1': 'AI · Africa', 'bt1': 'AI will transform the African economy — here is how to benefit now', 'be1': 'While the world debates AI risks, Africa has a unique window of opportunity. Less rigid markets, a young demographic and a pressing need for efficiency make this continent ideal for rapid AI adoption.', 'bd1': 'Mar. 2025 · 4 min',
     'bc2': 'Automation · SMEs', 'bt2': 'WhatsApp + AI = The CRM for Senegalese SMEs', 'be2': '95% of Dakar merchants use WhatsApp to manage their clients. Yet they respond manually to every message. A well-configured AI agent can change that — no CRM budget, no complex training, in 48 hours.', 'bd2': 'Feb. 2025 · 3 min',
     'bc3': 'Case Study · Automation', 'bt3': 'How I automated a Dakar restaurant in 2 weeks', 'be3': 'From manual WhatsApp ordering to an automated system with tickets and admin dashboard. A look back at the Dibiterie Ameth Boll project — technical choices, obstacles and lessons learned.', 'bd3': 'Jan. 2025 · 5 min',
-    'blink': 'Read on LinkedIn →',
+    'blink': 'View on LinkedIn →',
     'ct.tag': 'Contact', 'ct.title': 'Let\'s work together', 'ct.sub': 'A digital project, an automation, a website? Write to me — I always respond.',
     'ci1l': 'Location', 'ci2l': 'Agency', 'ci3l': 'Availability', 'ci3v': 'Local & international projects',
     'form.name': 'Your name', 'form.subject': 'Project subject', 'form.msg': 'Describe your project…', 'form.send': 'Send message →',
@@ -98,7 +98,7 @@ const T = {
     't1.text': '"Dieylany transformed our digital presence. The website and WhatsApp bot boosted our orders by 40%. Very professional and responsive."', 't1.role': 'Manager — Dibiterie Ameth Boll',
     't2.text': '"A rare talent combining technical skills and business vision. SDS delivered our e-commerce platform on time with exceptional quality."', 't2.role': 'Director — LuxeGold Jewelry',
     't3.text': '"WhatsApp automation revolutionized our customer service. Our clients are served 24/7 and we reduced support costs by 60%."', 't3.role': 'CEO — SDS_Shop',
-    'footer': 'Made with 🔥 in Dakar, Senegal', 'footer.desc': 'Innovative digital solutions for African businesses. AI, automation and web development.', 'footer.nav': 'Navigation', 'footer.services': 'Services', 'footer.contact': 'Contact'
+    'footer.desc': 'Innovative digital solutions for African businesses. AI, automation and web development.', 'footer.nav': 'Navigation', 'footer.services': 'Services', 'footer.contact': 'Contact'
   },
   ar: {
     'nav.about': 'عن نفسي', 'nav.timeline': 'مساري', 'nav.services': 'الخدمات', 'nav.projects': 'المشاريع', 'nav.blog': 'مدونة', 'nav.contact': 'التواصل',
@@ -140,7 +140,7 @@ const T = {
     'bc1': 'ذكاء اصطناعي · أفريقيا', 'bt1': 'الذكاء الاصطناعي سيحوّل الاقتصاد الأفريقي — إليك كيف تستفيد الآن', 'be1': 'بينما يتجادل العالم حول مخاطر الذكاء الاصطناعي، تمتلك أفريقيا نافذة فرصة فريدة. أسواق أقل جموداً، شباب واعد، وحاجة ملحّة للكفاءة تجعل هذه القارة أرضاً مثالية لتبنّي الذكاء الاصطناعي بسرعة.', 'bd1': 'مارس 2025 · 4 دقائق',
     'bc2': 'أتمتة · المشاريع الصغيرة', 'bt2': 'WhatsApp + ذكاء اصطناعي = نظام CRM للمؤسسات السنغالية الصغيرة', 'be2': '95% من تجار داكار يستخدمون WhatsApp لإدارة عملائهم. ومع ذلك يردّون يدوياً على كل رسالة. وكيل ذكاء اصطناعي مُهيَّأ جيداً يمكنه تغيير ذلك — دون ميزانية CRM، خلال 48 ساعة.', 'bd2': 'فبراير 2025 · 3 دقائق',
     'bc3': 'دراسة حالة · أتمتة', 'bt3': 'كيف آلّيت مطعماً في داكار في أسبوعين', 'be3': 'من تلقّي الطلبات يدوياً على WhatsApp إلى نظام تلقائي مع تذاكر ولوحة تحكم. تجربة مشروع Dibiterie Ameth Boll — الخيارات التقنية والتحديات والدروس المستفادة.', 'bd3': 'يناير 2025 · 5 دقائق',
-    'blink': 'اقرأ على LinkedIn ←',
+    'blink': 'شاهد على LinkedIn ←',
     'ct.tag': 'التواصل', 'ct.title': 'لنعمل معاً', 'ct.sub': 'مشروع رقمي، أتمتة، موقع ويب؟ راسلني — أردّ دائماً.',
     'ci1l': 'الموقع', 'ci2l': 'الوكالة', 'ci3l': 'التوفّر', 'ci3v': 'مشاريع محلية ودولية',
     'form.name': 'اسمك', 'form.subject': 'موضوع المشروع', 'form.msg': 'صِف مشروعك…', 'form.send': '← إرسال الرسالة',
@@ -148,7 +148,7 @@ const T = {
     't1.text': '"ديلاني حوّل حضورنا الرقمي. الموقع وبوت WhatsApp زادا طلباتنا بنسبة 40%. محترف جداً وسريع الاستجابة."', 't1.role': 'مدير — مطعم أميث بول',
     't2.text': '"موهبة نادرة تجمع بين المهارات التقنية والرؤية التجارية. SDS قدّمت منصتنا في الوقت المحدد بجودة استثنائية."', 't2.role': 'مديرة — LuxeGold للمجوهرات',
     't3.text': '"أتمتة WhatsApp أحدثت ثورة في خدمة عملائنا. عملاؤنا يُخدَمون 24/7 وخفّضنا تكاليف الدعم بنسبة 60%."', 't3.role': 'الرئيس التنفيذي — SDS_Shop',
-    'footer': 'صُنع بـ 🔥 في داكار، السنغال', 'footer.desc': 'حلول رقمية مبتكرة للشركات الأفريقية. ذكاء اصطناعي وأتمتة وتطوير ويب.', 'footer.nav': 'التنقل', 'footer.services': 'الخدمات', 'footer.contact': 'التواصل'
+    'footer.desc': 'حلول رقمية مبتكرة للشركات الأفريقية. ذكاء اصطناعي وأتمتة وتطوير ويب.', 'footer.nav': 'التنقل', 'footer.services': 'الخدمات', 'footer.contact': 'التواصل'
   }
 };
 

@@ -6,7 +6,6 @@
  * PUT              → modifier une compétence ou son ordre
  * DELETE ?id=X     → supprimer
  */
-session_start();
 require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';

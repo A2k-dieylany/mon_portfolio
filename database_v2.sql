@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS messages (
     subject VARCHAR(200) NOT NULL,
     message TEXT NOT NULL,
     status ENUM('unread', 'read', 'replied', 'archived') DEFAULT 'unread',
-    notes TEXT DEFAULT '',
+    notes TEXT NULL,
     replied_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_status (status),
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS messages (
 -- Si la table messages existait déjà sans les colonnes statut/notes :
 -- ALTER TABLE messages
 --     ADD COLUMN IF NOT EXISTS status ENUM('unread', 'read', 'replied', 'archived') DEFAULT 'unread' AFTER message,
---     ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '' AFTER status,
+--     ADD COLUMN IF NOT EXISTS notes TEXT NULL AFTER status,
 --     ADD COLUMN IF NOT EXISTS replied_at DATETIME NULL AFTER notes;
 
 -- ========================================
@@ -281,4 +281,23 @@ CREATE TABLE IF NOT EXISTS api_rate_limits (
     window_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_ip_endpoint (ip_hash, endpoint),
     INDEX idx_window (window_start)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================
+-- 🗄️ SESSIONS PHP (nécessaire sur hébergement serverless type Vercel,
+-- où le disque local n'est pas partagé/persistant entre les requêtes)
+-- ========================================
+CREATE TABLE IF NOT EXISTS php_sessions (
+    id VARCHAR(128) NOT NULL PRIMARY KEY,
+    data MEDIUMTEXT NOT NULL,
+    last_activity INT UNSIGNED NOT NULL,
+    INDEX idx_last_activity (last_activity)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================
+-- 🎯 LEADS CHATBOT (une notification WhatsApp par conversation max)
+-- ========================================
+CREATE TABLE IF NOT EXISTS chatbot_leads (
+    session_id VARCHAR(128) NOT NULL PRIMARY KEY,
+    notified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

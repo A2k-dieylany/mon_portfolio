@@ -3,6 +3,11 @@
  * SDS Admin — Fonctions utilitaires
  */
 
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    http_response_code(404);
+    exit;
+}
+
 /**
  * Envoyer une réponse JSON propre et terminer le script
  */

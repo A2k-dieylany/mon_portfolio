@@ -16,4 +16,4 @@ Disallow: /.git/
 # Admin — zone restreinte
 Disallow: /admin/
 
-Sitemap: https://sds.sn/sitemap.xml
+Sitemap: https://dieylany.dev/sitemap.xml

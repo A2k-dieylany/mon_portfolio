@@ -4,10 +4,15 @@
  * Vérifie que l'utilisateur est connecté avant d'accéder aux pages/API admin
  */
 
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    http_response_code(404);
+    exit;
+}
+
+require_once __DIR__ . '/../../session_bootstrap.php';
+
 function require_auth(): void {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    sds_session_start();
 
     // Vérifier la session admin
     if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_role'])) {
@@ -24,7 +29,7 @@ function require_auth(): void {
         }
 
         // Redirection vers la page de login
-        header('Location: /mes_dossiers/sds/admin/index.php');
+        header('Location: /admin/index.php');
         exit;
     }
 

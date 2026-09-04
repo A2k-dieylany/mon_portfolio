@@ -4,7 +4,6 @@
  * À exécuter une seule fois !
  * ⚠️ PROTÉGÉ — Nécessite une session admin active
  */
-session_start();
 require_once __DIR__ . '/includes/auth_check.php';
 require_auth();
 

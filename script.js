@@ -182,16 +182,31 @@ function setupFilters() {
   if (!btns.length) return;
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
-      btns.forEach(b => b.classList.remove('active'));
+      btns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('active');
+      // Indique au lecteur d'écran quel filtre est appliqué
+      btn.setAttribute('aria-pressed', 'true');
       const filter = btn.dataset.filter;
+      let visible = 0;
       cards.forEach(card => {
         if (filter === 'all' || card.dataset.category === filter) {
           card.classList.remove('hide-project');
+          card.removeAttribute('aria-hidden');
+          visible++;
         } else {
           card.classList.add('hide-project');
+          card.setAttribute('aria-hidden', 'true');
         }
       });
+      const status = document.getElementById('filter-status');
+      if (status) {
+        status.textContent = visible > 1
+          ? `${visible} projets affichés`
+          : `${visible} projet affiché`;
+      }
     });
   });
 }
@@ -355,8 +370,8 @@ function setupChatbot() {
           <div class="chat-bubble"></div>
           <div class="chat-meta">
             <span class="chat-time">${timeStr}</span>
-            <button class="chat-copy-btn" title="Copier">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            <button class="chat-copy-btn" title="Copier" aria-label="Copier ce message">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
             </button>
           </div>
         </div>
@@ -412,7 +427,7 @@ function setupChatbot() {
           <div class="chat-bubble"></div>
           <div class="chat-meta">
             <span class="chat-time">${timeStr}</span>
-            <button class="chat-edit-btn" title="Modifier">✎</button>
+            <button class="chat-edit-btn" title="Modifier" aria-label="Modifier mon message"><span aria-hidden="true">✎</span></button>
           </div>
         </div>
       `;
@@ -728,15 +743,21 @@ function setupMenu() {
   const toggle = document.getElementById('menu-toggle');
   const navLinks = document.querySelector('.nav-links');
   if (!toggle || !navLinks) return;
-  toggle.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-    toggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
-  });
+
+  // L'icône vit dans un <span aria-hidden> : on ne touche qu'à lui, pour ne pas
+  // écraser l'aria-label du bouton (sinon un lecteur d'écran lit le symbole).
+  const icon = toggle.querySelector('span[aria-hidden]') || toggle;
+
+  const setState = (open) => {
+    navLinks.classList.toggle('active', open);
+    icon.textContent = open ? '✕' : '☰';
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu de navigation' : 'Ouvrir le menu de navigation');
+  };
+
+  toggle.addEventListener('click', () => setState(!navLinks.classList.contains('active')));
   navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      navLinks.classList.remove('active');
-      toggle.textContent = '☰';
-    });
+    link.addEventListener('click', () => setState(false));
   });
 }
 
@@ -871,8 +892,8 @@ function setupProjectModals() {
             <div class="modal-main-img-wrap">
               <img src="${images[0]}" id="modal-main-img" class="modal-main-img" alt="${name}" loading="lazy" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\' width=\\\'800\\\' height=\\\'450\\\'><rect width=\\\'800\\\' height=\\\'450\\\' fill=\\\'%231a1a24\\\'/><text x=\\\'50%\\\' y=\\\'50%\\\' fill=\\\'%23555\\\' font-family=\\\'sans-serif\\\' font-size=\\\'18\\\' text-anchor=\\\'middle\\\' dominant-baseline=\\\'middle\\\'>Image non disponible</text></svg>'">
               ${images.length > 1 ? `
-                <button class="gallery-arrow gallery-prev" id="gallery-prev">&#8249;</button>
-                <button class="gallery-arrow gallery-next" id="gallery-next">&#8250;</button>
+                <button class="gallery-arrow gallery-prev" id="gallery-prev" aria-label="Image précédente"><span aria-hidden="true">&#8249;</span></button>
+                <button class="gallery-arrow gallery-next" id="gallery-next" aria-label="Image suivante"><span aria-hidden="true">&#8250;</span></button>
               ` : ''}
             </div>
             ${images.length > 1 ? `<div class="modal-thumbs">${thumbs}</div>` : ''}
@@ -1085,7 +1106,8 @@ function initPage() {
     }
   }, 1500);
 
-  // Compteur de visiteurs
+  // Tracking des visites (alimente les statistiques de l'admin).
+  // Volontairement sans affichage public : le compteur n'apporte rien au visiteur.
   const setupVisitors = async () => {
     try {
       const page = window.location.pathname.split('/').pop() || 'home';
@@ -1093,20 +1115,9 @@ function initPage() {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/i.test(navigator.userAgent);
       const device = isTablet ? 'tablet' : (isMobile ? 'mobile' : 'desktop');
-      const res = await fetch(`visitors.php?page=${page}&ref=${encodeURIComponent(ref)}&device=${device}`);
-      const data = await res.json();
-      if (data.status === 'ok') {
-        const vc = document.getElementById('visitor-counter');
-        const vt = document.getElementById('v-today');
-        const vtot = document.getElementById('v-total');
-        if (vc && vt && vtot) {
-          vt.textContent = data.today;
-          vtot.textContent = data.total;
-          vc.style.display = 'flex';
-        }
-      }
+      await fetch(`visitors.php?page=${page}&ref=${encodeURIComponent(ref)}&device=${device}`);
     } catch (e) {
-      console.log('Erreur compteur visiteurs:', e);
+      console.log('Erreur tracking visiteurs:', e);
     }
   };
   setupVisitors();

@@ -1,9 +1,9 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/admin/includes/db.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/session_bootstrap.php';
+sds_session_start();
+header('Content-Type: application/json');
 $groqApiKey = GROQ_API_KEY;
 
 // Rate limiting DB: 10 requêtes max par minute par IP
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Validation Origin/Referer — bloquer les requêtes externes
-$allowedHosts = ['localhost', '127.0.0.1', 'sds.sn', 'www.sds.sn'];
+$allowedHosts = ['localhost', '127.0.0.1', 'dieylany.dev', 'www.dieylany.dev', $_SERVER['HTTP_HOST'] ?? ''];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
 $sourceHost = '';
@@ -142,7 +142,7 @@ foreach ($recentHistory as $turn) {
 $messages[] = ['role' => 'user', 'content' => $userMessage];
 
 $data = [
-    'model'       => 'llama-3.3-70b-versatile',
+    'model'       => 'qwen/qwen3.8-27b',
     'messages'    => $messages,
     'max_tokens'  => 500,
     'temperature' => 0.7,
@@ -178,13 +178,76 @@ if ($httpCode == 200) {
         
         $logStmt = $dbLog->prepare("INSERT INTO chatbot_logs (session_id, user_message, bot_response, language, ip_hash) VALUES (?, ?, ?, ?, ?)");
         $logStmt->execute([$sessionId, $userMessage, trim($reply), $lang, $ipHash]);
+
+        // Détection de lead chaud : si le visiteur montre une intention d'achat,
+        // on notifie une seule fois par conversation via le webhook WhatsApp.
+        $leadKeywords = [
+            'devis', 'tarif', 'tarifs', 'prix', 'combien ça coûte', 'combien coute', 'combien ça coute',
+            'je veux commander', 'je voudrais commander', "j'aimerais commander", 'contactez-moi',
+            'appelez-moi', 'rappelez-moi', 'rendez-vous', ' rdv ', 'parler à un humain',
+            'parler à quelqu\'un', 'votre numéro', 'votre whatsapp', 'je suis intéressé',
+            'je suis intéressée', 'je veux collaborer', 'démarrer un projet', 'lancer un projet',
+            "j'ai un projet", 'mon budget', 'mon numéro est', 'mon email est', 'quote', 'pricing',
+            'how much', 'call me', 'contact me', 'get in touch', "i'm interested", 'start a project',
+            'my budget', 'my number is', 'my email is', 'bëgg naa', 'ñaata lay',
+        ];
+        $haystack = mb_strtolower($userMessage);
+        foreach ($recentHistory as $turn) {
+            if (($turn['role'] ?? '') === 'user') {
+                $haystack .= ' ' . mb_strtolower(trim($turn['content'] ?? ''));
+            }
+        }
+
+        $isLead = false;
+        foreach ($leadKeywords as $kw) {
+            if (mb_strpos($haystack, $kw) !== false) {
+                $isLead = true;
+                break;
+            }
+        }
+
+        if ($isLead) {
+            $insertLead = $dbLog->prepare("INSERT IGNORE INTO chatbot_leads (session_id) VALUES (?)");
+            $insertLead->execute([$sessionId]);
+
+            // rowCount() = 1 seulement si la ligne vient d'être insérée (pas déjà notifiée)
+            if ($insertLead->rowCount() > 0) {
+                $webhookUrl = defined('WEBHOOK_URL') ? WEBHOOK_URL : '';
+                if (!empty($webhookUrl)) {
+                    $conversationText = '';
+                    foreach ($recentHistory as $turn) {
+                        $who = ($turn['role'] ?? '') === 'user' ? 'Visiteur' : 'MAX';
+                        $conversationText .= "$who: " . trim($turn['content'] ?? '') . "\n";
+                    }
+                    $conversationText .= "Visiteur: $userMessage\nMAX: " . trim($reply);
+
+                    $webhookData = json_encode([
+                        'source'  => 'sds_chatbot',
+                        'name'    => 'Visiteur Chatbot MAX',
+                        'email'   => 'Non fourni (via chatbot)',
+                        'subject' => 'Lead détecté par le chatbot MAX',
+                        'message' => $conversationText,
+                        'timestamp' => date('c'),
+                    ]);
+
+                    $chWebhook = curl_init($webhookUrl);
+                    curl_setopt($chWebhook, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($chWebhook, CURLOPT_POST, true);
+                    curl_setopt($chWebhook, CURLOPT_POSTFIELDS, $webhookData);
+                    curl_setopt($chWebhook, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                    curl_setopt($chWebhook, CURLOPT_TIMEOUT, 3);
+                    curl_exec($chWebhook);
+                    curl_close($chWebhook);
+                }
+            }
+        }
     } catch (Exception $e) {
         error_log("Chatbot log error: " . $e->getMessage());
     }
-    
+
     echo json_encode(['reply' => trim($reply)]);
 } else {
     error_log("Groq API error $httpCode: $response");
-    echo json_encode(['reply' => "Je suis temporairement indisponible. Contactez-nous via le formulaire sur sds.sn"]);
+    echo json_encode(['reply' => "Je suis temporairement indisponible. Contactez-nous via le formulaire du site ou sur WhatsApp au +221 78 015 25 22."]);
 }
 ?>

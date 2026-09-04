@@ -1,0 +1,10 @@
+.env
+.env.example
+*.sql
+*.sql.bak
+_archives/
+.htaccess
+admin/.htaccess
+.vscode/
+patch.py
+*.bak
