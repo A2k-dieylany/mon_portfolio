@@ -37,7 +37,20 @@ $opts = [
 if (defined('PDO::MYSQL_ATTR_SSL_CA')) {
     $opts[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
 }
-$pdo = new PDO($dsn, $env['DB_USER'], $env['DB_PASS'], $opts);
+// La liaison depuis Dakar vers Amsterdam tombe régulièrement : on réessaie
+// plutôt que d'abandonner sur un timeout isolé.
+$pdo = null;
+for ($try = 1; $try <= 6; $try++) {
+    try {
+        $pdo = new PDO($dsn, $env['DB_USER'], $env['DB_PASS'], $opts);
+        break;
+    } catch (PDOException $e) {
+        fprintf(STDERR, "  tentative %d/6 échouée
+", $try);
+        if ($try === 6) { throw $e; }
+        sleep(3);
+    }
+}
 
 printf("Connecté à %s (%s)\n\n", $env['DB_HOST'], $apply ? "MODE ÉCRITURE" : "SIMULATION");
 
@@ -86,6 +99,45 @@ foreach ($rows as $r) {
             "UPDATE projects SET github_url = ? WHERE id = ?", [$new, $r['id']],
             [$url => $new ?? '(aucun)']);
     }
+}
+
+// ------------------------------------------------------------------- frise
+// Licence 1 (2024-2025) démarre en octobre 2024 : elle doit précéder janvier
+// 2025, or elle était placée après. L'ordre affiché reculait dans le passé.
+$order = [1, 2, 4, 6, 3, 5, 8, 7];
+$current = [];
+foreach ($pdo->query("SELECT id, sort_order, year_fr, title_fr FROM timeline_items") as $r) {
+    $current[$r['id']] = $r;
+}
+foreach ($order as $rank => $id) {
+    if (isset($current[$id]) && (int) $current[$id]['sort_order'] !== $rank) {
+        plan($changes, "Frise : replacer « {$current[$id]['year_fr']} — {$current[$id]['title_fr']} »",
+            "UPDATE timeline_items SET sort_order = ? WHERE id = ?", [$rank, $id],
+            ['position ' . $current[$id]['sort_order'] => 'position ' . $rank]);
+    }
+}
+
+// L'entrée de janvier 2025 annonçait un « premier client » : le site a bien été
+// conçu et développé, mais il n'a jamais été vendu. On garde la réalisation,
+// on retire la relation commerciale.
+$row = $pdo->query("SELECT title_fr FROM timeline_items WHERE id = 5")->fetch();
+if ($row && str_contains($row['title_fr'], 'Premier client')) {
+    $reword = [
+        'title_fr' => 'Plateforme e-commerce complète — Dibiterie Ameth Boll',
+        'title_en' => 'Complete e-commerce platform — Dibiterie Ameth Boll',
+        'title_ar' => 'منصة تجارة إلكترونية متكاملة — Dibiterie Ameth Boll',
+        'desc_fr'  => "Site de commande avec panier WhatsApp, ticket imprimable et back-office. Projet mené de bout en bout : conception, développement et mise en ligne.",
+        'desc_en'  => "Ordering site with a WhatsApp cart, printable receipt and admin back-office. Built end to end: design, development and deployment.",
+        'desc_ar'  => "موقع للطلبات مع سلة عبر WhatsApp وتذكرة قابلة للطباعة ولوحة إدارة. مشروع أُنجز من الفكرة إلى النشر.",
+        'badge_fr' => '🚀 Projet complet',
+        'badge_en' => '🚀 Complete project',
+        'badge_ar' => '🚀 مشروع متكامل',
+    ];
+    $sets = implode(', ', array_map(static fn($c) => "$c = ?", array_keys($reword)));
+    plan($changes, "Frise : reformuler l'entrée de janvier 2025",
+        "UPDATE timeline_items SET $sets WHERE id = 5",
+        array_values($reword),
+        ['Premier client livré — Dibiterie Ameth Boll' => $reword['title_fr']]);
 }
 
 // -------------------------------------------------------------------- rendu
