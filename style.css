@@ -719,3 +719,6 @@ body.service-page h1{opacity:1;}
   .svc-main{padding:6rem 0 3rem;}
   .svc-cta{padding:1.6rem;}
 }
+
+/* Note discrète sous un titre de section (ex. : nombre de projets affichés) */
+.section-note{color:var(--muted);font-size:.9rem;line-height:1.6;margin:.9rem 0 0;max-width:46rem}

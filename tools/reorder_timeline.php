@@ -21,7 +21,7 @@ $plan = [
     ['id' => 1, 'years' => null],                                             // 2022 — Concours Général
     ['id' => 2, 'years' => null],                                             // 2023 — Baccalauréat
     ['id' => 3, 'years' => null],                                             // Licence 1 — IPD
-    ['id' => 4, 'years' => null],                                             // Janv. 2024 — Fondation SDS
+    ['id' => 4, 'years' => ['2025', '2025', '2025']],                          // Fondation SDS
     ['id' => 5, 'years' => null],                                             // Dibiterie Ameth Boll
     ['id' => 6, 'years' => ['Sept. 2025', 'Sep. 2025', 'سبتمبر 2025']],       // WhatsApp Bot IA
     ['id' => 7, 'years' => null],                                             // 2025-2026 — Licence 2 ISI

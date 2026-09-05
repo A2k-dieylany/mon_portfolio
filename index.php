@@ -225,7 +225,7 @@ foreach($settingsData as $s) {
       <div class="hero-stats">
         <div class="stat">
           <div class="stat-num" data-target="13">0</div>
-          <div class="stat-label" data-i18n="stat.projects">Projets livrés</div>
+          <div class="stat-label" data-i18n="stat.projects">Projets réalisés</div>
         </div>
         <div class="stat">
           <div class="stat-num" data-target="2">0</div>
@@ -375,6 +375,16 @@ foreach($settingsData as $s) {
         </div>
         <!-- Annonce le résultat du filtrage aux lecteurs d'écran -->
         <p id="filter-status" class="sr-only" role="status" aria-live="polite"></p>
+        <?php $shown = count($projects); $total = 13; ?>
+        <?php if ($total > $shown): ?>
+        <p class="section-note dynamic-i18n"
+           data-fr="<?= $shown ?> projets présentés sur <?= $total ?> réalisés — les autres sont des travaux d'école, des prototypes ou des projets privés."
+           data-en="<?= $shown ?> of <?= $total ?> projects shown — the others are coursework, prototypes or private client work."
+           data-ar="<?= $shown ?> من أصل <?= $total ?> مشروعاً معروضة — الباقي أعمال دراسية أو نماذج أولية أو مشاريع خاصة.">
+          <?= $shown ?> projets présentés sur <?= $total ?> réalisés — les autres sont des travaux d'école,
+          des prototypes ou des projets privés.
+        </p>
+        <?php endif; ?>
       </div>
       <!-- CARD 1 -->
           <div class="projects-grid">

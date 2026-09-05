@@ -3,7 +3,7 @@ const T = {
   fr: {
     'nav.about': 'À propos', 'nav.timeline': 'Parcours', 'nav.services': 'Services', 'nav.projects': 'Projets', 'nav.blog': 'Blog', 'nav.contact': 'Contact',
     'hero.badge': 'Disponible pour des collaborations – Dakar, Sénégal', 'hero.h1': 'Bonjour, je suis', 'hero.agency': 'SEN DIGITAL SOLUTION', 'hero.btn1': 'Voir mes projets', 'hero.btn2': 'Me contacter', 'hero.cv': '📄 Télécharger CV',
-    'stat.projects': 'Projets livrés', 'stat.years': "Ans d'expérience", 'stat.agency': 'Agence fondée',
+    'stat.projects': 'Projets réalisés', 'stat.years': "Ans d'expérience", 'stat.agency': 'Agence fondée',
     'about.tag': 'Qui suis-je ?', 'about.title': 'Passionné de tech, ancré dans l\'Afrique',
     'about.p1': 'Je suis étudiant en <strong>Génie Logiciel</strong> à l\'Institut Supérieur d\'Informatique (ISI Suptech) de Dakar et fondateur de <strong>SEN DIGITAL SOLUTION</strong> — une agence digitale que je construis avec la vision de devenir le leader tech de l\'Afrique de l\'Ouest.',
     'about.p2': 'Ma mission : intégrer l\' <strong>intelligence artificielle</strong> et l\'automatisation dans les workflows des entreprises africaines pour les rendre plus compétitives à l\'échelle mondiale.',
@@ -53,7 +53,7 @@ const T = {
   en: {
     'nav.about': 'About', 'nav.timeline': 'Journey', 'nav.services': 'Services', 'nav.projects': 'Projects', 'nav.blog': 'Blog', 'nav.contact': 'Contact',
     'hero.badge': 'Open for collaborations – Dakar, Senegal', 'hero.h1': 'Hello, I am', 'hero.agency': 'SEN DIGITAL SOLUTION', 'hero.btn1': 'View my projects', 'hero.btn2': 'Contact me', 'hero.cv': '📄 Download CV',
-    'stat.projects': 'Projects delivered', 'stat.years': 'Years of experience', 'stat.agency': 'Agency founded',
+    'stat.projects': 'Projects completed', 'stat.years': 'Years of experience', 'stat.agency': 'Agency founded',
     'about.tag': 'Who am I?', 'about.title': 'Tech enthusiast, rooted in Africa',
     'about.p1': 'I am a <strong>Software Engineering</strong> student and founder of <strong>SEN DIGITAL SOLUTION</strong> — a digital agency I am building with the vision of becoming the tech leader of West Africa.',
     'about.p2': 'My mission: integrate <strong>artificial intelligence</strong> and automation into African businesses\' workflows to make them more competitive on the global stage.',
