@@ -23,8 +23,8 @@ $plan = [
     ['id' => 3, 'years' => null],                                             // Licence 1 — IPD
     ['id' => 4, 'years' => ['2025', '2025', '2025']],                          // Fondation SDS
     ['id' => 5, 'years' => null],                                             // Dibiterie Ameth Boll
-    ['id' => 6, 'years' => ['Sept. 2025', 'Sep. 2025', 'سبتمبر 2025']],       // WhatsApp Bot IA
     ['id' => 7, 'years' => null],                                             // 2025-2026 — Licence 2 ISI
+    ['id' => 6, 'years' => ['2026', '2026', '2026']],                         // WhatsApp Bot IA
     ['id' => 8, 'years' => ['2026', '2026', '2026']],                         // Spécialiste IA
 ];
 
