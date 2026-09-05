@@ -33,6 +33,46 @@ function sds_not_found(): void {
     exit;
 }
 
+/**
+ * Rend la page de maintenance au lieu d'une trace PHP.
+ *
+ * Une base injoignable affichait jusqu'ici une PDOException complète, avec les
+ * chemins serveur et la ligne fautive, et un code HTTP 200 — Google pouvait
+ * donc indexer la page d'erreur. On répond 503 avec un message présentable.
+ */
+function sds_service_unavailable(Throwable $e): void {
+    error_log('SDS indisponible : ' . $e->getMessage());
+
+    if (!headers_sent()) {
+        // Les points d'entrée JSON doivent recevoir du JSON, pas du HTML.
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '';
+        $wantsJson = str_contains($path, '/api/')
+            || str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')
+            || in_array(basename($path), ['chat.php', 'contact.php', 'visitors.php'], true);
+
+        if ($wantsJson) {
+            http_response_code(503);
+            header('Retry-After: 300');
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode(['error' => 'Service temporairement indisponible'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+
+    $page = __DIR__ . '/maintenance.php';
+    if (is_file($page)) {
+        require $page;
+    } else {
+        http_response_code(503);
+        echo 'Service temporairement indisponible';
+    }
+    exit;
+}
+
+// En production, une erreur non rattrapée ne doit jamais s'afficher au visiteur.
+@ini_set('display_errors', '0');
+set_exception_handler('sds_service_unavailable');
+
 // Domaine canonique : on redirige www -> apex pour éviter le contenu dupliqué.
 $host = strtolower($_SERVER['HTTP_HOST'] ?? '');
 if (str_starts_with($host, 'www.')) {
@@ -66,7 +106,7 @@ $realBase = realpath(__DIR__);
 $realTarget = realpath(__DIR__ . '/' . $relative);
 
 // Fichiers d'inclusion interne : jamais accessibles directement en HTTP.
-$blockedBasenames = ['config.php', 'session_bootstrap.php', '_app.php', '404.php'];
+$blockedBasenames = ['config.php', 'session_bootstrap.php', '_app.php', '404.php', 'maintenance.php'];
 
 $isBlocked = in_array(basename($relative), $blockedBasenames, true)
     || str_contains($relative, 'includes/')
