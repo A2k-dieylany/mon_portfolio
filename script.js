@@ -109,7 +109,6 @@ function setupObservers() {
     entries.forEach(e => {
       if (e.isIntersecting) {
         e.target.classList.add('visible');
-        e.target.querySelectorAll('.skill-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
         e.target.querySelectorAll('.divider').forEach(d => d.classList.add('animated'));
       }
     });

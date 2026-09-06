@@ -490,26 +490,32 @@ foreach($settingsData as $s) {
         <?php
         $gen  = $catSkills[0]['group_name_en'] ?: $gfr;
         $gar  = $catSkills[0]['group_name_ar'] ?: $gfr;
-        $icon = $catSkills[0]['group_icon'] ?? '';
+        $icon = trim($catSkills[0]['group_icon'] ?? '');
+        // Certains libellés stockés en base commencent déjà par l'icône :
+        // la reprendre ici l'affichait deux fois (« ⚙️ ⚙️ Automatisation »).
+        $stripIcon = static function (string $label) use ($icon): string {
+            $label = trim($label);
+            if ($icon !== '' && str_starts_with($label, $icon)) {
+                $label = ltrim(substr($label, strlen($icon)));
+            }
+            return $label;
+        };
+        $gfrLabel = trim($icon . ' ' . $stripIcon($gfr));
+        $genLabel = trim($icon . ' ' . $stripIcon($gen));
+        $garLabel = trim($icon . ' ' . $stripIcon($gar));
         ?>
         <div class="skill-group reveal d<?= ($skIdx++ % 4) + 1 ?>">
           <div class="skill-group-title dynamic-i18n"
-               data-fr="<?= htmlspecialchars($icon.' '.$gfr) ?>"
-               data-en="<?= htmlspecialchars($icon.' '.$gen) ?>"
-               data-ar="<?= htmlspecialchars($icon.' '.$gar) ?>">
-            <?= htmlspecialchars($icon.' '.$gfr) ?>
+               data-fr="<?= htmlspecialchars($gfrLabel) ?>"
+               data-en="<?= htmlspecialchars($genLabel) ?>"
+               data-ar="<?= htmlspecialchars($garLabel) ?>">
+            <?= htmlspecialchars($gfrLabel) ?>
           </div>
-          <?php foreach($catSkills as $sk): ?>
-          <div class="skill-row">
-            <div class="skill-name">
-              <span><?= htmlspecialchars($sk['skill_name']) ?></span>
-              <span class="skill-pct"><?= intval($sk['percentage']) ?>%</span>
-            </div>
-            <div class="skill-bar">
-              <div class="skill-fill" data-w="<?= intval($sk['percentage']) ?>"></div>
-            </div>
-          </div>
-          <?php endforeach; ?>
+          <ul class="skill-list">
+            <?php foreach($catSkills as $sk): ?>
+            <li class="skill-chip"><?= htmlspecialchars($sk['skill_name']) ?></li>
+            <?php endforeach; ?>
+          </ul>
         </div>
         <?php endforeach; ?>
       </div>
