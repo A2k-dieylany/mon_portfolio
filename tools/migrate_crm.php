@@ -86,6 +86,37 @@ if ($missing) {
     echo "Tables CRM déjà présentes.\n";
 }
 
+// ------------------------------------------------- 1 bis. Colonnes ajoutées
+// Les évolutions de schéma postérieures à la création des tables passent ici,
+// pour qu'une base déjà installée se mette à jour sans être recréée.
+$columns = [
+    'crm_deals' => [
+        // Marque les échanges clos par le visiteur : on ne relance pas
+        // quelqu'un qui vient de dire au revoir.
+        'followup_paused' => 'TINYINT(1) NOT NULL DEFAULT 0',
+        // Date du dernier envoi de relance, pour ne pas écrire deux fois.
+        'last_followup_at' => 'DATETIME NULL',
+    ],
+];
+
+foreach ($columns as $table => $definitions) {
+    foreach ($definitions as $column => $type) {
+        $exists = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?'
+        );
+        $exists->execute([$table, $column]);
+        if ($exists->fetchColumn()) {
+            continue;
+        }
+        echo "Colonne à ajouter : $table.$column\n";
+        if ($apply) {
+            $pdo->exec("ALTER TABLE $table ADD COLUMN $column $type");
+            echo "  → ajoutée.\n";
+        }
+    }
+}
+
 /** Extrait un numéro de mobile sénégalais d'un texte libre. */
 function find_phone(string $text): ?string
 {

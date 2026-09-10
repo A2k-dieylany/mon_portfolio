@@ -110,8 +110,8 @@ function sds_alert_owner(string $subject, string $body): void
     }
 
     $payload = json_encode([
-        'from'    => 'MAX <onboarding@resend.dev>',
-        'to'      => ['sendigitalsolution@gmail.com'],
+        'from'    => defined('ALERT_FROM') ? ALERT_FROM : 'MAX <onboarding@resend.dev>',
+        'to'      => [defined('ALERT_EMAIL') ? ALERT_EMAIL : 'dieylany.dev@gmail.com'],
         'subject' => $subject,
         'text'    => $body,
     ]);
@@ -200,6 +200,14 @@ function sds_run_chat_actions(PDO $pdo, string $reply, ?int $dealId, array $clie
     if (str_contains($reply, '[FIN_DISCUSSION]')) {
         $finished = true;
         $reply    = str_replace('[FIN_DISCUSSION]', '', $reply);
+        if ($dealId) {
+            try {
+                $pdo->prepare('UPDATE crm_deals SET followup_paused = 1 WHERE id = ?')
+                    ->execute([$dealId]);
+            } catch (Throwable $e) {
+                error_log('Fin de discussion : ' . $e->getMessage());
+            }
+        }
     }
 
     if (($hot || $human) && $dealId) {

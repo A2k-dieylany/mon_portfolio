@@ -42,5 +42,11 @@
       "src": "/(.*)",
       "dest": "/_app.php"
     }
+  ],
+  "crons": [
+    {
+      "path": "/cron_relances.php",
+      "schedule": "0 7 * * *"
+    }
   ]
 }

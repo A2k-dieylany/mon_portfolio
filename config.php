@@ -77,3 +77,12 @@ define('WEBHOOK_URL', $_ENV['WEBHOOK_URL'] ?? '');
 define('META_API_TOKEN', $_ENV['META_API_TOKEN'] ?? '');
 define('META_PHONE_ID', $_ENV['META_PHONE_ID'] ?? '');
 define('META_TARGET_PHONE', $_ENV['META_TARGET_PHONE'] ?? '');
+// Jeton envoyé par Vercel dans l'en-tête Authorization des tâches planifiées.
+// Sans lui, le point d'entrée des relances refuse de s'exécuter.
+define('CRON_SECRET', $_ENV['CRON_SECRET'] ?? '');
+
+// Destinataire des alertes et du récapitulatif quotidien.
+// Tant que le domaine n'est pas vérifié chez Resend, l'expéditeur de test
+// n'écrit qu'à l'adresse du compte Resend : toute autre valeur est rejetée.
+define('ALERT_EMAIL', $_ENV['ALERT_EMAIL'] ?? 'dieylany.dev@gmail.com');
+define('ALERT_FROM', $_ENV['ALERT_FROM'] ?? 'MAX <onboarding@resend.dev>');
