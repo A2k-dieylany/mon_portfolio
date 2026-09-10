@@ -477,3 +477,143 @@ tbody td { padding: 14px 24px; font-size: 0.86rem; border-bottom: 1px solid rgba
     .sidebar { backdrop-filter: blur(40px) saturate(200%); }
     .kpi-grid { gap: 12px; }
 }
+
+/* ======================================================================
+   MOBILE
+   Vérifié en rendu à 390 px (largeur d'un iPhone). Avant ces règles :
+   boutons de l'en-tête hors écran, colonnes Actions des tableaux
+   invisibles, fenêtres d'édition plus larges que l'écran avec le bouton
+   « Enregistrer » inatteignable.
+   Plusieurs pages posent leur mise en page en style en ligne
+   (width: 800px, display:flex…) : d'où les !important ciblés ci-dessous.
+   ====================================================================== */
+
+/* Voile du menu : piloté par la classe posée sur <body> par admin.js. */
+#sidebar-overlay { display: none; }
+body.sidebar-open #sidebar-overlay { display: block; }
+
+@media (max-width: 900px) {
+    /* La hauteur 100vh inclut la barre d'adresse des navigateurs mobiles :
+       le bas du menu (compte, paramètres) passait sous l'écran. */
+    .sidebar { height: 100dvh; }
+    .sidebar-nav { overflow-y: auto; }
+
+    /* Garde-fou : aucune page ne doit pouvoir faire défiler l'écran à
+       l'horizontale. « clip » ne crée pas de conteneur de défilement et
+       préserve donc l'en-tête collant (position: sticky). */
+    .main { overflow-x: clip; }
+}
+
+@media (max-width: 640px) {
+    /* --- En-tête : icônes seules, titre sur une ligne --- */
+    .header { padding: 0 12px; gap: 8px; }
+    .header > div:first-child { min-width: 0; flex: 1; }
+    .header-title {
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .header-actions { gap: 6px; flex-shrink: 0; }
+    .header-btn { padding: 8px 10px; }
+    .header-btn .btn-label { display: none; }
+    .menu-toggle-admin { padding: 6px 8px; flex-shrink: 0; }
+
+    .content { padding: 14px 12px 32px; }
+
+    /* --- Bandeaux de page : titre au-dessus, bouton pleine largeur --- */
+    .cms-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 16px;
+    }
+    .cms-header h2 { font-size: 1.2rem; }
+    .cms-header > .btn,
+    .cms-header > button { width: 100%; justify-content: center; }
+
+    .data-card-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px;
+        padding: 14px;
+    }
+    .data-card-header .search-input,
+    .data-card-header input { width: 100%; max-width: none; }
+
+    /* --- Tableaux : défilement horizontal dans la carte, pas sur la page.
+       Sans cela les colonnes Statut et Actions étaient hors écran : on ne
+       pouvait ni modifier ni supprimer un élément depuis un téléphone. --- */
+    .data-card table,
+    .table-responsive table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .data-card td, .data-card th { padding: 12px 10px; }
+
+    /* --- Indicateurs --- */
+    .kpi-grid { gap: 10px; margin-bottom: 18px; }
+    .kpi-card { padding: 16px; }
+
+    /* --- Fenêtres d'édition : feuille qui monte du bas, pleine largeur.
+       Les panneaux fixaient leur largeur en ligne (800 px, 860 px) : la
+       colonne des images et le bouton Enregistrer sortaient de l'écran. --- */
+    .modal-overlay { align-items: flex-end; }
+    .modal-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 92dvh;
+        border-radius: 18px 18px 0 0 !important;
+        display: flex;
+        flex-direction: column;
+    }
+    .modal-header { padding: 16px 18px; flex-shrink: 0; }
+
+    /* Le formulaire des projets pose ses deux colonnes en style en ligne
+       (display:flex, colonne d'images de 250 px) : on les empile. */
+    .modal-body {
+        display: block !important;
+        padding: 16px 18px !important;
+        overflow-y: auto;
+        flex: 1;
+    }
+    .modal-body > div {
+        width: 100% !important;
+        border-left: 0 !important;
+        padding-left: 0 !important;
+        margin-bottom: 8px;
+    }
+    .modal-body > form { display: block; }
+
+    .form-row { flex-direction: column; gap: 12px; }
+    .form-row > .form-group {
+        flex: 1 1 auto !important;
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Boutons d'action toujours visibles en bas de la feuille. */
+    .modal-footer {
+        position: sticky;
+        bottom: 0;
+        flex-shrink: 0;
+        padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+        background: var(--surface);
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .modal-footer .btn { flex: 1 1 auto; justify-content: center; }
+    /* Certaines fiches (CRM) regroupent leurs boutons dans un bloc : sans
+       ceci ils restaient calés à droite au lieu d'occuper la largeur. */
+    .modal-footer > div { display: flex; flex: 1 1 auto; gap: 8px; margin-left: 0 !important; }
+
+    /* 16 px minimum : en dessous, Safari zoome sur le champ à la saisie
+       et la page reste agrandie ensuite. */
+    .form-input, input, select, textarea { font-size: 16px; }
+
+    /* Cibles tactiles d'au moins 40 px. */
+    .action-btn { min-width: 40px; min-height: 40px; }
+    .nav-item { padding-top: 12px; padding-bottom: 12px; }
+}

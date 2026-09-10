@@ -101,19 +101,20 @@ $admin = get_admin();
 </aside>
 
 <!-- OVERLAY mobile -->
-<div id="sidebar-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;backdrop-filter:blur(4px)"></div>
+<div id="sidebar-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;backdrop-filter:blur(4px)"></div>
 
 <!-- MAIN -->
 <main class="main">
     <header class="header">
         <div style="display:flex;align-items:center;gap:12px">
-            <button class="menu-toggle-admin" id="admin-menu-toggle">☰</button>
+            <button class="menu-toggle-admin" id="admin-menu-toggle"
+                    aria-label="Ouvrir le menu" aria-controls="sidebar" aria-expanded="false">☰</button>
             <h2 id="header-title" class="header-title">📊 Vue d'ensemble</h2>
         </div>
         <div class="header-actions">
             <span style="font-size:0.75rem;color:var(--text-muted);display:none" id="clock"></span>
-            <a href="../index.php" target="_blank" class="header-btn">🌐 Voir le site</a>
-            <a href="logout.php" class="header-btn" style="border-color:rgba(251,113,133,0.2);color:var(--red)">🚪 Déconnexion</a>
+            <a href="../index.php" target="_blank" class="header-btn" aria-label="Voir le site">🌐 <span class="btn-label">Voir le site</span></a>
+            <a href="logout.php" class="header-btn" aria-label="Déconnexion" style="border-color:rgba(251,113,133,0.2);color:var(--red)">🚪 <span class="btn-label">Déconnexion</span></a>
         </div>
     </header>
 
@@ -139,22 +140,9 @@ $admin = get_admin();
     setTimeout(updateClock, 30000);
 })();
 
-// Overlay mobile
-const overlay = document.getElementById('sidebar-overlay');
-const sidebar = document.getElementById('sidebar');
-if (overlay && sidebar) {
-    const toggle = document.getElementById('admin-menu-toggle');
-    if (toggle) {
-        toggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-        });
-    }
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-        overlay.style.display = 'none';
-    });
-}
+// Le menu mobile est géré par Admin.bindMobileMenu() dans admin.js. Un second
+// gestionnaire ici faisait basculer le menu deux fois par appui : il se
+// refermait aussitôt et seul le voile sombre restait affiché.
 </script>
 </body>
 </html>

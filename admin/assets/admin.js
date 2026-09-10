@@ -69,8 +69,6 @@ const Admin = {
             container.offsetHeight; // force reflow
             container.style.animation = '';
 
-            // Fermer le menu mobile
-            document.querySelector('.sidebar')?.classList.remove('open');
         } catch (err) {
             console.error(`Chargement de la page « ${page} » :`, err);
             container.innerHTML = `
@@ -89,18 +87,42 @@ const Admin = {
         document.querySelectorAll('.nav-item[data-page]').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
+                // Fermé dès l'appui : attendre la fin du chargement laissait le
+                // menu ouvert sur un réseau lent, et appuyer sur le module déjà
+                // affiché ne le fermait jamais.
+                this.setMobileMenu(false);
                 this.loadPage(el.dataset.page);
             });
         });
     },
 
-    /** Menu mobile */
+    /**
+     * Menu latéral sur mobile. Seul gestionnaire du bouton ☰ : dashboard.php
+     * en portait un second, et chaque appui ouvrait puis refermait le menu.
+     * L'état est porté par une classe sur <body>, que la feuille de style
+     * utilise aussi pour afficher le voile.
+     */
+    setMobileMenu(open) {
+        const sidebar = document.querySelector('.sidebar');
+        const toggle = document.getElementById('admin-menu-toggle');
+        sidebar?.classList.toggle('open', open);
+        document.body.classList.toggle('sidebar-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', String(open));
+            toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+        }
+    },
+
     bindMobileMenu() {
         const toggle = document.getElementById('admin-menu-toggle');
-        const sidebar = document.querySelector('.sidebar');
-        if (toggle && sidebar) {
-            toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-        }
+        const overlay = document.getElementById('sidebar-overlay');
+        toggle?.addEventListener('click', () => {
+            this.setMobileMenu(!document.body.classList.contains('sidebar-open'));
+        });
+        overlay?.addEventListener('click', () => this.setMobileMenu(false));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') this.setMobileMenu(false);
+        });
     },
 
     /** Charger le compteur de messages non lus */
