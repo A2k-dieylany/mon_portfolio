@@ -217,6 +217,7 @@ async function saveProjOrder() {
     
     const data = await Admin.api('projects.php', { method: 'PUT', body: { reorder: true, items } });
     if (data.success) Admin.toast('Ordre enregistré.');
+    if (!data.success) Admin.fail(data);
 }
 
 function esc(str) {
@@ -447,6 +448,7 @@ async function saveProj() {
 async function toggleProjVis(id, currentVis) {
     const data = await Admin.api('projects.php', { method: 'PUT', body: { id, is_visible: currentVis ? 0 : 1 } });
     if (data.success) loadProjects();
+    if (!data.success) Admin.fail(data);
 }
 
 async function deleteProj(id) {
@@ -456,6 +458,7 @@ async function deleteProj(id) {
         Admin.toast('Projet supprimé.');
         loadProjects();
     }
+    if (!data.success) Admin.fail(data);
 }
 
 loadProjects();

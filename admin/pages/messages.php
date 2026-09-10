@@ -170,11 +170,26 @@ function closeMsgModal() {
     loadMessages(currentFilter, document.getElementById('msg-search').value);
 }
 
+// Libellés des statuts, pour des messages fidèles à l'action réelle.
+var MSG_STATUS_LABELS = { unread: 'non lu', read: 'lu', replied: 'répondu', archived: 'archivé' };
+
+/**
+ * Affiche le résultat d'une action. Plusieurs actions annonçaient un succès
+ * sans vérifier la réponse, et les autres restaient muettes en cas d'échec.
+ */
+function msgResult(data, okMessage) {
+    if (data && data.success) {
+        Admin.toast(okMessage);
+        return true;
+    }
+    Admin.toast((data && data.error) || "L'action a échoué.", 'error');
+    return false;
+}
+
 async function updateMsgStatus(status) {
     if (!currentMsgId) return;
     const data = await Admin.api('messages.php', { method: 'PUT', body: { id: currentMsgId, status } });
-    if (data.success) {
-        Admin.toast('Statut mis à jour.');
+    if (msgResult(data, `Message marqué comme ${MSG_STATUS_LABELS[status] || status}.`)) {
         Admin.loadUnreadCount();
         closeMsgModal();
     }
@@ -184,32 +199,33 @@ async function saveMsgNotes() {
     if (!currentMsgId) return;
     const notes = document.getElementById('modal-msg-notes').value;
     const data = await Admin.api('messages.php', { method: 'PUT', body: { id: currentMsgId, notes } });
-    if (data.success) Admin.toast('Notes enregistrées.');
+    msgResult(data, 'Notes enregistrées.');
 }
 
 async function deleteMsg() {
     if (!currentMsgId || !Admin.confirm('Supprimer ce message définitivement ?')) return;
     const data = await Admin.api(`messages.php?id=${currentMsgId}`, { method: 'DELETE' });
-    if (data.success) {
-        Admin.toast('Message supprimé.');
+    if (msgResult(data, 'Message supprimé.')) {
         Admin.loadUnreadCount();
         closeMsgModal();
     }
 }
 
 async function quickStatus(id, status) {
-    await Admin.api('messages.php', { method: 'PUT', body: { id, status } });
-    Admin.toast('Marqué comme lu.');
-    Admin.loadUnreadCount();
-    loadMessages(currentFilter, document.getElementById('msg-search').value);
+    const data = await Admin.api('messages.php', { method: 'PUT', body: { id, status } });
+    if (msgResult(data, `Message marqué comme ${MSG_STATUS_LABELS[status] || status}.`)) {
+        Admin.loadUnreadCount();
+        loadMessages(currentFilter, document.getElementById('msg-search').value);
+    }
 }
 
 async function quickDelete(id) {
     if (!Admin.confirm('Supprimer ce message ?')) return;
-    await Admin.api(`messages.php?id=${id}`, { method: 'DELETE' });
-    Admin.toast('Supprimé.');
-    Admin.loadUnreadCount();
-    loadMessages(currentFilter, document.getElementById('msg-search').value);
+    const data = await Admin.api(`messages.php?id=${id}`, { method: 'DELETE' });
+    if (msgResult(data, 'Message supprimé.')) {
+        Admin.loadUnreadCount();
+        loadMessages(currentFilter, document.getElementById('msg-search').value);
+    }
 }
 
 // Charger les messages au chargement de la page

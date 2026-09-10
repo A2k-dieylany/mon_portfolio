@@ -309,6 +309,7 @@ async function saveSrv() {
 async function toggleSrvVis(id, currentVis) {
     const data = await Admin.api('services.php', { method: 'PUT', body: { id, is_visible: currentVis ? 0 : 1 } });
     if (data.success) loadServices();
+    if (!data.success) Admin.fail(data);
 }
 
 async function deleteSrv(id) {
@@ -318,6 +319,7 @@ async function deleteSrv(id) {
         Admin.toast('Supprimé.');
         loadServices();
     }
+    if (!data.success) Admin.fail(data);
 }
 
 loadServices();

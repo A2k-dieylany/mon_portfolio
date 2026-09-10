@@ -244,6 +244,7 @@ async function saveTm() {
 async function toggleTmVis(id, currentVis) {
     const data = await Admin.api('timeline.php', { method: 'PUT', body: { id, is_visible: currentVis ? 0 : 1 } });
     if (data.success) loadTimeline();
+    if (!data.success) Admin.fail(data);
 }
 
 async function deleteTm(id) {
@@ -253,6 +254,7 @@ async function deleteTm(id) {
         Admin.toast('Supprimé.');
         loadTimeline();
     }
+    if (!data.success) Admin.fail(data);
 }
 
 loadTimeline();

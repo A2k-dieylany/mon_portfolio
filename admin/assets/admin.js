@@ -244,6 +244,15 @@ const Admin = {
     },
 
     /**
+     * Signale l'échec d'une action. Plusieurs actions (suppression, masquage,
+     * réordonnancement) restaient muettes quand le serveur refusait :
+     * l'utilisateur cliquait et rien ne se passait, sans explication.
+     */
+    fail(data) {
+        this.toast((data && (data.error || data.message)) || "L'action a échoué.", 'error');
+    },
+
+    /**
      * Échappe une valeur avant de l'insérer dans du HTML.
      * Obligatoire pour tout ce qui vient d'un visiteur (formulaire de contact,
      * chatbot, CRM) : ces textes sont libres et peuvent contenir du code.

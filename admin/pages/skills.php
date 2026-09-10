@@ -167,6 +167,7 @@ async function saveSkillsOrder() {
     
     const data = await Admin.api('skills.php', { method: 'PUT', body: { reorder: true, items } });
     if (data.success) Admin.toast('Ordre enregistré.');
+    if (!data.success) Admin.fail(data);
 }
 
 function esc(str) {
@@ -238,6 +239,7 @@ async function saveSkill() {
 async function toggleSkillVis(id, currentVis) {
     const data = await Admin.api('skills.php', { method: 'PUT', body: { id, is_visible: currentVis ? 0 : 1 } });
     if (data.success) loadSkills();
+    if (!data.success) Admin.fail(data);
 }
 
 async function deleteSkill(id) {
@@ -247,6 +249,7 @@ async function deleteSkill(id) {
         Admin.toast('Supprimé.');
         loadSkills();
     }
+    if (!data.success) Admin.fail(data);
 }
 
 loadSkills();

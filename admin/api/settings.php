@@ -30,11 +30,18 @@ if ($method === 'PUT') {
     $stmt = $pdo->prepare("UPDATE site_settings SET setting_value = ? WHERE setting_key = ?");
     $stmt->execute([$data['setting_value'], $data['setting_key']]);
     
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['success'=>true, 'message'=>'Paramètre mis à jour']);
-    } else {
-        echo json_encode(['success'=>false, 'message'=>'Aucune modification']);
+    // rowCount() vaut 0 quand la valeur est inchangée : ce n'est pas un échec.
+    // On distingue en revanche une clé inexistante, qui en est un.
+    if ($stmt->rowCount() === 0) {
+        $exists = $pdo->prepare("SELECT 1 FROM site_settings WHERE setting_key = ?");
+        $exists->execute([$data['setting_key']]);
+        if (!$exists->fetchColumn()) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Paramètre introuvable']);
+            exit;
+        }
     }
+    echo json_encode(['success' => true, 'message' => 'Paramètre mis à jour']);
     exit;
 }
 

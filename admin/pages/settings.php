@@ -349,6 +349,7 @@ async function saveSetting(key) {
       if (input.dataset) input.dataset.orig = input.value;
       setTimeout(() => { btn.textContent = '💾'; btn.classList.remove('saved'); }, 2000);
     }
+    if (!data.success) Admin.fail(data);
   } catch(e) { alert('Erreur de sauvegarde'); }
 }
 
@@ -365,6 +366,7 @@ async function deleteSetting(key) {
       const row = document.getElementById('row-' + key);
       if (row) row.remove();
     }
+    if (!data.success) Admin.fail(data);
   } catch(e) { alert('Erreur de suppression'); }
 }
 
