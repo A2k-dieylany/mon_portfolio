@@ -27,7 +27,9 @@ require_once __DIR__ . '/config.php';
 $timeLimit = 300;
 $maxRequests = 3;
 
-$ip_hash = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown');
+// sds_client_ip() : derrière le proxy Vercel, REMOTE_ADDR vaut 127.0.0.1 pour
+// tout le monde, et le quota anti-abus aurait été commun à tous les visiteurs.
+$ip_hash = hash('sha256', sds_client_ip());
 $pdo = getDB();
 $pdo->exec("DELETE FROM api_rate_limits WHERE window_start < (NOW() - INTERVAL $timeLimit SECOND)");
 

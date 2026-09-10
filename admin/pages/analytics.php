@@ -323,6 +323,18 @@ async function loadDevices() {
 
 async function loadRecent() {
   const container = document.getElementById('recent-visits');
+
+  // Le pays est stocké en code ISO (« SN ») : drapeau et nom en français,
+  // sans table de correspondance à maintenir. Les visites antérieures au
+  // correctif n'ont pas de pays et restent « Inconnu ».
+  const countryLabel = (code) => {
+    if (!code || !/^[A-Z]{2}$/.test(code)) return '🌐 Inconnu';
+    const flag = String.fromCodePoint(...[...code].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
+    let name = code;
+    try { name = new Intl.DisplayNames(['fr'], { type: 'region' }).of(code) || code; } catch (e) {}
+    return `${flag} ${name}`;
+  };
+
   try {
     const res = await fetch(API_ANALYTICS + '?action=recent');
     const visits = await res.json();
@@ -333,7 +345,7 @@ async function loadRecent() {
     container.innerHTML = visits.map(v => `
       <div class="visit-row">
         <span class="visit-hash">#${v.visitor_hash}</span>
-        <span class="visit-country">${v.country || '🌐 Inconnu'}</span>
+        <span class="visit-country">${countryLabel(v.country)}</span>
         <span class="visit-date">${new Date(v.created_at).toLocaleString('fr-FR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
       </div>
     `).join('');

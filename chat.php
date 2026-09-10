@@ -60,7 +60,9 @@ if (mb_strlen($userMessage) > 1000) {
 // publique — trop bas, on couperait de vrais prospects simultanés.
 $maxRequests = 20;
 $timeLimit   = 60;
-$ip_hash     = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown');
+// sds_client_ip() : REMOTE_ADDR valait 127.0.0.1 pour tout le monde derrière
+// le proxy Vercel — un seul quota partagé par tous les visiteurs du chat.
+$ip_hash     = hash('sha256', sds_client_ip());
 
 $pdo->exec("DELETE FROM api_rate_limits WHERE window_start < (NOW() - INTERVAL $timeLimit SECOND)");
 
@@ -170,7 +172,7 @@ if ($httpCode == 200) {
         require_once __DIR__ . '/admin/includes/db.php';
         $dbLog = getDB();
         $sessionId = session_id();
-        $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0') . 'sds_salt_2025');
+        $ipHash = hash('sha256', sds_client_ip() . 'sds_salt_2025');
         $lang = 'fr';
         if (preg_match('/[\x{0600}-\x{06FF}]/u', $userMessage)) $lang = 'ar';
         elseif (preg_match('/^[a-zA-Z\s\d\p{P}]+$/u', $userMessage)) $lang = 'en';

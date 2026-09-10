@@ -61,6 +61,42 @@ function sds_asset(string $path): string {
     return '/' . ltrim($path, '/') . '?v=' . sds_asset_version();
 }
 
+/**
+ * Adresse IP réelle du visiteur.
+ *
+ * Sur Vercel, PHP tourne derrière un proxy local : REMOTE_ADDR vaut 127.0.0.1
+ * pour tout le monde. Toutes les visites avaient donc la même empreinte — le
+ * compteur n'enregistrait qu'un visiteur par jour — et le quota du chatbot
+ * était partagé par tous les visiteurs réunis.
+ *
+ * Les en-têtes transmis par le proxy ne sont lus que si la connexion vient
+ * elle-même d'une adresse locale ou privée : exposé directement, un client
+ * pourrait les forger. Sur Vercel, l'edge les écrase avec l'adresse vérifiée.
+ */
+function sds_client_ip(): string
+{
+    $remote = $_SERVER['REMOTE_ADDR'] ?? '';
+    $public = filter_var($remote, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+
+    if ($public === false) {
+        foreach (['HTTP_X_REAL_IP', 'HTTP_X_VERCEL_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR'] as $header) {
+            // X-Forwarded-For peut lister plusieurs relais : le client est le premier.
+            $candidate = trim(explode(',', $_SERVER[$header] ?? '')[0]);
+            if ($candidate !== '' && filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
+        }
+    }
+    return $remote !== '' ? $remote : '0.0.0.0';
+}
+
+/** Pays du visiteur (code ISO à deux lettres) fourni par l'edge Vercel ; vide ailleurs. */
+function sds_client_country(): string
+{
+    $code = strtoupper(trim($_SERVER['HTTP_X_VERCEL_IP_COUNTRY'] ?? ''));
+    return preg_match('/^[A-Z]{2}$/', $code) ? $code : '';
+}
+
 // ===== Constantes Globales (Rétrocompatibilité avec le code existant) =====
 define('GROQ_API_KEY', $_ENV['GROQ_API_KEY'] ?? '');
 define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');

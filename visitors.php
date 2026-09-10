@@ -10,14 +10,18 @@ require_once __DIR__ . '/session_bootstrap.php';
 try {
     $pdo = getDB();
 
-    // Hash de l'IP pour la vie privée (on ne stocke jamais l'IP en clair)
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    $ipHash = hash('sha256', $ip . 'sds_salt_2025');
+    // Hash de l'IP pour la vie privée (on ne stocke jamais l'IP en clair).
+    // sds_client_ip() et non REMOTE_ADDR : derrière le proxy Vercel ce dernier
+    // valait 127.0.0.1 pour tous, et le compteur n'enregistrait qu'un visiteur
+    // par jour — « 9 visiteurs » au total pour 157 sessions réelles.
+    $ipHash = hash('sha256', sds_client_ip() . 'sds_salt_2025');
     $today = date('Y-m-d');
 
-    // Enregistrer la visite (IGNORE si déjà visité aujourd'hui grâce à la clé unique)
-    $stmt = $pdo->prepare("INSERT IGNORE INTO visitors (ip_hash, visited_at) VALUES (:hash, :today)");
-    $stmt->execute([':hash' => $ipHash, ':today' => $today]);
+    // Enregistrer la visite (IGNORE si déjà visité aujourd'hui grâce à la clé
+    // unique). Le pays, fourni par l'edge Vercel, n'était jamais renseigné :
+    // l'admin affichait « Inconnu » pour tout le monde.
+    $stmt = $pdo->prepare("INSERT IGNORE INTO visitors (ip_hash, country, visited_at) VALUES (:hash, :country, :today)");
+    $stmt->execute([':hash' => $ipHash, ':country' => sds_client_country(), ':today' => $today]);
 
     // Enregistrer la vue de page
     sds_session_start();
