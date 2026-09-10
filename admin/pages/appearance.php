@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>🎨 Apparence & Thème</h2>
+      <h2><span class="h2-icon" aria-hidden="true">🎨</span> Apparence & Thème</h2>
       <p class="cms-subtitle">Personnalisez les couleurs et le style de votre portfolio</p>
     </div>
   </div>

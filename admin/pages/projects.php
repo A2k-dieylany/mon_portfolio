@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>📂 Projets Portfolio</h2>
+      <h2><span class="h2-icon" aria-hidden="true">📂</span> Projets Portfolio</h2>
       <p class="cms-subtitle">Gérez vos réalisations et études de cas</p>
     </div>
     <button class="btn btn-primary" onclick="openProjModal()">+ Ajouter un projet</button>

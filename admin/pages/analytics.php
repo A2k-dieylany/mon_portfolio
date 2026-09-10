@@ -5,10 +5,10 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>📊 Analytics & Visiteurs</h2>
+      <h2><span class="h2-icon" aria-hidden="true">📊</span> Analytics & Visiteurs</h2>
       <p class="cms-subtitle">Suivez les performances de votre portfolio en temps réel</p>
     </div>
-    <button class="btn-add" onclick="loadAnalytics()" style="background:rgba(255,255,255,0.08);">🔄 Actualiser</button>
+    <button class="btn btn-ghost" onclick="loadAnalytics()">🔄 Actualiser</button>
   </div>
 
   <!-- KPI Cards -->

@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>🔑 Mon compte</h2>
+      <h2><span class="h2-icon" aria-hidden="true">🔑</span> Mon compte</h2>
       <p class="cms-subtitle">Changez le mot de passe de votre espace d'administration</p>
     </div>
   </div>
@@ -13,23 +13,23 @@ require_auth();
   <form id="form-password" onsubmit="return submitPassword(event)" style="max-width:34rem">
     <div class="form-group">
       <label for="pw-current">Mot de passe actuel</label>
-      <input type="password" id="pw-current" name="current_password"
+      <input type="password" id="pw-current" class="form-input" name="current_password"
              autocomplete="current-password" required>
     </div>
     <div class="form-group">
       <label for="pw-new">Nouveau mot de passe</label>
-      <input type="password" id="pw-new" name="new_password"
+      <input type="password" id="pw-new" class="form-input" name="new_password"
              autocomplete="new-password" minlength="10" required>
       <small style="color:var(--text-muted)">10 caractères minimum. Choisissez-en un que vous
         retiendrez : il n'existe aucun envoi de e-mail de récupération.</small>
     </div>
     <div class="form-group">
       <label for="pw-confirm">Confirmer le nouveau mot de passe</label>
-      <input type="password" id="pw-confirm" name="confirm_password"
+      <input type="password" id="pw-confirm" class="form-input" name="confirm_password"
              autocomplete="new-password" minlength="10" required>
     </div>
     <p id="pw-error" role="alert" style="display:none;color:var(--red);font-size:.85rem;margin:0 0 1rem"></p>
-    <button type="submit" class="btn-add" id="pw-submit">Modifier le mot de passe</button>
+    <button type="submit" class="btn btn-primary" id="pw-submit">Modifier le mot de passe</button>
   </form>
 </div>
 

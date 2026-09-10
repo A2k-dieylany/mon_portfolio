@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
       <div>
-        <h2>⭐ Témoignages & Avis</h2>
+        <h2><span class="h2-icon" aria-hidden="true">⭐</span> Témoignages & Avis</h2>
         <p class="cms-subtitle">Gérez les retours clients et avis de votre portfolio</p>
       </div>
       <button class="btn btn-primary" onclick="openTestimonialModal()">+ Nouvel Avis</button>

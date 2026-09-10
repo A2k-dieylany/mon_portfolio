@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>⚡ Compétences Techniques</h2>
+      <h2><span class="h2-icon" aria-hidden="true">⚡</span> Compétences Techniques</h2>
       <p class="cms-subtitle">Gérez vos technologies et niveaux de maîtrise</p>
     </div>
     <button class="btn btn-primary" onclick="openSkillModal()">+ Ajouter une compétence</button>

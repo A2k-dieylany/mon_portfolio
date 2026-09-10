@@ -5,12 +5,12 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>🤖 Chatbot AI</h2>
+      <h2><span class="h2-icon" aria-hidden="true">🤖</span> Chatbot AI</h2>
       <p class="cms-subtitle">Historique des conversations avec MAX</p>
     </div>
-    <div style="display:flex;gap:1rem;">
-      <button class="btn-refresh" onclick="loadChatbotData()" style="background:rgba(255,255,255,0.08);border:none;padding:.6rem 1.2rem;border-radius:8px;color:#fff;cursor:pointer;">🔄 Actualiser</button>
-      <button class="btn-delete" onclick="clearAllLogs()" style="background:rgba(255,71,87,0.15);border:1px solid rgba(255,71,87,0.2);padding:.6rem 1.2rem;border-radius:8px;color:#ff4757;cursor:pointer;">🗑️ Tout effacer</button>
+    <div class="cms-actions">
+      <button class="btn btn-ghost" onclick="loadChatbotData()">🔄 Actualiser</button>
+      <button class="btn btn-danger" onclick="clearAllLogs()">🗑️ Tout effacer</button>
     </div>
   </div>
 

@@ -5,10 +5,10 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>⚙️ Configuration du site</h2>
+      <h2><span class="h2-icon" aria-hidden="true">⚙️</span> Configuration du site</h2>
       <p class="cms-subtitle">Gérez les paramètres globaux de votre portfolio</p>
     </div>
-    <button class="btn-add" onclick="addSetting()">+ Nouveau paramètre</button>
+    <button class="btn btn-primary" onclick="addSetting()">+ Nouveau paramètre</button>
   </div>
 
   <div id="settings-container" class="settings-container">
@@ -16,52 +16,62 @@ require_auth();
   </div>
 </div>
 
-<!-- Modale Ajout -->
-<div class="modal-overlay" id="modal-add-overlay" onclick="closeModal('add')"></div>
-<div class="modal" id="modal-add">
-  <div class="modal-header">
-    <h3>➕ Nouveau paramètre</h3>
-    <button class="modal-close" onclick="closeModal('add')">✕</button>
+<!-- Modale Ajout.
+     Structure alignée sur les autres fenêtres de l'admin (voile qui contient
+     le panneau). Elle utilisait une classe « modal » définie nulle part : la
+     fenêtre restait affichée en permanence au milieu de la page, et le voile
+     passait par-dessus quand on l'ouvrait, la rendant inutilisable. -->
+<div class="modal-overlay" id="modal-add-overlay">
+  <div class="modal-panel" id="modal-add" role="dialog" aria-modal="true" aria-labelledby="modal-add-title">
+    <div class="modal-header">
+      <h3 id="modal-add-title">➕ Nouveau paramètre</h3>
+      <button type="button" class="modal-close" onclick="closeModal('add')" aria-label="Fermer">✕</button>
+    </div>
+    <form id="form-add" onsubmit="return submitAdd(event)">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="add-key">Clé technique</label>
+            <input type="text" id="add-key" name="setting_key" class="form-input" placeholder="ex: whatsapp_number" required>
+          </div>
+          <div class="form-group">
+            <label for="add-category">Catégorie</label>
+            <select id="add-category" name="category" class="form-input">
+              <option value="general">Général</option>
+              <option value="apparence">Apparence</option>
+              <option value="hero">Hero</option>
+              <option value="api">API</option>
+              <option value="social">Réseaux sociaux</option>
+              <option value="contact">Contact</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="add-label">Label</label>
+            <input type="text" id="add-label" name="label" class="form-input" placeholder="Nom affiché" required>
+          </div>
+          <div class="form-group">
+            <label for="add-type">Type</label>
+            <select id="add-type" name="setting_type" class="form-input">
+              <option value="text">Texte</option>
+              <option value="color">Couleur</option>
+              <option value="number">Nombre</option>
+              <option value="boolean">Oui/Non</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="add-value">Valeur</label>
+          <input type="text" id="add-value" name="setting_value" class="form-input" placeholder="Valeur du paramètre" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('add')">Annuler</button>
+        <button type="submit" class="btn btn-primary">💾 Ajouter</button>
+      </div>
+    </form>
   </div>
-  <form id="form-add" onsubmit="return submitAdd(event)">
-    <div class="form-row">
-      <div class="form-group">
-        <label>Clé technique</label>
-        <input type="text" name="setting_key" placeholder="ex: whatsapp_number" required>
-      </div>
-      <div class="form-group">
-        <label>Catégorie</label>
-        <select name="category">
-          <option value="general">Général</option>
-          <option value="apparence">Apparence</option>
-          <option value="hero">Hero</option>
-          <option value="api">API</option>
-          <option value="social">Réseaux sociaux</option>
-          <option value="contact">Contact</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Label</label>
-        <input type="text" name="label" placeholder="Nom affiché" required>
-      </div>
-      <div class="form-group">
-        <label>Type</label>
-        <select name="setting_type">
-          <option value="text">Texte</option>
-          <option value="color">Couleur</option>
-          <option value="number">Nombre</option>
-          <option value="boolean">Oui/Non</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Valeur</label>
-      <input type="text" name="setting_value" placeholder="Valeur du paramètre" required>
-    </div>
-    <button type="submit" class="btn-submit">💾 Ajouter</button>
-  </form>
 </div>
 
 <style>
@@ -359,14 +369,18 @@ async function deleteSetting(key) {
 }
 
 function addSetting() {
-  document.getElementById('modal-add').classList.add('active');
   document.getElementById('modal-add-overlay').classList.add('active');
+  document.getElementById('add-key').focus();
 }
 
 function closeModal(type) {
-  document.getElementById('modal-' + type).classList.remove('active');
   document.getElementById('modal-' + type + '-overlay').classList.remove('active');
 }
+
+// Un clic sur le voile lui-même ferme la fenêtre ; un clic dans le panneau non.
+document.getElementById('modal-add-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal('add');
+});
 
 async function submitAdd(e) {
   e.preventDefault();

@@ -488,6 +488,17 @@ tbody td { padding: 14px 24px; font-size: 0.86rem; border-bottom: 1px solid rgba
    (width: 800px, display:flex…) : d'où les !important ciblés ci-dessous.
    ====================================================================== */
 
+/* Le titre des bandeaux est un dégradé découpé dans le texte (couleur de
+   remplissage transparente) : un emoji y devient une silhouette unie — le 📊
+   d'Analytics s'affichait en carré blanc. L'icône garde ses couleurs. */
+.cms-header h2 .h2-icon {
+    -webkit-text-fill-color: initial;
+    display: inline-block;
+}
+
+/* Groupe de boutons dans un bandeau (Chatbot : Actualiser + Tout effacer). */
+.cms-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
 /* Voile du menu : piloté par la classe posée sur <body> par admin.js. */
 #sidebar-overlay { display: none; }
 body.sidebar-open #sidebar-overlay { display: block; }
@@ -532,6 +543,7 @@ body.sidebar-open #sidebar-overlay { display: block; }
     .cms-header h2 { font-size: 1.2rem; }
     .cms-header > .btn,
     .cms-header > button { width: 100%; justify-content: center; }
+    .cms-actions > .btn { flex: 1 1 0; justify-content: center; }
 
     .data-card-header {
         flex-direction: column;

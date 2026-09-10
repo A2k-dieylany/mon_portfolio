@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>📩 Boîte de réception</h2>
+      <h2><span class="h2-icon" aria-hidden="true">📩</span> Boîte de réception</h2>
       <p class="cms-subtitle" id="messages-count">Chargement...</p>
     </div>
     <div class="data-filters" style="border:none;padding:0;margin-top:20px;gap:12px">

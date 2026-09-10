@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>🤝 Prospects &amp; Clients</h2>
+      <h2><span class="h2-icon" aria-hidden="true">🤝</span> Prospects &amp; Clients</h2>
       <p class="cms-subtitle">Toutes vos demandes, de la première prise de contact à la signature</p>
     </div>
     <button class="btn btn-primary" onclick="openDeal()">+ Nouvelle opportunité</button>

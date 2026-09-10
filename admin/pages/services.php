@@ -5,7 +5,7 @@ require_auth();
 <div class="cms-module">
   <div class="cms-header">
     <div>
-      <h2>🛠️ Services de l'Agence</h2>
+      <h2><span class="h2-icon" aria-hidden="true">🛠️</span> Services de l'Agence</h2>
       <p class="cms-subtitle">Gérez les solutions et expertises que vous proposez</p>
     </div>
     <button class="btn btn-primary" onclick="openSrvModal()">+ Ajouter un service</button>
