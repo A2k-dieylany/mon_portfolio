@@ -26,18 +26,18 @@ try {
 
         $stmt = $pdo->prepare("INSERT INTO timeline_items (year_fr, year_en, year_ar, title_fr, title_en, title_ar, desc_fr, desc_en, desc_ar, badge_fr, badge_en, badge_ar, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            sanitize($data['year_fr']),
-            sanitize($data['year_en'] ?? $data['year_fr']),
-            sanitize($data['year_ar'] ?? $data['year_fr']),
-            sanitize($data['title_fr']),
-            sanitize($data['title_en'] ?? $data['title_fr']),
-            sanitize($data['title_ar'] ?? $data['title_fr']),
-            sanitize($data['desc_fr']),
-            sanitize($data['desc_en'] ?? $data['desc_fr']),
-            sanitize($data['desc_ar'] ?? $data['desc_fr']),
-            sanitize($data['badge_fr']),
-            sanitize($data['badge_en'] ?? $data['badge_fr']),
-            sanitize($data['badge_ar'] ?? $data['badge_fr']),
+            clean_text($data['year_fr']),
+            clean_text($data['year_en'] ?? $data['year_fr']),
+            clean_text($data['year_ar'] ?? $data['year_fr']),
+            clean_text($data['title_fr']),
+            clean_text($data['title_en'] ?? $data['title_fr']),
+            clean_text($data['title_ar'] ?? $data['title_fr']),
+            clean_text($data['desc_fr']),
+            clean_text($data['desc_en'] ?? $data['desc_fr']),
+            clean_text($data['desc_ar'] ?? $data['desc_fr']),
+            clean_text($data['badge_fr']),
+            clean_text($data['badge_en'] ?? $data['badge_fr']),
+            clean_text($data['badge_ar'] ?? $data['badge_fr']),
             (int)($data['sort_order'] ?? 0),
             isset($data['is_visible']) ? (int)$data['is_visible'] : 1
         ]);
@@ -57,7 +57,7 @@ try {
         foreach ($allowedFields as $f) {
             if (isset($data[$f])) {
                 $sets[] = "$f = ?";
-                $params[] = $f === 'sort_order' || $f === 'is_visible' ? (int)$data[$f] : sanitize($data[$f]);
+                $params[] = $f === 'sort_order' || $f === 'is_visible' ? (int)$data[$f] : clean_text($data[$f]);
             }
         }
 

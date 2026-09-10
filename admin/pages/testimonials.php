@@ -127,9 +127,9 @@ async function loadTestimonials() {
             const stars = '⭐'.repeat(t.stars);
             tbody.innerHTML += `
                 <tr>
-                    <td><strong>${t.client_name}</strong></td>
-                    <td><div class="sidebar-avatar" style="width:30px;height:30px;font-size:0.8rem;margin:0;">${t.client_initials}</div></td>
-                    <td>${t.role_fr}</td>
+                    <td><strong>${Admin.esc(t.client_name)}</strong></td>
+                    <td><div class="sidebar-avatar" style="width:30px;height:30px;font-size:0.8rem;margin:0;">${Admin.esc(t.client_initials)}</div></td>
+                    <td>${Admin.esc(t.role_fr)}</td>
                     <td>${stars}</td>
                     <td>${status}</td>
                     <td class="action-btns">

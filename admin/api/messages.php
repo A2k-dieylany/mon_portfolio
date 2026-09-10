@@ -73,7 +73,7 @@ try {
         }
         if (isset($data['notes'])) {
             $sets[] = "notes = ?";
-            $params[] = sanitize($data['notes']);
+            $params[] = clean_text($data['notes']);
         }
 
         if (empty($sets)) json_response(['error' => 'Rien à modifier.'], 400);

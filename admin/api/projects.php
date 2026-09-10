@@ -42,21 +42,21 @@ try {
         $stmt = $pdo->prepare("INSERT INTO projects (title_fr, title_en, title_ar, desc_fr, desc_en, desc_ar, category_fr, category_en, category_ar, client_name, project_date, live_url, github_url, main_image, tags, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
         $stmt->execute([
-            sanitize($data['title_fr']),
-            sanitize($data['title_en'] ?? $data['title_fr']),
-            sanitize($data['title_ar'] ?? $data['title_fr']),
-            sanitize($data['desc_fr'] ?? ''),
-            sanitize($data['desc_en'] ?? $data['desc_fr'] ?? ''),
-            sanitize($data['desc_ar'] ?? $data['desc_fr'] ?? ''),
-            sanitize($data['category_fr'] ?? ''),
-            sanitize($data['category_en'] ?? $data['category_fr'] ?? ''),
-            sanitize($data['category_ar'] ?? $data['category_fr'] ?? ''),
-            sanitize($data['client_name'] ?? ''),
+            clean_text($data['title_fr']),
+            clean_text($data['title_en'] ?? $data['title_fr']),
+            clean_text($data['title_ar'] ?? $data['title_fr']),
+            clean_text($data['desc_fr'] ?? ''),
+            clean_text($data['desc_en'] ?? $data['desc_fr'] ?? ''),
+            clean_text($data['desc_ar'] ?? $data['desc_fr'] ?? ''),
+            clean_text($data['category_fr'] ?? ''),
+            clean_text($data['category_en'] ?? $data['category_fr'] ?? ''),
+            clean_text($data['category_ar'] ?? $data['category_fr'] ?? ''),
+            clean_text($data['client_name'] ?? ''),
             !empty($data['project_date']) ? $data['project_date'] : null,
-            sanitize($data['live_url'] ?? ''),
-            sanitize($data['github_url'] ?? ''),
-            sanitize($data['main_image'] ?? ''),
-            sanitize($data['tags'] ?? ''),
+            clean_url($data['live_url'] ?? ''),
+            clean_url($data['github_url'] ?? ''),
+            clean_url($data['main_image'] ?? ''),
+            clean_text($data['tags'] ?? ''),
             (int)($data['sort_order'] ?? 0),
             isset($data['is_visible']) ? (int)$data['is_visible'] : 1
         ]);
@@ -68,7 +68,7 @@ try {
             $galStmt = $pdo->prepare("INSERT INTO project_images (project_id, image_url, sort_order) VALUES (?, ?, ?)");
             foreach ($data['gallery'] as $index => $url) {
                 if (!empty($url)) {
-                    $galStmt->execute([$projectId, sanitize($url), $index]);
+                    $galStmt->execute([$projectId, clean_url($url), $index]);
                 }
             }
         }
@@ -99,7 +99,8 @@ try {
         foreach ($allowedFields as $f) {
             if (isset($data[$f])) {
                 $sets[] = "$f = ?";
-                $params[] = ($f === 'sort_order' || $f === 'is_visible') ? (int)$data[$f] : sanitize($data[$f]);
+                $params[] = ($f === 'sort_order' || $f === 'is_visible') ? (int)$data[$f]
+                    : (in_array($f, ['live_url', 'github_url', 'main_image'], true) ? clean_url($data[$f]) : clean_text($data[$f]));
             }
         }
 
@@ -122,7 +123,7 @@ try {
             $galStmt = $pdo->prepare("INSERT INTO project_images (project_id, image_url, sort_order) VALUES (?, ?, ?)");
             foreach ($data['gallery'] as $index => $url) {
                 if (!empty($url)) {
-                    $galStmt->execute([(int)$data['id'], sanitize($url), $index]);
+                    $galStmt->execute([(int)$data['id'], clean_url($url), $index]);
                 }
             }
         }

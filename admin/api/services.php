@@ -26,14 +26,14 @@ try {
 
         $stmt = $pdo->prepare("INSERT INTO services (icon, title_fr, title_en, title_ar, desc_fr, desc_en, desc_ar, tags, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            sanitize($data['icon']),
-            sanitize($data['title_fr']),
-            sanitize($data['title_en'] ?? $data['title_fr']),
-            sanitize($data['title_ar'] ?? $data['title_fr']),
-            sanitize($data['desc_fr']),
-            sanitize($data['desc_en'] ?? $data['desc_fr']),
-            sanitize($data['desc_ar'] ?? $data['desc_fr']),
-            sanitize($data['tags'] ?? ''),
+            clean_text($data['icon']),
+            clean_text($data['title_fr']),
+            clean_text($data['title_en'] ?? $data['title_fr']),
+            clean_text($data['title_ar'] ?? $data['title_fr']),
+            clean_text($data['desc_fr']),
+            clean_text($data['desc_en'] ?? $data['desc_fr']),
+            clean_text($data['desc_ar'] ?? $data['desc_fr']),
+            clean_text($data['tags'] ?? ''),
             (int)($data['sort_order'] ?? 0),
             isset($data['is_visible']) ? (int)$data['is_visible'] : 1
         ]);
@@ -53,7 +53,7 @@ try {
         foreach ($allowedFields as $f) {
             if (isset($data[$f])) {
                 $sets[] = "$f = ?";
-                $params[] = $f === 'sort_order' || $f === 'is_visible' ? (int)$data[$f] : sanitize($data[$f]);
+                $params[] = $f === 'sort_order' || $f === 'is_visible' ? (int)$data[$f] : clean_text($data[$f]);
             }
         }
 

@@ -19,10 +19,36 @@ function json_response(array $data, int $code = 200): void {
 }
 
 /**
- * Nettoyer une chaîne contre XSS
+ * Nettoie un texte avant enregistrement — sans l'encoder.
+ *
+ * Le texte est stocké tel quel et échappé uniquement à l'affichage. L'ancien
+ * sanitize() appliquait htmlspecialchars à l'enregistrement : le site
+ * l'encodant une seconde fois, les visiteurs lisaient « Logistique &amp;amp;
+ * RH », et chaque passage dans l'admin ajoutait une couche.
  */
-function sanitize(string $input): string {
-    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+function clean_text($input): string {
+    $text = trim((string) $input);
+    // Caractères de contrôle invisibles, hors tabulation et retours à la ligne.
+    return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $text) ?? $text;
+}
+
+/**
+ * Nettoie une adresse avant enregistrement.
+ *
+ * N'accepte qu'une URL http(s) ou un chemin relatif (img/projects/x.jpg).
+ * Stockée brute, une adresse « javascript:… » deviendrait un lien piégé sur
+ * le site public : elle est refusée et remplacée par une chaîne vide.
+ */
+function clean_url($input): string {
+    $url = clean_text($input);
+    if ($url === '') {
+        return '';
+    }
+    if (preg_match('#^https?://#i', $url)) {
+        return filter_var($url, FILTER_VALIDATE_URL) ? $url : '';
+    }
+    // Chemin relatif : aucun schéma (« xxx: ») avant le premier « / ».
+    return preg_match('#^[a-z][a-z0-9+.\-]*:#i', $url) ? '' : $url;
 }
 
 /**

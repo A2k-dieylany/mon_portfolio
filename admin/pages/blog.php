@@ -154,9 +154,9 @@ async function loadBlogs() {
             
             tbody.innerHTML += `
                 <tr style="transition:all 0.2s">
-                    <td style="font-size:1.5rem;text-align:center">${p.emoji}</td>
-                    <td style="font-weight:600;color:var(--text)">${p.title_fr}</td>
-                    <td style="color:rgba(255,255,255,0.5)">${p.category_fr}</td>
+                    <td style="font-size:1.5rem;text-align:center">${Admin.esc(p.emoji)}</td>
+                    <td style="font-weight:600;color:var(--text)">${Admin.esc(p.title_fr)}</td>
+                    <td style="color:rgba(255,255,255,0.5)">${Admin.esc(p.category_fr)}</td>
                     <td style="color:rgba(255,255,255,0.4);font-size:0.8rem">${p.publish_date}</td>
                     <td>
                         <span class="status ${statusClass}" style="opacity:0.9">

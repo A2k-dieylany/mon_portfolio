@@ -30,11 +30,11 @@ try {
 
         $stmt = $pdo->prepare("INSERT INTO skills (group_name_fr, group_name_en, group_name_ar, group_icon, skill_name, percentage, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
-            sanitize($data['group_name_fr']),
-            sanitize($data['group_name_en'] ?? $data['group_name_fr']),
-            sanitize($data['group_name_ar'] ?? $data['group_name_fr']),
-            sanitize($data['group_icon'] ?? ''),
-            sanitize($data['skill_name']),
+            clean_text($data['group_name_fr']),
+            clean_text($data['group_name_en'] ?? $data['group_name_fr']),
+            clean_text($data['group_name_ar'] ?? $data['group_name_fr']),
+            clean_text($data['group_icon'] ?? ''),
+            clean_text($data['skill_name']),
             (int)$data['percentage'],
             (int)($data['sort_order'] ?? 0),
             isset($data['is_visible']) ? (int)$data['is_visible'] : 1
@@ -67,7 +67,7 @@ try {
         foreach ($allowedFields as $f) {
             if (isset($data[$f])) {
                 $sets[] = "$f = ?";
-                $params[] = $f === 'percentage' || $f === 'sort_order' || $f === 'is_visible' ? (int)$data[$f] : sanitize($data[$f]);
+                $params[] = $f === 'percentage' || $f === 'sort_order' || $f === 'is_visible' ? (int)$data[$f] : clean_text($data[$f]);
             }
         }
 

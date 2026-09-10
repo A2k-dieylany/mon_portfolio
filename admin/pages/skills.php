@@ -112,7 +112,7 @@ async function loadSkills() {
         return `
             <tr data-id="${s.id}" style="transition:all 0.2s">
                 <td class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.2rem" title="Glisser pour réorganiser">↕</td>
-                <td><span style="margin-right:6px">${s.group_icon||''}</span> ${esc(s.group_name_fr)}</td>
+                <td><span style="margin-right:6px">${Admin.esc(s.group_icon)}</span> ${esc(s.group_name_fr)}</td>
                 <td style="font-weight:600">${esc(s.skill_name)}</td>
                 <td>
                     <div style="display:flex;align-items:center;gap:10px">

@@ -118,7 +118,7 @@ async function loadServices() {
         return `
             <tr>
                 <td style="color:var(--text-muted);cursor:ns-resize">↕️</td>
-                <td style="font-size:1.5rem">${s.icon}</td>
+                <td style="font-size:1.5rem">${Admin.esc(s.icon)}</td>
                 <td style="font-weight:600">${esc(s.title_fr)}</td>
                 <td class="truncate" style="max-width:250px;color:var(--text-dim)">${esc(s.desc_fr)}</td>
                 <td>
