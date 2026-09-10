@@ -52,11 +52,19 @@ function sds_create_quote(PDO $pdo, ?int $dealId, string $service, float $amount
         $token = bin2hex(random_bytes(16));
 
         // Numérotation continue par année, lisible par le client.
-        $year = date('Y');
-        $next = (int) $pdo->query(
-            "SELECT COUNT(*) FROM crm_quotes WHERE YEAR(created_at) = $year"
-        )->fetchColumn() + 1;
-        $reference = sprintf('SDS-%s-%04d', $year, $next);
+        //
+        // On repart du plus grand numéro déjà attribué, jamais d'un COUNT :
+        // après la suppression d'un devis, un comptage réattribuerait une
+        // référence déjà remise à un client. Deux devis différents portant le
+        // même numéro, c'est le genre d'erreur qu'on ne rattrape pas.
+        $year = (int) date('Y');
+        $stmt = $pdo->prepare(
+            "SELECT MAX(CAST(SUBSTRING_INDEX(reference, '-', -1) AS UNSIGNED))
+               FROM crm_quotes WHERE reference LIKE ?"
+        );
+        $stmt->execute(["SDS-$year-%"]);
+        $next      = ((int) $stmt->fetchColumn()) + 1;
+        $reference = sprintf('SDS-%d-%04d', $year, $next);
 
         $stmt = $pdo->prepare(
             'INSERT INTO crm_quotes

@@ -298,7 +298,38 @@ function setupChatbot() {
   };
 
   // ===== Enhanced Markdown Parser =====
-  const parseMarkdown = (text) => {
+  // Le contenu passe par innerHTML : on neutralise d'abord tout HTML, sinon
+  // un message renvoyé par le modèle pourrait exécuter du script.
+  const escapeHtml = (s) => s.replace(/[&<>"']/g,
+    c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // Les liens envoyés par MAX (devis, WhatsApp) sont des URL nues : sans ceci
+  // elles s'affichaient en texte brut, impossibles à ouvrir sur mobile.
+  const linkify = (s) => s.replace(
+    /(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+  );
+
+  /** Applique le formatage d'une ligne : gras, italique, code, liens. */
+  const inlineFormat = (line) => {
+    // Les liens markdown sont mis de côté le temps d'autolier les URL nues,
+    // sinon le second passage réécrirait l'adresse déjà placée dans href.
+    const parked = [];
+    let out = line.replace(/\[([^\]]*?)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) => {
+      parked.push(`<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+      return `\u0000${parked.length - 1}\u0000`;
+    });
+
+    out = linkify(out)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code class="chat-code">$1</code>');
+
+    return out.replace(/\u0000(\d+)\u0000/g, (_, i) => parked[i]);
+  };
+
+  const parseMarkdown = (rawText) => {
+    const text = escapeHtml(rawText);
     // Split into lines for list handling
     const lines = text.split('\n');
     let result = [];
