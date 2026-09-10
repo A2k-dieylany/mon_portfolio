@@ -103,3 +103,76 @@ function sds_crm_capture(PDO $pdo, array $o): ?int
         return null;
     }
 }
+
+/**
+ * Complète une opportunité au fil de la conversation.
+ *
+ * Le chatbot découvre les informations progressivement : le numéro arrive
+ * souvent après le besoin. On ne remplace jamais une valeur déjà renseignée
+ * par du vide, et on n'écrase pas ce qui a été saisi à la main dans l'admin.
+ */
+function sds_crm_enrich(PDO $pdo, int $dealId, array $f): void
+{
+    try {
+        $stmt = $pdo->prepare('SELECT contact_id, title, summary FROM crm_deals WHERE id = ? LIMIT 1');
+        $stmt->execute([$dealId]);
+        $deal = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$deal) {
+            return;
+        }
+
+        if (!empty($f['title'])) {
+            $pdo->prepare('UPDATE crm_deals SET title = ? WHERE id = ?')
+                ->execute([mb_substr($f['title'], 0, 200), $dealId]);
+        }
+        if (!empty($f['summary'])) {
+            $pdo->prepare('UPDATE crm_deals SET summary = ? WHERE id = ?')
+                ->execute([$f['summary'], $dealId]);
+        }
+
+        $email = $f['email'] ?? null;
+        $phone = $f['phone'] ?? null;
+        $name  = $f['name'] ?? null;
+        $company = $f['company'] ?? null;
+        if (!$email && !$phone && !$name && !$company) {
+            return;
+        }
+
+        $contactId = $deal['contact_id'] ? (int) $deal['contact_id'] : null;
+
+        // Le numéro peut désigner un contact déjà connu par ailleurs.
+        if (!$contactId) {
+            foreach ([['email', $email], ['phone', $phone]] as [$column, $value]) {
+                if (!$value) {
+                    continue;
+                }
+                $stmt = $pdo->prepare("SELECT id FROM crm_contacts WHERE $column = ? LIMIT 1");
+                $stmt->execute([$value]);
+                if ($found = $stmt->fetchColumn()) {
+                    $contactId = (int) $found;
+                    break;
+                }
+            }
+        }
+
+        if ($contactId) {
+            $pdo->prepare(
+                "UPDATE crm_contacts
+                    SET full_name = COALESCE(NULLIF(?, ''), full_name),
+                        company   = COALESCE(?, company),
+                        email     = COALESCE(?, email),
+                        phone     = COALESCE(?, phone)
+                  WHERE id = ?"
+            )->execute([$name ?: '', $company, $email, $phone, $contactId]);
+        } else {
+            $pdo->prepare('INSERT INTO crm_contacts (full_name, company, email, phone) VALUES (?, ?, ?, ?)')
+                ->execute([$name ?: 'Prospect chatbot', $company, $email, $phone]);
+            $contactId = (int) $pdo->lastInsertId();
+        }
+
+        $pdo->prepare('UPDATE crm_deals SET contact_id = ? WHERE id = ?')
+            ->execute([$contactId, $dealId]);
+    } catch (Throwable $e) {
+        error_log('CRM enrichissement : ' . $e->getMessage());
+    }
+}

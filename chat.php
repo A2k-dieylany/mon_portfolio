@@ -67,69 +67,45 @@ if (mb_strlen($userMessage) > 1000) {
     exit;
 }
 
-$systemPrompt = "Tu es MAX, l'Intelligence Artificielle Stratégique et le représentant officiel de SEN DIGITAL SOLUTION (SDS).
-SDS est le partenaire stratégique des entreprises modernes, basé à Dakar, fondé par Dieylany K.
+require_once __DIR__ . '/admin/includes/chat_context.php';
 
-## TON RÔLE
-Accueillir les clients, répondre à leurs questions, les guider dans leurs choix, et récupérer les informations clés de leur projet de manière fluide, avant de passer le relais à Dieylany ou un autre humain de l'équipe.
+// Numéro de contact : réglable dans l'admin plutôt que codé en dur.
+$whatsappNumber = '221780152522';
+try {
+    $stmt = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
+    $stmt->execute(['whatsapp_number']);
+    if ($v = $stmt->fetchColumn()) {
+        $whatsappNumber = preg_replace('/\D+/', '', $v) ?: $whatsappNumber;
+    }
+} catch (Throwable $e) {
+    error_log('Chat : numéro WhatsApp — ' . $e->getMessage());
+}
 
-## TON TON & TA PERSONNALITÉ (CRUCIAL)
-- Sois très chaleureuse, humaine, naturelle et professionnelle.
-- Utilise des emojis pour rendre la conversation conviviale 😊.
-- Fais des réponses courtes, directes et aérées (max 2 à 3 phrases par réponse) car c'est pour WhatsApp/Web.
-
-## GESTION DES LANGUES (TRÈS IMPORTANT)
-Tu DOIS adapter ta langue à celle du client :
-- Si le client parle FRANÇAIS → réponds en français.
-- Si le client parle ANGLAIS → réponds en anglais.
-- Si le client parle WOLOF → réponds en wolof NATUREL et AUTHENTIQUE. Tu es sénégalaise, tu parles wolof comme une vraie Dakaroise.
-- Si le client MÉLANGE français et wolof (francolof) → fais pareil ! C'est très courant à Dakar.
-
-## GUIDE WOLOF (Expressions obligatoires)
-- \"Nanga def?\" = Comment vas-tu ? → Réponse : \"Maa ngi fi, jërejëf! Yow nanga def?\"
-- \"Jërejëf\" / \"Jërëjëf\" = Merci
-- \"Waaw\" = Oui | \"Déedéet\" = Non
-- \"Noo tudd?\" = Comment tu t'appelles ?
-- \"Bëgg naa...\" = Je veux... / Je voudrais...
-- \"Naka lay?\" / \"Naka ligéey bi?\" = Comment ça va le travail ?
-- \"Mangi ci\" = J'y suis / Je suis dessus
-- \"Amul solo\" / \"Amul problème\" = Pas de problème
-- \"Ñu gis\" = On se voit / À bientôt
-- \"Yàlla na la Yàlla dimbalé\" = Que Dieu t'aide
-- \"Inchallah\" = Si Dieu le veut
-- \"Ndeysan\" = Mon Dieu / Surprise
-- \"Dama bëgg xam...\" = Je voudrais savoir...
-- \"Lu tax?\" = Pourquoi ?
-- \"Ñaata lay?\" = C'est combien ?
-- \"Baal ma\" = Excuse-moi
-- \"Assalamu Alaikum\" → \"Wa Alaikum Salam\"
-- \"Naka wa kër gi?\" = Comment va la famille ?
-- \"Ñépp ñu ngi fi\" = Tout le monde va bien
-
-Exemples Wolof:
-Client: \"Salam aleykum, maa ngi bëgg am site web\"
-Max: \"Wa Alaikum Salam! 🙏 Maa ngi fi, jërejëf! Waaw, ñu mën la dimbalé ak site web bi. Naka nga bëgg ko? Site vitrine wala e-commerce? 😊\"
-
-## BASE DE CONNAISSANCES SDS
-1. Automatisation WhatsApp & CRM IA
-2. Intégration IA & Agents Autonomes
-3. Dev Web & SaaS
-4. Branding (Affiches, logos)
-5. Formation & Coaching
-6. Vente d'Outils Digitaux
-
-## RÈGLES STRICTES (TRÈS IMPORTANT)
-1. Dès le PREMIER message avec un nouveau client, présente-toi : \"Bonjour 👋 ! Je suis Max, l'assistante de Dieylany...\" (ou en Wolof si salué en Wolof).
-2. Si le client demande à parler à un humain ou veut un devis, invite-le chaleureusement à remplir le formulaire de contact du site.
-3. Question complexe/hors de tes connaissances : explique avec tact que tu notes la question pour que l'équipe y réponde via le formulaire de contact.
-4. Termine souvent tes réponses par une question simple pour encourager le client à détailler son besoin (ex: \"Quel type de site avez-vous en tête ?\").
-5. Ton but est de qualifier le client poliment et de le diriger vers le formulaire de contact du portfolio pour la suite.";
+$systemPrompt = sds_chat_system_prompt($pdo, $whatsappNumber);
 
 // Construction des messages avec historique
 $messages = [['role' => 'system', 'content' => $systemPrompt]];
 
-// Injecter l'historique (max 10 derniers échanges pour ne pas dépasser le contexte)
-$recentHistory = array_slice($history, -10);
+// L'historique fait autorité côté serveur : celui envoyé par le navigateur
+// disparaît au rechargement de la page et reste modifiable par le visiteur.
+$recentHistory = [];
+try {
+    $stmt = $pdo->prepare(
+        "SELECT user_message, bot_response FROM chatbot_logs
+          WHERE session_id = ? ORDER BY id DESC LIMIT 8"
+    );
+    $stmt->execute([session_id()]);
+    foreach (array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC)) as $row) {
+        $recentHistory[] = ['role' => 'user',      'content' => $row['user_message']];
+        $recentHistory[] = ['role' => 'assistant', 'content' => $row['bot_response']];
+    }
+} catch (Throwable $e) {
+    error_log('Chat : historique — ' . $e->getMessage());
+}
+// Repli sur ce qu'envoie le navigateur si la base est momentanément muette.
+if (!$recentHistory) {
+    $recentHistory = array_slice($history, -10);
+}
 foreach ($recentHistory as $turn) {
     $role    = ($turn['role'] === 'user') ? 'user' : 'assistant';
     $content = trim($turn['content'] ?? '');
@@ -223,9 +199,12 @@ if ($httpCode == 200) {
 MAX : " . trim($reply);
 
             require_once __DIR__ . '/admin/includes/crm_capture.php';
+            require_once __DIR__ . '/admin/includes/chat_extract.php';
+
             $leadPhone = sds_crm_find_phone($haystack);
             $leadEmail = sds_crm_find_email($haystack);
-            sds_crm_capture($dbLog, [
+
+            $dealId = sds_crm_capture($dbLog, [
                 'name'       => 'Prospect chatbot',
                 'email'      => $leadEmail,
                 'phone'      => $leadPhone,
@@ -234,6 +213,40 @@ MAX : " . trim($reply);
                 'summary'    => $transcript,
                 'source_ref' => 'chat:' . $sessionId,
             ]);
+
+            // Seconde lecture de la conversation : elle en tire le nom, le
+            // numéro, le service visé et le besoin résumé, que les expressions
+            // régulières seules ne savent pas déduire.
+            if ($dealId) {
+                $facts = sds_chat_extract($transcript, $groqApiKey, 'qwen/qwen3.8-27b');
+                if ($facts) {
+                    $extractedPhone = $facts['phone']
+                        ? (sds_crm_find_phone($facts['phone']) ?: $facts['phone'])
+                        : null;
+
+                    // Le résumé du besoin passe en tête ; la transcription
+                    // complète reste dessous, pour pouvoir tout relire.
+                    $summary = null;
+                    if ($facts['need']) {
+                        $parts = [$facts['need']];
+                        if ($facts['budget']) {
+                            $parts[] = 'Budget évoqué : ' . $facts['budget'];
+                        }
+                        $parts[] = '--- Conversation ---';
+                        $parts[] = $transcript;
+                        $summary = implode(PHP_EOL . PHP_EOL, $parts);
+                    }
+
+                    sds_crm_enrich($dbLog, $dealId, [
+                        'name'    => $facts['name'],
+                        'company' => $facts['company'],
+                        'email'   => $facts['email'],
+                        'phone'   => $extractedPhone ?: $leadPhone,
+                        'title'   => $facts['service'] ? 'Chatbot — ' . $facts['service'] : null,
+                        'summary' => $summary,
+                    ]);
+                }
+            }
 
             // rowCount() = 1 seulement si la ligne vient d'être insérée (pas déjà notifiée)
             if ($insertLead->rowCount() > 0) {
