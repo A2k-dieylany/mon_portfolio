@@ -71,10 +71,14 @@ const Admin = {
             // Fermer le menu mobile
             document.querySelector('.sidebar')?.classList.remove('open');
         } catch (err) {
+            console.error(`Chargement de la page « ${page} » :`, err);
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-icon">🚧</div>
-                    <p>Module "${page}" en cours de développement.</p>
+                    <div class="empty-icon">⚠️</div>
+                    <p>Impossible de charger le module « ${page} ».</p>
+                    <p style="font-size:.85rem;opacity:.7">${err.message}</p>
+                    <p style="font-size:.85rem;opacity:.7">
+                       Si le problème persiste, rechargez la page avec Ctrl + Maj + R.</p>
                 </div>`;
         }
     },

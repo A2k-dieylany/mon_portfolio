@@ -14,8 +14,8 @@ $admin = get_admin();
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/admin.css">
-    <link rel="stylesheet" href="assets/admin-premium.css">
+    <link rel="stylesheet" href="<?= sds_asset('admin/assets/admin.css') ?>">
+    <link rel="stylesheet" href="<?= sds_asset('admin/assets/admin-premium.css') ?>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
@@ -122,7 +122,7 @@ $admin = get_admin();
 <!-- TOASTS -->
 <div class="toast-container" id="toast-container"></div>
 
-<script src="assets/admin.js"></script>
+<script src="<?= sds_asset('admin/assets/admin.js') ?>"></script>
 <script>
 // Live clock in header
 (function updateClock() {
