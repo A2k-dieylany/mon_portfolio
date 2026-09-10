@@ -550,15 +550,13 @@ function setupChatbot() {
     messages.scrollTop = messages.scrollHeight;
 
     try {
-      const historyPayload = chatHistory.filter(h => h.role).map(h => ({ role: h.role, content: h.content }));
+      // L'historique n'est plus transmis : le serveur le reconstruit lui-même
+      // depuis la session. L'envoyer permettait de fabriquer de faux échanges.
 
       const res = await fetch('chat.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: msg,
-          history: historyPayload.slice(0, -1)
-        })
+        body: JSON.stringify({ message: msg })
       });
 
       const data = await res.json();

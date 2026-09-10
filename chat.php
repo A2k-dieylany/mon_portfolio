@@ -6,14 +6,62 @@ sds_session_start();
 header('Content-Type: application/json');
 $groqApiKey = GROQ_API_KEY;
 
-// Rate limiting DB: 10 requêtes max par minute par IP
-$maxRequests = 10;
-$timeLimit = 60;
+// Un seul endroit pour le modèle : il servait aussi à l'extraction, avec le
+// risque que les deux divergent au prochain changement de catalogue Groq.
+const SDS_CHAT_MODEL = 'qwen/qwen3.8-27b';
 
-$ip_hash = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown');
 $pdo = getDB();
 
-// Nettoyer les anciens rate limits pour cet endpoint
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['reply' => "Méthode non autorisée."]);
+    exit;
+}
+
+// Origine de la requête. Un navigateur envoie toujours Origin sur un POST
+// same-origin : en tolérant son absence, on laissait passer n'importe quel
+// script en ligne de commande, qui consommait le quota Groq de Dieylany.
+$allowedHosts = ['localhost', '127.0.0.1', 'dieylany.dev', 'www.dieylany.dev', $_SERVER['HTTP_HOST'] ?? ''];
+$origin  = $_SERVER['HTTP_ORIGIN'] ?? '';
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+$sourceHost = '';
+
+if (!empty($origin)) {
+    $sourceHost = parse_url($origin, PHP_URL_HOST);
+} elseif (!empty($referer)) {
+    $sourceHost = parse_url($referer, PHP_URL_HOST);
+}
+
+if (empty($sourceHost) || !in_array($sourceHost, $allowedHosts, true)) {
+    echo json_encode(['reply' => "Accès non autorisé."]);
+    exit;
+}
+
+$input = json_decode(file_get_contents('php://input'), true);
+$userMessage = trim($input['message'] ?? '');
+
+// L'historique n'est plus lu depuis le navigateur : il est reconstruit côté
+// serveur. Accepter celui du client permettait de lui faire dire n'importe
+// quoi en fabriquant de faux tours de conversation.
+
+if (empty($userMessage)) {
+    echo json_encode(['reply' => "Message vide."]);
+    exit;
+}
+
+// Limiter la longueur du message (anti-abus)
+if (mb_strlen($userMessage) > 1000) {
+    echo json_encode(['reply' => "Message trop long. Limitez à 1000 caractères."]);
+    exit;
+}
+
+// Quota par IP, compté seulement une fois la requête jugée légitime : une
+// méthode refusée ou un message vide ne doit pas entamer le crédit du visiteur.
+// La limite est large car au Sénégal plusieurs mobiles partagent la même IP
+// publique — trop bas, on couperait de vrais prospects simultanés.
+$maxRequests = 20;
+$timeLimit   = 60;
+$ip_hash     = hash('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown');
+
 $pdo->exec("DELETE FROM api_rate_limits WHERE window_start < (NOW() - INTERVAL $timeLimit SECOND)");
 
 $stmt = $pdo->prepare("SELECT requests_count FROM api_rate_limits WHERE ip_hash = ? AND endpoint = 'chat'");
@@ -28,43 +76,6 @@ if ($row) {
     $pdo->prepare("UPDATE api_rate_limits SET requests_count = requests_count + 1 WHERE ip_hash = ? AND endpoint = 'chat'")->execute([$ip_hash]);
 } else {
     $pdo->prepare("INSERT INTO api_rate_limits (ip_hash, endpoint, requests_count) VALUES (?, 'chat', 1)")->execute([$ip_hash]);
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['reply' => "Méthode non autorisée."]);
-    exit;
-}
-
-// Validation Origin/Referer — bloquer les requêtes externes
-$allowedHosts = ['localhost', '127.0.0.1', 'dieylany.dev', 'www.dieylany.dev', $_SERVER['HTTP_HOST'] ?? ''];
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$referer = $_SERVER['HTTP_REFERER'] ?? '';
-$sourceHost = '';
-
-if (!empty($origin)) {
-    $sourceHost = parse_url($origin, PHP_URL_HOST);
-} elseif (!empty($referer)) {
-    $sourceHost = parse_url($referer, PHP_URL_HOST);
-}
-
-if (!empty($sourceHost) && !in_array($sourceHost, $allowedHosts)) {
-    echo json_encode(['reply' => "Accès non autorisé."]);
-    exit;
-}
-
-$input = json_decode(file_get_contents('php://input'), true);
-$userMessage = trim($input['message'] ?? '');
-$history     = $input['history'] ?? []; // historique envoyé depuis le front
-
-if (empty($userMessage)) {
-    echo json_encode(['reply' => "Message vide."]);
-    exit;
-}
-
-// Limiter la longueur du message (anti-abus)
-if (mb_strlen($userMessage) > 1000) {
-    echo json_encode(['reply' => "Message trop long. Limitez à 1000 caractères."]);
-    exit;
 }
 
 require_once __DIR__ . '/admin/includes/chat_context.php';
@@ -102,10 +113,6 @@ try {
 } catch (Throwable $e) {
     error_log('Chat : historique — ' . $e->getMessage());
 }
-// Repli sur ce qu'envoie le navigateur si la base est momentanément muette.
-if (!$recentHistory) {
-    $recentHistory = array_slice($history, -10);
-}
 foreach ($recentHistory as $turn) {
     $role    = ($turn['role'] === 'user') ? 'user' : 'assistant';
     $content = trim($turn['content'] ?? '');
@@ -118,25 +125,37 @@ foreach ($recentHistory as $turn) {
 $messages[] = ['role' => 'user', 'content' => $userMessage];
 
 $data = [
-    'model'       => 'qwen/qwen3.8-27b',
+    'model'       => SDS_CHAT_MODEL,
     'messages'    => $messages,
-    'max_tokens'  => 500,
+    'max_tokens'  => 600,
     'temperature' => 0.7,
     'top_p'       => 0.9
 ];
 
 $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Authorization: Bearer ' . $groqApiKey
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST           => true,
+    CURLOPT_POSTFIELDS     => json_encode($data),
+    CURLOPT_HTTPHEADER     => [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $groqApiKey,
+    ],
+    // Sans plafond, une API qui ne répond pas laissait la requête ouverte
+    // jusqu'au délai de la fonction Vercel : le visiteur voyait la roue
+    // tourner près d'une minute avant d'abandonner.
+    CURLOPT_CONNECTTIMEOUT => 5,
+    CURLOPT_TIMEOUT        => 20,
 ]);
 
 $response = curl_exec($ch);
 $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
 curl_close($ch);
+
+if ($httpCode === 0 && $curlError !== '') {
+    error_log('Chatbot : appel Groq impossible — ' . $curlError);
+}
 
 if ($httpCode == 200) {
     $res   = json_decode($response, true);
@@ -217,7 +236,7 @@ if ($httpCode == 200) {
             // numéro, le service visé et le besoin résumé, que les expressions
             // régulières seules ne savent pas déduire.
             if ($dealId) {
-                $facts = sds_chat_extract($transcript, $groqApiKey, 'qwen/qwen3.8-27b');
+                $facts = sds_chat_extract($transcript, $groqApiKey, SDS_CHAT_MODEL);
                 if ($facts) {
                     $extractedPhone = $facts['phone']
                         ? (sds_crm_find_phone($facts['phone']) ?: $facts['phone'])
