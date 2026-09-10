@@ -180,8 +180,10 @@ function sds_run_chat_actions(PDO $pdo, string $reply, ?int $dealId, array $clie
         if ($amount >= 5000 && $amount <= 20000000) {
             $quote = sds_create_quote($pdo, $dealId, $service, $amount, $client);
             if ($quote) {
-                $additions[] = '📄 Votre devis ' . $quote['reference']
-                    . ' est prêt : ' . $quote['url'];
+                // Lien libellé plutôt qu'URL brute : les 60 caractères du jeton
+                // s'étalaient sur trois lignes dans la bulle, sur mobile.
+                $additions[] = '📄 Votre devis ' . $quote['reference'] . ' est prêt : '
+                    . '[Télécharger le devis (PDF)](' . $quote['url'] . ')';
             }
         } else {
             error_log("Devis refusé : montant hors bornes ($amount).");

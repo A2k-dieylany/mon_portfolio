@@ -341,22 +341,13 @@ function setupChatbot() {
 
       if (listMatch) {
         if (!inList) { result.push('<ul class="chat-list">'); inList = true; }
-        const content = listMatch[1]
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-        result.push(`<li>${content}</li>`);
+        result.push(`<li>${inlineFormat(listMatch[1])}</li>`);
       } else {
         if (inList) { result.push('</ul>'); inList = false; }
         if (line.trim() === '') {
           result.push('<br>');
         } else {
-          let processed = line
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`([^`]+)`/g, '<code class="chat-code">$1</code>')
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-          result.push(`<p>${processed}</p>`);
+          result.push(`<p>${inlineFormat(line)}</p>`);
         }
       }
     }
