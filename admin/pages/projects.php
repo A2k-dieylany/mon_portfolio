@@ -236,7 +236,16 @@ async function uploadImage(inputElem, type) {
             body: formData // pas de JSON ici
         });
         const data = await res.json();
-        
+
+        if (!res.ok || data.error) {
+            // On journalise le diagnostic complet renvoyé par le serveur :
+            // « Erreur serveur » seul ne permet de rien corriger.
+            console.error('Upload refusé :', data);
+            Admin.toast(data.error || `Erreur serveur (${res.status})`, 'error');
+            inputElem.value = '';
+            return;
+        }
+
         if (data.success) {
             Admin.toast('Image uploadée !');
             if (type === 'main') {

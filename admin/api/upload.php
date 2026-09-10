@@ -21,8 +21,41 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+    // « Erreur serveur » ne dit rien. On renvoie la cause réelle : le code
+    // d'erreur PHP, ou l'état des limites quand le fichier n'arrive même pas.
+    $codes = [
+        UPLOAD_ERR_INI_SIZE   => "Le fichier dépasse la limite du serveur (upload_max_filesize).",
+        UPLOAD_ERR_FORM_SIZE  => "Le fichier dépasse la limite du formulaire.",
+        UPLOAD_ERR_PARTIAL    => "Le fichier n'est arrivé que partiellement.",
+        UPLOAD_ERR_NO_FILE    => "Aucun fichier n'a été reçu.",
+        UPLOAD_ERR_NO_TMP_DIR => "Le dossier temporaire du serveur est introuvable.",
+        UPLOAD_ERR_CANT_WRITE => "Le serveur n'a pas pu écrire le fichier temporaire.",
+        UPLOAD_ERR_EXTENSION  => "Une extension PHP a interrompu l'envoi.",
+    ];
+
+    $code = $_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE;
+    $diag = [
+        'error'  => $codes[$code] ?? "Erreur d'envoi inconnue (code $code).",
+        'code'   => $code,
+        // Quand rien n'arrive, ces valeurs disent si c'est une limite de
+        // taille ou si le runtime n'analyse pas les envois multipart.
+        'recu'   => [
+            'content_type'   => $_SERVER['CONTENT_TYPE'] ?? '(absent)',
+            'content_length' => $_SERVER['CONTENT_LENGTH'] ?? '(absent)',
+            'nb_fichiers'    => count($_FILES),
+            'champs_postes'  => array_keys($_POST),
+        ],
+        'limites' => [
+            'upload_max_filesize' => ini_get('upload_max_filesize'),
+            'post_max_size'       => ini_get('post_max_size'),
+            'file_uploads'        => ini_get('file_uploads') ? 'oui' : 'non',
+            'upload_tmp_dir'      => ini_get('upload_tmp_dir') ?: sys_get_temp_dir(),
+        ],
+    ];
+    error_log('SDS Upload — ' . json_encode($diag, JSON_UNESCAPED_UNICODE));
+
     http_response_code(400);
-    echo json_encode(['error' => 'Aucun fichier uploadé ou erreur lors de l\'upload.']);
+    echo json_encode($diag, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -89,7 +122,10 @@ curl_close($ch);
 if ($response === false || $httpCode !== 200) {
     error_log("SDS Upload — Vercel Blob error ({$httpCode}): " . ($curlError ?: $response));
     http_response_code(500);
-    echo json_encode(['error' => 'Erreur lors de l\'envoi du fichier vers le stockage.']);
+    echo json_encode([
+        'error'   => "Le stockage a refusé le fichier (HTTP $httpCode).",
+        'detail'  => $curlError ?: (json_decode($response, true) ?? $response),
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
