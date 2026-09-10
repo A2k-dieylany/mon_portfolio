@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../includes/auth_check.php';
+require_auth();
+?>
 <div class="cms-module">
   <div class="cms-header">
     <div>

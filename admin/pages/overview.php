@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../includes/auth_check.php';
+require_auth();
+?>
 <!-- Overview Page — Premium Design -->
 <div class="kpi-grid" id="kpi-grid">
     <div class="kpi-card" style="border-top:2px solid rgba(96,165,250,0.4)">
