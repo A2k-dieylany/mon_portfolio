@@ -119,7 +119,10 @@ $blockedBasenames = ['config.php', 'session_bootstrap.php', '_app.php', '404.php
 
 $isBlocked = in_array(basename($relative), $blockedBasenames, true)
     || str_contains($relative, 'includes/')
-    || str_contains($relative, '_archives/');
+    || str_contains($relative, '_archives/')
+    // Bibliothèques tierces et outils : chargés par require, jamais servis.
+    || str_starts_with($relative, 'lib/')
+    || str_starts_with($relative, 'tools/');
 
 if (
     $isBlocked
