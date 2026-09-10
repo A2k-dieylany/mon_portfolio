@@ -308,7 +308,7 @@ if ($httpCode == 200) {
         $dbLog->prepare(
             'INSERT INTO chatbot_logs (session_id, user_message, bot_response, language, ip_hash)
              VALUES (?, ?, ?, ?, ?)'
-        )->execute([$sessionId, $userMessage, $replyForUser, $lang, $ipHash]);
+        )->execute([$sessionId, $userMessage, $outcome['reply_log'], $lang, $ipHash]);
     } catch (Throwable $e) {
         error_log('Chatbot log error: ' . $e->getMessage());
     }

@@ -139,12 +139,28 @@ function sds_alert_owner(string $subject, string $body): void
 /**
  * Traite les balises émises par MAX et les retire de la réponse affichée.
  *
- * @return array{reply:string,quote:?array,hot:bool,human:bool,finished:bool}
+ * Renvoie deux versions du texte :
+ *   - reply     : ce que voit le visiteur, liens du système compris ;
+ *   - reply_log : le seul texte du modèle, à conserver dans l'historique.
+ *
+ * La distinction n'est pas cosmétique. En enregistrant le lien de devis dans
+ * l'historique, MAX le relisait au tour suivant, en apprenait le format et
+ * finissait par en fabriquer un de toutes pièces — envoyant au prospect une
+ * URL qui ne mène nulle part. Constaté en production.
+ *
+ * @return array{reply:string,reply_log:string,quote:?array,hot:bool,human:bool,finished:bool}
  */
 function sds_run_chat_actions(PDO $pdo, string $reply, ?int $dealId, array $client, string $transcript): array
 {
     $hot = $human = $finished = false;
     $quote = null;
+    $additions = [];
+
+    // Filet de sécurité : si le modèle a écrit lui-même une URL de devis, elle
+    // est forcément inventée — seul ce code sait générer un jeton valide.
+    // On retire la ligne entière, sinon il reste une phrase en suspens
+    // (« Votre devis SDS-2026-0002 est prêt : »).
+    $reply = preg_replace('#^.*https?://\S*?/devis/[a-f0-9]{32}\S*.*$#im', '', $reply);
 
     // --- Devis : [DEVIS:Nom du service:150000]
     if (preg_match('/\[DEVIS\s*:\s*([^:\]]+?)\s*:\s*([0-9\s]+)\]/u', $reply, $m)) {
@@ -156,9 +172,8 @@ function sds_run_chat_actions(PDO $pdo, string $reply, ?int $dealId, array $clie
         if ($amount >= 5000 && $amount <= 20000000) {
             $quote = sds_create_quote($pdo, $dealId, $service, $amount, $client);
             if ($quote) {
-                $reply = rtrim($reply)
-                    . "\n\n📄 Votre devis " . $quote['reference'] . ' est prêt : '
-                    . $quote['url'];
+                $additions[] = '📄 Votre devis ' . $quote['reference']
+                    . ' est prêt : ' . $quote['url'];
             }
         } else {
             error_log("Devis refusé : montant hors bornes ($amount).");
@@ -168,7 +183,7 @@ function sds_run_chat_actions(PDO $pdo, string $reply, ?int $dealId, array $clie
     // --- Rendez-vous
     if (str_contains($reply, '[RDV]') || str_contains($reply, '[LIEN_CALENDRIER]')) {
         $reply = str_replace(['[RDV]', '[LIEN_CALENDRIER]'], '', $reply);
-        $reply = rtrim($reply) . "\n\n📅 Choisissez un créneau : https://wa.me/221780152522";
+        $additions[] = '📅 Choisissez un créneau : https://wa.me/221780152522';
     }
 
     // --- Prospect chaud / demande d'humain
@@ -210,11 +225,16 @@ function sds_run_chat_actions(PDO $pdo, string $reply, ?int $dealId, array $clie
     // Les balises inconnues ne doivent jamais s'afficher au visiteur.
     $reply = preg_replace('/\[[A-Z_]+(?::[^\]]*)?\]/u', '', $reply);
 
+    $modelText = trim(preg_replace('/\n{3,}/', "\n\n", $reply));
+
     return [
-        'reply'    => trim(preg_replace('/\n{3,}/', "\n\n", $reply)),
-        'quote'    => $quote,
-        'hot'      => $hot,
-        'human'    => $human,
-        'finished' => $finished,
+        'reply'     => $additions
+            ? $modelText . "\n\n" . implode("\n", $additions)
+            : $modelText,
+        'reply_log' => $modelText,
+        'quote'     => $quote,
+        'hot'       => $hot,
+        'human'     => $human,
+        'finished'  => $finished,
     ];
 }
