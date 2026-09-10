@@ -208,10 +208,10 @@ require_auth();
 </style>
 
 <script>
-const API_SETTINGS = 'api/settings.php';
-let settingsData = [];
+var API_SETTINGS = 'api/settings.php';
+var settingsData = [];
 
-const CATEGORY_META = {
+var CATEGORY_META = {
   general:   { icon: '🏢', label: 'Général' },
   apparence: { icon: '🎨', label: 'Apparence' },
   hero:      { icon: '🚀', label: 'Section Hero' },

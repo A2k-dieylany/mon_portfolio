@@ -134,7 +134,7 @@ require_auth();
 </div>
 
 <script>
-let currentBlogs = [];
+var currentBlogs = [];
 
 async function loadBlogs() {
     try {

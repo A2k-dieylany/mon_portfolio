@@ -170,8 +170,8 @@ require_auth();
 </style>
 
 <script>
-const API_ANALYTICS = 'api/analytics.php';
-let chart30 = null, chartHours = null, chartDevices = null;
+var API_ANALYTICS = 'api/analytics.php';
+var chart30 = null, chartHours = null, chartDevices = null;
 
 async function loadAnalytics() {
   await Promise.all([

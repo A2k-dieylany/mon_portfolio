@@ -112,7 +112,7 @@ require_auth();
 </div>
 
 <script>
-let allTimeline = [];
+var allTimeline = [];
 
 async function loadTimeline() {
     const tbody = document.getElementById('timeline-tbody');

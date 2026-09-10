@@ -57,13 +57,40 @@ const Admin = {
             if (!res.ok) throw new Error(`Page ${page} introuvable`);
             container.innerHTML = await res.text();
             
-            // Ré-exécuter les scripts injectés (innerHTML ne le fait pas nativement)
-            Array.from(container.querySelectorAll('script')).forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
+            // Ré-exécuter les scripts injectés (innerHTML ne le fait pas nativement).
+            //
+            // RÈGLE POUR LES PAGES : au premier niveau d'un script de module,
+            // déclarer avec « var », jamais « let » ni « const ».
+            // Chaque visite réexécute le script dans la portée globale ; un
+            // « let »/« const » de premier niveau y lève « Identifier … has
+            // already been declared » dès la deuxième visite, et le module
+            // restait figé sur « Chargement… » (11 pages sur 14 étaient
+            // touchées). Envelopper le script dans un bloc ne convient pas :
+            // les fonctions « async » y deviendraient locales, et les
+            // attributs onclick des fragments ne les trouveraient plus.
+            const scriptErrors = [];
+            const onScriptError = (e) => scriptErrors.push(e.message);
+            window.addEventListener('error', onScriptError);
+            try {
+                Array.from(container.querySelectorAll('script')).forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } finally {
+                window.removeEventListener('error', onScriptError);
+            }
+            // Une erreur de syntaxe empêche tout le script du module de
+            // s'exécuter et ne remonte pas au try/catch : sans ce relevé, le
+            // module restait bloqué sur « Chargement… » sans aucun message.
+            // Les autres erreurs sont seulement journalisées : le module peut
+            // rester en partie utilisable.
+            const fatal = scriptErrors.find(m => /SyntaxError/.test(m));
+            if (fatal) {
+                throw new Error(fatal);
+            }
+            scriptErrors.forEach(m => console.error(`Module « ${page} » :`, m));
 
             container.style.animation = 'none';
             container.offsetHeight; // force reflow

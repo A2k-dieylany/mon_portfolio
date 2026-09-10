@@ -100,7 +100,7 @@ require_auth();
 </div>
 
 <script>
-let allServices = [];
+var allServices = [];
 
 async function loadServices() {
     const tbody = document.getElementById('services-tbody');

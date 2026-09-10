@@ -110,7 +110,7 @@ require_auth();
 </div>
 
 <script>
-let currentTestis = [];
+var currentTestis = [];
 
 async function loadTestimonials() {
     try {

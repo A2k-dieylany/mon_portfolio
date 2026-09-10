@@ -175,22 +175,22 @@ require_auth();
 </style>
 
 <script>
-const CRM_STAGES = {
+var CRM_STAGES = {
     nouveau:  'Nouveau',
     contacte: 'Contacté',
     devis:    'Devis envoyé',
     gagne:    'Gagné',
     perdu:    'Perdu'
 };
-const CRM_SOURCE_LABELS = {
+var CRM_SOURCE_LABELS = {
     chatbot: '🤖 Chatbot', formulaire: '📩 Formulaire', whatsapp: '💬 WhatsApp',
     recommandation: '🗣️ Recommandation', direct: '📞 Direct', autre: '• Autre'
 };
 
-let crmDeals = [];
+var crmDeals = [];
 
-const fcfa = (n) => Number(n || 0).toLocaleString('fr-FR') + ' F';
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g,
+var fcfa = (n) => Number(n || 0).toLocaleString('fr-FR') + ' F';
+var esc = (s) => String(s ?? '').replace(/[&<>"']/g,
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 async function loadCrm() {

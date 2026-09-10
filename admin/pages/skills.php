@@ -94,7 +94,7 @@ require_auth();
 </div>
 
 <script>
-let allSkills = [];
+var allSkills = [];
 
 async function loadSkills() {
     const tbody = document.getElementById('skills-tbody');

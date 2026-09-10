@@ -151,8 +151,8 @@ require_auth();
 </style>
 
 <script>
-const API_CB = 'api/chatbot.php';
-let currentSession = null;
+var API_CB = 'api/chatbot.php';
+var currentSession = null;
 
 async function loadChatbotData() {
   try {

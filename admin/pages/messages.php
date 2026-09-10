@@ -76,9 +76,9 @@ require_auth();
 </div>
 
 <script>
-let currentMsgId = null;
-let currentFilter = '';
-let searchTimeout = null;
+var currentMsgId = null;
+var currentFilter = '';
+var searchTimeout = null;
 
 async function loadMessages(status = '', search = '') {
     const tbody = document.getElementById('messages-tbody');

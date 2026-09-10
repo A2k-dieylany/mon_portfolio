@@ -149,8 +149,8 @@ require_auth();
 </div>
 
 <script>
-let allProjects = [];
-let galleryUrls = [];
+var allProjects = [];
+var galleryUrls = [];
 
 async function loadProjects() {
     const tbody = document.getElementById('projects-tbody');
