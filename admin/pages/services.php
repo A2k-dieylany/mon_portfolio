@@ -35,7 +35,7 @@ require_auth();
 
 <!-- Modal Service -->
 <div class="modal-overlay" id="srv-modal">
-    <div class="modal-panel" style="width: 650px">
+    <div class="modal-panel" style="width: 860px">
         <div class="modal-header">
             <h3 id="srv-modal-title">Nouveau service</h3>
             <button class="modal-close" onclick="closeSrvModal()">✕</button>
@@ -85,7 +85,92 @@ require_auth();
                 <input type="text" id="srv-tags" class="form-input" style="min-height:40px;height:40px" placeholder="ex: Web, Mobile, SEO">
             </div>
 
+            <!-- Page détaillée /services/<slug> : ces champs existaient en base
+                 mais n'étaient pas modifiables depuis l'admin. -->
+            <h4 class="srv-section">Page détaillée</h4>
+
             <div style="margin-bottom:16px">
+                <label class="meta-label" for="srv-slug">Adresse de la page</label>
+                <div class="srv-slug-row">
+                    <span class="srv-slug-prefix">dieylany.dev/services/</span>
+                    <input type="text" id="srv-slug" class="form-input" style="min-height:40px;height:40px"
+                           placeholder="ex : developpement-web" oninput="updateSlugPreview()">
+                </div>
+                <small class="srv-help" id="srv-slug-help">Vide : pas de page détaillée pour ce service.</small>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label class="meta-label" for="srv-headline-fr">Accroche — titre de la page (FR)</label>
+                <input type="text" id="srv-headline-fr" class="form-input" style="min-height:40px;height:40px" maxlength="200"
+                       placeholder="ex : Un site que vos clients trouvent vraiment">
+            </div>
+
+            <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+                <div style="flex:1;min-width:200px">
+                    <label class="meta-label" for="srv-price-from">Tarif affiché (FR)</label>
+                    <input type="text" id="srv-price-from" class="form-input" style="min-height:40px;height:40px" maxlength="60"
+                           placeholder="ex : À partir de 150 000 FCFA">
+                </div>
+                <div style="flex:1;min-width:200px">
+                    <label class="meta-label" for="srv-delay">Délai (FR)</label>
+                    <input type="text" id="srv-delay" class="form-input" style="min-height:40px;height:40px" maxlength="120"
+                           placeholder="ex : 1 à 4 semaines selon le projet">
+                </div>
+            </div>
+
+            <div style="margin-bottom:12px">
+                <label class="meta-label" for="srv-detail-fr">Contenu de la page (FR)</label>
+                <textarea id="srv-detail-fr" class="form-input srv-html" rows="14"
+                          placeholder="<h2>Ce que vous obtenez</h2>&#10;<ul>&#10;  <li>…</li>&#10;</ul>"></textarea>
+                <small class="srv-help">HTML accepté : &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;/&lt;ol&gt;/&lt;li&gt;,
+                    &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;, &lt;div class="…"&gt;. Toute autre balise, les scripts
+                    et les attributs d'événement sont retirés à l'enregistrement.</small>
+            </div>
+
+            <details class="srv-translations">
+                <summary>Traductions de la page — anglais et arabe</summary>
+                <div style="display:flex;gap:12px;margin:12px 0;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                        <label class="meta-label" for="srv-headline-en">Accroche (EN)</label>
+                        <input type="text" id="srv-headline-en" class="form-input" style="min-height:40px;height:40px" maxlength="200">
+                    </div>
+                    <div style="flex:1;min-width:200px">
+                        <label class="meta-label" for="srv-headline-ar">Accroche (AR)</label>
+                        <input type="text" id="srv-headline-ar" class="form-input" style="min-height:40px;height:40px" maxlength="200" dir="rtl">
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                        <label class="meta-label" for="srv-price-from-en">Tarif (EN)</label>
+                        <input type="text" id="srv-price-from-en" class="form-input" style="min-height:40px;height:40px" maxlength="60">
+                    </div>
+                    <div style="flex:1;min-width:200px">
+                        <label class="meta-label" for="srv-price-from-ar">Tarif (AR)</label>
+                        <input type="text" id="srv-price-from-ar" class="form-input" style="min-height:40px;height:40px" maxlength="60" dir="rtl">
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                        <label class="meta-label" for="srv-delay-en">Délai (EN)</label>
+                        <input type="text" id="srv-delay-en" class="form-input" style="min-height:40px;height:40px" maxlength="120">
+                    </div>
+                    <div style="flex:1;min-width:200px">
+                        <label class="meta-label" for="srv-delay-ar">Délai (AR)</label>
+                        <input type="text" id="srv-delay-ar" class="form-input" style="min-height:40px;height:40px" maxlength="120" dir="rtl">
+                    </div>
+                </div>
+                <div style="margin-bottom:12px">
+                    <label class="meta-label" for="srv-detail-en">Contenu de la page (EN)</label>
+                    <textarea id="srv-detail-en" class="form-input srv-html" rows="10"></textarea>
+                </div>
+                <div style="margin-bottom:12px">
+                    <label class="meta-label" for="srv-detail-ar">Contenu de la page (AR)</label>
+                    <textarea id="srv-detail-ar" class="form-input srv-html" rows="10" dir="rtl"></textarea>
+                </div>
+                <small class="srv-help">Une traduction laissée vide affiche la version française.</small>
+            </details>
+
+            <div style="margin:16px 0">
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
                     <input type="checkbox" id="srv-visible" checked>
                     <span style="font-size:0.9rem">Visible sur le site public</span>
@@ -99,6 +184,22 @@ require_auth();
     </div>
 </div>
 
+
+<style>
+  .srv-section { margin: 26px 0 14px; padding-top: 18px; border-top: 1px solid var(--border);
+                 font-size: .95rem; color: var(--text); }
+  .srv-slug-row { display: flex; align-items: center; gap: 8px; }
+  .srv-slug-prefix { color: var(--text-muted); font-size: .85rem; white-space: nowrap; }
+  .srv-help { display: block; margin-top: 6px; color: var(--text-muted); font-size: .78rem; line-height: 1.5; }
+  .srv-help a, .srv-meta a { color: var(--accent-light); }
+  .srv-html { font-family: ui-monospace, Consolas, monospace; font-size: .82rem; line-height: 1.55; min-height: 160px; }
+  .srv-translations { margin: 8px 0 4px; }
+  .srv-translations summary { cursor: pointer; color: var(--accent-light); font-size: .88rem; padding: 6px 0; }
+  .srv-meta { font-weight: 400; font-size: .75rem; color: var(--text-muted); margin-top: 4px; }
+  @media (max-width: 640px) {
+    .srv-slug-row { flex-direction: column; align-items: stretch; gap: 4px; }
+  }
+</style>
 <script>
 var allServices = [];
 
@@ -119,7 +220,7 @@ async function loadServices() {
             <tr>
                 <td style="color:var(--text-muted);cursor:ns-resize">↕️</td>
                 <td style="font-size:1.5rem">${Admin.esc(s.icon)}</td>
-                <td style="font-weight:600">${esc(s.title_fr)}</td>
+                <td style="font-weight:600">${esc(s.title_fr)}${s.slug ? `<div class="srv-meta">${s.price_from ? esc(s.price_from) + ' · ' : ''}<a href="/services/${encodeURIComponent(s.slug)}" target="_blank" rel="noopener">/services/${esc(s.slug)} ↗</a></div>` : '<div class="srv-meta">Pas de page détaillée</div>'}</td>
                 <td class="truncate" style="max-width:250px;color:var(--text-dim)">${esc(s.desc_fr)}</td>
                 <td>
                     <span class="status ${s.is_visible ? 'status-read' : 'status-archived'}" style="cursor:pointer" onclick="toggleSrvVis(${s.id}, ${s.is_visible})">
@@ -142,34 +243,40 @@ function esc(str) {
     return d.innerHTML;
 }
 
+// Champ en base → identifiant de l'élément du formulaire.
+var SRV_FIELDS = {
+    icon: 'srv-icon', title_fr: 'srv-title-fr', title_en: 'srv-title-en', title_ar: 'srv-title-ar',
+    desc_fr: 'srv-desc-fr', desc_en: 'srv-desc-en', desc_ar: 'srv-desc-ar', tags: 'srv-tags',
+    slug: 'srv-slug',
+    headline_fr: 'srv-headline-fr', headline_en: 'srv-headline-en', headline_ar: 'srv-headline-ar',
+    price_from: 'srv-price-from', price_from_en: 'srv-price-from-en', price_from_ar: 'srv-price-from-ar',
+    delay_text: 'srv-delay', delay_text_en: 'srv-delay-en', delay_text_ar: 'srv-delay-ar',
+    detail_fr: 'srv-detail-fr', detail_en: 'srv-detail-en', detail_ar: 'srv-detail-ar'
+};
+
+function updateSlugPreview() {
+    const slug = document.getElementById('srv-slug').value.trim();
+    const help = document.getElementById('srv-slug-help');
+    help.innerHTML = slug
+        ? `Page publique : <a href="/services/${encodeURIComponent(slug)}" target="_blank" rel="noopener">/services/${Admin.esc(slug)} ↗</a>`
+        : 'Vide : pas de page détaillée pour ce service.';
+}
+
 function openSrvModal(id = null) {
     document.getElementById('srv-modal-title').textContent = id ? 'Modifier le service' : 'Nouveau service';
-    
-    if (id) {
-        const s = allServices.find(x => x.id == id);
-        document.getElementById('srv-id').value = s.id;
-        document.getElementById('srv-icon').value = s.icon;
-        document.getElementById('srv-title-fr').value = s.title_fr;
-        document.getElementById('srv-title-en').value = s.title_en;
-        document.getElementById('srv-title-ar').value = s.title_ar;
-        document.getElementById('srv-desc-fr').value = s.desc_fr;
-        document.getElementById('srv-desc-en').value = s.desc_en;
-        document.getElementById('srv-desc-ar').value = s.desc_ar;
-        document.getElementById('srv-tags').value = s.tags;
-        document.getElementById('srv-visible').checked = s.is_visible == 1;
-    } else {
-        document.getElementById('srv-id').value = '';
-        document.getElementById('srv-icon').value = '';
-        document.getElementById('srv-title-fr').value = '';
-        document.getElementById('srv-title-en').value = '';
-        document.getElementById('srv-title-ar').value = '';
-        document.getElementById('srv-desc-fr').value = '';
-        document.getElementById('srv-desc-en').value = '';
-        document.getElementById('srv-desc-ar').value = '';
-        document.getElementById('srv-tags').value = '';
-        document.getElementById('srv-visible').checked = true;
+    const s = id ? allServices.find(x => x.id == id) : null;
+
+    document.getElementById('srv-id').value = s ? s.id : '';
+    for (const [field, elId] of Object.entries(SRV_FIELDS)) {
+        document.getElementById(elId).value = s ? (s[field] ?? '') : '';
     }
-    
+    document.getElementById('srv-visible').checked = s ? s.is_visible == 1 : true;
+
+    // Les traductions de la page restent repliées sauf si elles existent déjà.
+    const tr = document.querySelector('#srv-modal .srv-translations');
+    if (tr) tr.open = !!(s && (s.detail_en || s.detail_ar || s.headline_en || s.headline_ar));
+    updateSlugPreview();
+
     document.getElementById('srv-modal').classList.add('active');
 }
 
@@ -179,17 +286,10 @@ function closeSrvModal() {
 
 async function saveSrv() {
     const id = document.getElementById('srv-id').value;
-    const body = {
-        icon: document.getElementById('srv-icon').value,
-        title_fr: document.getElementById('srv-title-fr').value,
-        title_en: document.getElementById('srv-title-en').value,
-        title_ar: document.getElementById('srv-title-ar').value,
-        desc_fr: document.getElementById('srv-desc-fr').value,
-        desc_en: document.getElementById('srv-desc-en').value,
-        desc_ar: document.getElementById('srv-desc-ar').value,
-        tags: document.getElementById('srv-tags').value,
-        is_visible: document.getElementById('srv-visible').checked ? 1 : 0
-    };
+    const body = { is_visible: document.getElementById('srv-visible').checked ? 1 : 0 };
+    for (const [field, elId] of Object.entries(SRV_FIELDS)) {
+        body[field] = document.getElementById(elId).value;
+    }
 
     if (!body.title_fr || !body.desc_fr || !body.icon) return Admin.toast('Remplissez Titre, Description et Icône', 'error');
 
