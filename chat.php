@@ -142,6 +142,10 @@ if ($httpCode == 200) {
     $res   = json_decode($response, true);
     $reply = $res['choices'][0]['message']['content'] ?? "Une erreur est survenue.";
     
+    // Réponse servie au visiteur : les balises d'action en seront retirées.
+    $replyForUser = trim($reply);
+    $dealId = null;
+
     // Logger la conversation dans la base de données
     try {
         require_once __DIR__ . '/admin/includes/db.php';
@@ -152,8 +156,6 @@ if ($httpCode == 200) {
         if (preg_match('/[\x{0600}-\x{06FF}]/u', $userMessage)) $lang = 'ar';
         elseif (preg_match('/^[a-zA-Z\s\d\p{P}]+$/u', $userMessage)) $lang = 'en';
         
-        $logStmt = $dbLog->prepare("INSERT INTO chatbot_logs (session_id, user_message, bot_response, language, ip_hash) VALUES (?, ?, ?, ?, ?)");
-        $logStmt->execute([$sessionId, $userMessage, trim($reply), $lang, $ipHash]);
 
         // Détection de lead chaud : si le visiteur montre une intention d'achat,
         // on notifie une seule fois par conversation via le webhook WhatsApp.
@@ -174,6 +176,14 @@ if ($httpCode == 200) {
             }
         }
 
+        // La transcription sert au CRM comme aux alertes : construite une fois.
+        $transcript = '';
+        foreach ($recentHistory as $turn) {
+            $who = ($turn['role'] ?? '') === 'user' ? 'Visiteur' : 'MAX';
+            $transcript .= $who . ' : ' . trim($turn['content'] ?? '') . PHP_EOL;
+        }
+        $transcript .= 'Visiteur : ' . $userMessage . PHP_EOL . 'MAX : ' . trim($reply);
+
         $isLead = false;
         foreach ($leadKeywords as $kw) {
             if (mb_strpos($haystack, $kw) !== false) {
@@ -186,17 +196,6 @@ if ($httpCode == 200) {
             $insertLead = $dbLog->prepare("INSERT IGNORE INTO chatbot_leads (session_id) VALUES (?)");
             $insertLead->execute([$sessionId]);
 
-            // Le prospect entre dans le CRM avec sa conversation complète.
-            // Jusqu'ici seul le session_id était conservé : le numéro qu'un
-            // visiteur tapait dans le chat n'était visible nulle part.
-            $transcript = '';
-            foreach ($recentHistory as $turn) {
-                $who = ($turn['role'] ?? '') === 'user' ? 'Visiteur' : 'MAX';
-                $transcript .= "$who : " . trim($turn['content'] ?? '') . "
-";
-            }
-            $transcript .= "Visiteur : $userMessage
-MAX : " . trim($reply);
 
             require_once __DIR__ . '/admin/includes/crm_capture.php';
             require_once __DIR__ . '/admin/includes/chat_extract.php';
@@ -279,11 +278,42 @@ MAX : " . trim($reply);
                 }
             }
         }
-    } catch (Exception $e) {
-        error_log("Chatbot log error: " . $e->getMessage());
+
+        // Balises d'action : elles peuvent apparaître même hors intention
+        // d'achat détectée, donc le traitement est hors du bloc précédent.
+        require_once __DIR__ . '/admin/includes/chat_actions.php';
+        $stmtC = $dbLog->prepare(
+            'SELECT c.full_name, c.company, c.phone, c.email
+               FROM crm_deals d JOIN crm_contacts c ON c.id = d.contact_id
+              WHERE d.id = ? LIMIT 1'
+        );
+        $contact = ['name' => null, 'company' => null, 'phone' => null, 'email' => null];
+        if ($dealId) {
+            $stmtC->execute([$dealId]);
+            if ($row = $stmtC->fetch(PDO::FETCH_ASSOC)) {
+                $contact = [
+                    'name'    => $row['full_name'],
+                    'company' => $row['company'],
+                    'phone'   => $row['phone'],
+                    'email'   => $row['email'],
+                ];
+            }
+        }
+
+        $outcome      = sds_run_chat_actions($dbLog, $reply, $dealId, $contact, $transcript);
+        $replyForUser = $outcome['reply'];
+
+        // Le tour est enregistré nettoyé : sinon MAX relit ses propres balises
+        // dans son historique au message suivant et finit par les répéter.
+        $dbLog->prepare(
+            'INSERT INTO chatbot_logs (session_id, user_message, bot_response, language, ip_hash)
+             VALUES (?, ?, ?, ?, ?)'
+        )->execute([$sessionId, $userMessage, $replyForUser, $lang, $ipHash]);
+    } catch (Throwable $e) {
+        error_log('Chatbot log error: ' . $e->getMessage());
     }
 
-    echo json_encode(['reply' => trim($reply)]);
+    echo json_encode(['reply' => trim($replyForUser)]);
 } else {
     error_log("Groq API error $httpCode: $response");
     echo json_encode(['reply' => "Je suis temporairement indisponible. Contactez-nous via le formulaire du site ou sur WhatsApp au +221 78 015 25 22."]);

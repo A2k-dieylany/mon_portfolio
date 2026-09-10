@@ -97,6 +97,10 @@ if ($uri === '/' || $uri === '') {
     // URL propre des pages service : /services/<slug>
     $_GET['slug'] = $m[1];
     $target = '/service.php';
+} elseif (preg_match('#^/devis/([a-f0-9]{32})/?$#', $uri, $m)) {
+    // Téléchargement d'un devis émis par MAX
+    $_GET['token'] = $m[1];
+    $target = '/devis.php';
 } elseif ($uri === '/sitemap.xml') {
     // Sitemap généré depuis la base (les pages services s'y ajoutent seules)
     $target = '/sitemap.php';
