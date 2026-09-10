@@ -86,7 +86,12 @@ $uri = urldecode($uri ?? '/');
 
 if ($uri === '/' || $uri === '') {
     $target = '/index.php';
-} elseif ($uri === '/admin' || $uri === '/admin/') {
+} elseif ($uri === '/admin') {
+    // Sans la barre finale, le navigateur résout les URL relatives de la page
+    // à la racine du site : « api/auth.php » devenait « /api/auth.php ».
+    header('Location: /admin/', true, 301);
+    exit;
+} elseif ($uri === '/admin/') {
     $target = '/admin/index.php';
 } elseif (preg_match('#^/services/([a-z0-9\-]+)/?$#', $uri, $m)) {
     // URL propre des pages service : /services/<slug>

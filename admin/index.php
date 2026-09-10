@@ -282,7 +282,10 @@ if (isset($_SESSION['admin_id'])) {
         btn.disabled = true;
 
         try {
-            const res = await fetch('api/auth.php', {
+            // Chemin absolu : depuis « /admin » (sans barre finale), un chemin
+            // relatif se résout en « /api/auth.php » et renvoie la page 404.
+            const apiBase = window.location.pathname.replace(/\/[^/]*$/, '') || '/admin';
+            const res = await fetch(`${apiBase}/api/auth.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'login', username, password })

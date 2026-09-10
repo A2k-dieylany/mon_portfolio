@@ -4,7 +4,11 @@
 
 const Admin = {
     currentPage: null,
-    basePath: '/mes_dossiers/sds/admin',
+    // Déduit du chemin de la page courante : « /admin/dashboard.php » donne
+    // « /admin » en production et « /mes_dossiers/sds/admin » sous XAMPP.
+    // Codé en dur, il pointait sur l'arborescence locale et le tableau de
+    // bord ne chargeait aucune page en ligne.
+    basePath: window.location.pathname.replace(/\/[^/]*$/, '') || '/admin',
 
     /** Initialiser le dashboard */
     init() {
