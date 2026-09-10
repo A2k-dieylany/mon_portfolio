@@ -78,6 +78,9 @@ $admin = get_admin();
         <button class="nav-item" data-page="settings">
             <span class="nav-icon">🔧</span> Paramètres
         </button>
+        <button class="nav-item" data-page="account">
+            <span class="nav-icon">🔑</span> Mon compte
+        </button>
     </nav>
 
     <div class="sidebar-footer">

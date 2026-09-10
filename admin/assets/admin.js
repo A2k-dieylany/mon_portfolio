@@ -37,7 +37,8 @@ const Admin = {
             chatbot: '🤖 Chatbot',
             timeline: '📅 Timeline',
             appearance: '🎨 Apparence',
-            settings: '⚙️ Paramètres'
+            settings: '⚙️ Paramètres',
+            account: '🔑 Mon compte'
         };
         const headerTitle = document.getElementById('header-title');
         if (headerTitle) headerTitle.textContent = titles[page] || page;
