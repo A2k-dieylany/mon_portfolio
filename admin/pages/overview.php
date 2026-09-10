@@ -163,10 +163,17 @@ require_auth();
         // Recent messages
         const container = document.getElementById('recent-messages');
         if (data.recent_messages && data.recent_messages.length > 0) {
+            // Nom et objet viennent du formulaire de contact public : insérés
+            // tels quels, un visiteur pouvait y placer un script exécuté dans
+            // la session de l'administrateur dès l'ouverture de cette page.
+            const e = Admin.esc;
             container.innerHTML = data.recent_messages.map(m => {
-                const statusCls = 'status-' + (m.status || 'unread');
+                const status = e(m.status || 'unread');
+                const statusCls = 'status-' + status;
                 const date = new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-                const initials = m.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+                const initials = e((m.name || '?').split(' ').map(w => w[0] || '').join('').substring(0,2).toUpperCase());
+                const name = e(m.name);
+                const subject = e(m.subject);
                 return `
                     <div style="padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;display:flex;gap:12px;align-items:center"
                          onmouseover="this.style.background='rgba(124,106,255,0.03)';this.style.paddingLeft='8px'"
@@ -175,10 +182,10 @@ require_auth();
                         <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);color:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0">${initials}</div>
                         <div style="flex:1;min-width:0">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-                                <strong style="font-size:0.84rem;font-weight:600">${m.name}</strong>
-                                <span class="status ${statusCls}" style="font-size:0.65rem">${m.status || 'unread'}</span>
+                                <strong style="font-size:0.84rem;font-weight:600">${name}</strong>
+                                <span class="status ${statusCls}" style="font-size:0.65rem">${status}</span>
                             </div>
-                            <div style="font-size:0.8rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.subject}</div>
+                            <div style="font-size:0.8rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${subject}</div>
                             <div style="font-size:0.68rem;color:var(--text-muted);margin-top:3px">${date}</div>
                         </div>
                     </div>`;

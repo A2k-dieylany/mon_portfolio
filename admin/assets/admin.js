@@ -187,6 +187,16 @@ const Admin = {
         }
     },
 
+    /**
+     * Échappe une valeur avant de l'insérer dans du HTML.
+     * Obligatoire pour tout ce qui vient d'un visiteur (formulaire de contact,
+     * chatbot, CRM) : ces textes sont libres et peuvent contenir du code.
+     */
+    esc(value) {
+        return String(value ?? '').replace(/[&<>"']/g,
+            c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    },
+
     /** Toast notification */
     toast(message, type = 'success') {
         const container = document.getElementById('toast-container');
