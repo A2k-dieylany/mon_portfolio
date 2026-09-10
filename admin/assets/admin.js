@@ -16,6 +16,43 @@ const Admin = {
         this.bindMobileMenu();
         this.loadPage('overview');
         this.loadUnreadCount();
+        this.keepSessionAlive();
+    },
+
+    /**
+     * Garde la session active tant que l'onglet est ouvert, et prévient si
+     * elle a expiré malgré tout (ordinateur en veille, connexion coupée) —
+     * avant que l'utilisateur ne perde une saisie en tentant d'enregistrer.
+     */
+    keepSessionAlive() {
+        const ping = async () => {
+            if (document.hidden) return;
+            try {
+                const res = await fetch(`${this.basePath}/api/auth.php`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const data = await res.json();
+                if (!data.authenticated) this.warnSessionExpired();
+            } catch (e) { /* réseau momentanément absent : on réessaiera */ }
+        };
+        setInterval(ping, 10 * 60 * 1000);
+        // Au retour sur l'onglet (après une veille, typiquement), on vérifie tout de suite.
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) ping(); });
+    },
+
+    /** Avertissement persistant : la saisie en cours peut encore être copiée. */
+    warnSessionExpired() {
+        if (document.getElementById('session-expired')) return;
+        const bar = document.createElement('div');
+        bar.id = 'session-expired';
+        bar.setAttribute('role', 'alert');
+        bar.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:400;'
+            + 'max-width:92vw;padding:12px 16px;border-radius:12px;background:#3b1219;color:#fecdd3;'
+            + 'border:1px solid rgba(251,113,133,.4);font-size:.88rem;box-shadow:0 10px 30px rgba(0,0,0,.4)';
+        bar.innerHTML = 'Votre session a expiré. Copiez la saisie en cours, puis '
+            + `<a href="${this.basePath}/index.php" target="_blank" rel="noopener" style="color:#fff;font-weight:700">`
+            + 'reconnectez-vous dans un nouvel onglet</a> avant d\'enregistrer.';
+        document.body.appendChild(bar);
     },
 
     /** Naviguer vers une page */
@@ -189,8 +226,15 @@ const Admin = {
         try {
             const res = await fetch(`${this.basePath}/api/${endpoint}`, config);
             if (res.status === 401) {
-                window.location.href = `${this.basePath}/index.php`;
-                return { error: 'Session expirée' };
+                // Rediriger aussitôt vers la connexion effaçait la fiche en
+                // cours de saisie. Si une fenêtre d'édition est ouverte, on
+                // prévient sans quitter la page ; sinon il n'y a rien à perdre.
+                if (document.querySelector('.modal-overlay.active')) {
+                    this.warnSessionExpired();
+                } else {
+                    window.location.href = `${this.basePath}/index.php`;
+                }
+                return { error: 'Session expirée : reconnectez-vous dans un nouvel onglet, puis réessayez.' };
             }
             return await res.json();
         } catch (e) {

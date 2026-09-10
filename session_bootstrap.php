@@ -85,6 +85,14 @@ function sds_session_start(): void {
         'samesite'  => 'Lax',
     ]);
 
+    // Durée de vie d'une session inactive. Jamais réglée jusqu'ici, elle
+    // restait à la valeur par défaut de PHP (24 minutes) : rédiger une fiche
+    // un peu longue dans l'admin suffisait à perdre la session, et
+    // l'enregistrement échouait. Huit heures couvrent une journée de travail ;
+    // le cookie reste un cookie de session, effacé à la fermeture du navigateur.
+    // Le gestionnaire lit cette valeur pour décider qu'une session a expiré.
+    ini_set('session.gc_maxlifetime', (string) (8 * 3600));
+
     session_set_save_handler(new SdsDbSessionHandler(getDB()), true);
     session_start();
 }
