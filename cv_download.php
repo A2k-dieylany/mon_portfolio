@@ -1,18 +1,44 @@
 <?php
-// cv_download.php — Convertit cv.jpg en PDF et sert le téléchargement
-$imagePath = __DIR__ . '/img/projects/cv.jpg';
+/**
+ * Téléchargement du CV.
+ *
+ * Sert en priorité le vrai PDF déposé dans docs/. À défaut seulement, il
+ * retombe sur l'ancien procédé : une image de CV enveloppée dans un PDF.
+ *
+ * La différence n'est pas cosmétique. Un CV-image ne contient aucun texte :
+ * les logiciels de recrutement qui analysent les candidatures n'y lisent
+ * rien, pas même le nom. Un vrai PDF est lu, indexé et cherchable.
+ */
 
-if (!file_exists($imagePath)) {
-    http_response_code(404);
-    echo "CV non trouvé.";
+$pdfPath   = __DIR__ . '/docs/CV_Dieylany_SDS.pdf';
+$imagePath = __DIR__ . '/img/projects/cv.jpg';
+$filename  = 'CV_Dieylany_SDS.pdf';
+
+// zlib est activé par le dispatcher ; un PDF est déjà compressé.
+if (ini_get('zlib.output_compression')) {
+    @ini_set('zlib.output_compression', '0');
+}
+
+if (is_file($pdfPath)) {
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Content-Length: ' . filesize($pdfPath));
+    header('Cache-Control: public, max-age=3600');
+    readfile($pdfPath);
     exit;
 }
 
-// Récupérer les dimensions de l'image
+// ---------------------------------------------------------- repli : image
+if (!file_exists($imagePath)) {
+    http_response_code(404);
+    echo 'CV non trouvé.';
+    exit;
+}
+
 $imageInfo = getimagesize($imagePath);
 if (!$imageInfo) {
     http_response_code(500);
-    echo "Image invalide.";
+    echo 'Image invalide.';
     exit;
 }
 
@@ -20,66 +46,45 @@ $imgWidth  = $imageInfo[0];
 $imgHeight = $imageInfo[1];
 $imageData = file_get_contents($imagePath);
 
-// Dimensions de la page PDF en points (A4 = 595.28 x 841.89)
-// On adapte la page à l'image en gardant le ratio
-$maxW = 595.28;
-$maxH = 841.89;
-$ratio = min($maxW / $imgWidth, $maxH / $imgHeight);
-$pdfW = round($imgWidth * $ratio, 2);
-$pdfH = round($imgHeight * $ratio, 2);
-
-// Centrer l'image sur la page A4
+// A4 en points, l'image centrée en conservant ses proportions.
+$maxW    = 595.28;
+$maxH    = 841.89;
+$ratio   = min($maxW / $imgWidth, $maxH / $imgHeight);
+$pdfW    = round($imgWidth * $ratio, 2);
+$pdfH    = round($imgHeight * $ratio, 2);
 $offsetX = round(($maxW - $pdfW) / 2, 2);
 $offsetY = round(($maxH - $pdfH) / 2, 2);
 
-// Construction du PDF brut (pas besoin de librairie externe)
 $imgLength = strlen($imageData);
+$objects   = [];
 
-$pdf  = "%PDF-1.4\n";
+$objects[1] = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+$objects[2] = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+$objects[3] = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 $maxW $maxH] "
+            . "/Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n";
+$objects[4] = "4 0 obj\n<< /Type /XObject /Subtype /Image /Width $imgWidth /Height $imgHeight "
+            . "/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length $imgLength >>\n"
+            . "stream\n" . $imageData . "\nendstream\nendobj\n";
 
-// Objet 1 : Catalogue
-$obj1Offset = strlen($pdf);
-$pdf .= "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+$content = "q\n$pdfW 0 0 $pdfH $offsetX $offsetY cm\n/Im1 Do\nQ\n";
+$objects[5] = "5 0 obj\n<< /Length " . strlen($content) . " >>\nstream\n$content\nendstream\nendobj\n";
 
-// Objet 2 : Pages
-$obj2Offset = strlen($pdf);
-$pdf .= "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+$pdf     = "%PDF-1.4\n";
+$offsets = [];
+foreach ($objects as $number => $body) {
+    $offsets[$number] = strlen($pdf);
+    $pdf .= $body;
+}
 
-// Objet 3 : Page
-$obj3Offset = strlen($pdf);
-$pdf .= "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 $maxW $maxH] /Contents 4 0 R /Resources << /XObject << /Img 5 0 R >> >> >>\nendobj\n";
+$xrefPosition = strlen($pdf);
+$pdf .= "xref\n0 " . (count($objects) + 1) . "\n0000000000 65535 f \n";
+foreach ($objects as $number => $body) {
+    $pdf .= sprintf("%010d 00000 n \n", $offsets[$number]);
+}
+$pdf .= "trailer\n<< /Size " . (count($objects) + 1) . " /Root 1 0 R >>\n"
+      . "startxref\n$xrefPosition\n%%EOF";
 
-// Objet 4 : Contenu de la page (dessiner l'image)
-$stream = "q\n{$pdfW} 0 0 {$pdfH} {$offsetX} {$offsetY} cm\n/Img Do\nQ\n";
-$streamLen = strlen($stream);
-$obj4Offset = strlen($pdf);
-$pdf .= "4 0 obj\n<< /Length {$streamLen} >>\nstream\n{$stream}endstream\nendobj\n";
-
-// Objet 5 : Image XObject (JPEG)
-$obj5Offset = strlen($pdf);
-$pdf .= "5 0 obj\n<< /Type /XObject /Subtype /Image /Width {$imgWidth} /Height {$imgHeight} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length {$imgLength} >>\nstream\n";
-$pdf .= $imageData;
-$pdf .= "\nendstream\nendobj\n";
-
-// Table de références croisées
-$xrefOffset = strlen($pdf);
-$pdf .= "xref\n0 6\n";
-$pdf .= "0000000000 65535 f \n";
-$pdf .= sprintf("%010d 00000 n \n", $obj1Offset);
-$pdf .= sprintf("%010d 00000 n \n", $obj2Offset);
-$pdf .= sprintf("%010d 00000 n \n", $obj3Offset);
-$pdf .= sprintf("%010d 00000 n \n", $obj4Offset);
-$pdf .= sprintf("%010d 00000 n \n", $obj5Offset);
-
-// Trailer
-$pdf .= "trailer\n<< /Size 6 /Root 1 0 R >>\n";
-$pdf .= "startxref\n{$xrefOffset}\n%%EOF";
-
-// Servir le PDF en téléchargement
 header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="CV_Dieylany_SDS.pdf"');
+header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Content-Length: ' . strlen($pdf));
-header('Cache-Control: no-cache, must-revalidate');
 echo $pdf;
-exit;
-?>
