@@ -62,13 +62,16 @@ $missing = array_diff(['crm_contacts', 'crm_deals', 'crm_activities'], $existing
 if ($missing) {
     echo 'Tables à créer : ' . implode(', ', $missing) . "\n";
     if ($apply) {
-        // Le fichier ne contient que des CREATE TABLE : on les exécute un à un.
-        $sql = file_get_contents($root . '/sql/crm.sql');
-        foreach (explode(');', $sql) as $chunk) {
-            if (stripos($chunk, 'CREATE TABLE') === false) {
+        // Les tables se terminent par « ) ENGINE=InnoDB … ; » : on découpe sur le
+        // point-virgule, après avoir retiré les commentaires — l'un d'eux en
+        // contient un et couperait l'instruction au mauvais endroit.
+        $sql = preg_replace('/--.*$/m', '', file_get_contents($root . '/sql/crm.sql'));
+        foreach (explode(';', $sql) as $statement) {
+            $statement = trim($statement);
+            if ($statement === '' || stripos($statement, 'CREATE TABLE') === false) {
                 continue;
             }
-            $pdo->exec(trim($chunk) . ');');
+            $pdo->exec($statement);
         }
         echo "  → créées.\n";
     } else {
