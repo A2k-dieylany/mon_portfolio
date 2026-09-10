@@ -221,35 +221,33 @@ function editBlog(id) {
 
 async function saveBlog(e) {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    try {
-        await Admin.api('blog.php?action=save', {
-            method: 'POST',
-            body: formData
-        });
-        Admin.toast('Article enregistré avec succès');
-        closeBlogModal();
-        loadBlogs();
-    } catch(err) {
-        Admin.toast(err.message, 'error');
+    const res = await Admin.api('blog.php?action=save', {
+        method: 'POST',
+        body: new FormData(e.target)
+    });
+    // Admin.api ne lève pas d'exception : il renvoie { error }. Sans ce
+    // contrôle, un échec s'affichait comme un succès. En cas d'échec la
+    // fenêtre reste ouverte : la saisie n'est pas perdue.
+    if (res.error || !res.success) {
+        Admin.toast(res.error || "L'enregistrement a échoué.", 'error');
+        return;
     }
+    Admin.toast('Article enregistré avec succès');
+    closeBlogModal();
+    loadBlogs();
 }
 
 async function deleteBlog(id) {
-    if(confirm('Supprimer cet article ?')) {
-        const fd = new FormData();
-        fd.append('id', id);
-        try {
-            await Admin.api('blog.php?action=delete', {
-                method: 'POST',
-                body: fd
-            });
-            Admin.toast('Article supprimé');
-            loadBlogs();
-        } catch(e) {
-            Admin.toast(e.message, 'error');
-        }
+    if (!confirm('Supprimer cet article ?')) return;
+    const fd = new FormData();
+    fd.append('id', id);
+    const res = await Admin.api('blog.php?action=delete', { method: 'POST', body: fd });
+    if (res.error || !res.success) {
+        Admin.toast(res.error || 'La suppression a échoué.', 'error');
+        return;
     }
+    Admin.toast('Article supprimé');
+    loadBlogs();
 }
 
 // Initialisation

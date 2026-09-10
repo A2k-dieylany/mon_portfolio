@@ -27,7 +27,12 @@ try {
         $excerpt_ar = $_POST['excerpt_ar'] ?? '';
         $external_url = $_POST['external_url'] ?? '';
         $read_time = $_POST['read_time'] ?? '';
-        $publish_date = $_POST['publish_date'] ?? date('Y-m-d');
+        // Un champ date vide arrive en '' : « ?? » ne le remplaçait pas et
+        // MySQL refusait la valeur, faisant échouer l'enregistrement.
+        $publish_date = trim($_POST['publish_date'] ?? '');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $publish_date)) {
+            $publish_date = date('Y-m-d');
+        }
         $sort_order = (int)($_POST['sort_order'] ?? 0);
         $is_visible = isset($_POST['is_visible']) ? 1 : 0;
 
@@ -47,7 +52,11 @@ try {
             $stmt->execute([$id]);
             json_response(['success' => true]);
         }
+        json_response(['error' => 'Identifiant manquant.'], 400);
     }
+    json_response(['error' => 'Action inconnue.'], 400);
 } catch (Exception $e) {
-    json_response(['error' => $e->getMessage()], 500);
+    // Le message SQL brut était renvoyé au navigateur.
+    error_log('Admin blog.php : ' . $e->getMessage());
+    json_response(['error' => 'Erreur serveur.'], 500);
 }

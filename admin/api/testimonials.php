@@ -57,7 +57,11 @@ try {
             $stmt->execute([$id]);
             json_response(['success' => true]);
         }
+        json_response(['error' => 'Identifiant manquant.'], 400);
     }
+    json_response(['error' => 'Action inconnue.'], 400);
 } catch (Exception $e) {
-    json_response(['error' => $e->getMessage()], 500);
+    // Le message SQL brut était renvoyé au navigateur.
+    error_log('Admin testimonials.php : ' . $e->getMessage());
+    json_response(['error' => 'Erreur serveur.'], 500);
 }

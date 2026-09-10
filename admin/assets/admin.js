@@ -167,11 +167,23 @@ const Admin = {
 
     /** Appel API générique */
     async api(endpoint, options = {}) {
-        const defaults = {
-            headers: { 'Content-Type': 'application/json' },
+        // Un FormData part tel quel : le convertir en JSON donnait « {} ».
+        // Blog et Témoignages envoient des formulaires : chaque enregistrement
+        // créait une fiche vide et masquée, et la saisie était perdue.
+        // Pas de Content-Type dans ce cas : le navigateur pose lui-même
+        // multipart/form-data avec sa frontière.
+        const isForm = options.body instanceof FormData;
+        const config = {
+            ...options,
+            headers: {
+                // Sans Accept, une session expirée renvoyait la page de
+                // connexion en HTML au lieu d'un 401 exploitable.
+                'Accept': 'application/json',
+                ...(isForm ? {} : { 'Content-Type': 'application/json' }),
+                ...(options.headers || {}),
+            },
         };
-        const config = { ...defaults, ...options };
-        if (options.body && typeof options.body === 'object') {
+        if (!isForm && options.body && typeof options.body === 'object') {
             config.body = JSON.stringify(options.body);
         }
         try {
