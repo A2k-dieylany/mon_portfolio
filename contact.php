@@ -91,6 +91,19 @@ try {
         ':subject' => $subject,
         ':message' => $message
     ]);
+
+    // Le message devient aussi une opportunité : sans cela, une demande reçue
+    // le week-end se perd dans la boîte de réception sans suivi.
+    require_once __DIR__ . '/admin/includes/crm_capture.php';
+    sds_crm_capture($pdo, [
+        'name'       => $name,
+        'email'      => $email,
+        'phone'      => sds_crm_find_phone($message),
+        'title'      => $subject ?: 'Demande via le formulaire',
+        'source'     => 'formulaire',
+        'summary'    => $message,
+        'source_ref' => 'message:' . $pdo->lastInsertId(),
+    ]);
 } catch (PDOException $e) {
     error_log("SDS Contact DB Error: " . $e->getMessage());
     // On continue l'envoi d'email même si la DB échoue

@@ -210,6 +210,31 @@ if ($httpCode == 200) {
             $insertLead = $dbLog->prepare("INSERT IGNORE INTO chatbot_leads (session_id) VALUES (?)");
             $insertLead->execute([$sessionId]);
 
+            // Le prospect entre dans le CRM avec sa conversation complète.
+            // Jusqu'ici seul le session_id était conservé : le numéro qu'un
+            // visiteur tapait dans le chat n'était visible nulle part.
+            $transcript = '';
+            foreach ($recentHistory as $turn) {
+                $who = ($turn['role'] ?? '') === 'user' ? 'Visiteur' : 'MAX';
+                $transcript .= "$who : " . trim($turn['content'] ?? '') . "
+";
+            }
+            $transcript .= "Visiteur : $userMessage
+MAX : " . trim($reply);
+
+            require_once __DIR__ . '/admin/includes/crm_capture.php';
+            $leadPhone = sds_crm_find_phone($haystack);
+            $leadEmail = sds_crm_find_email($haystack);
+            sds_crm_capture($dbLog, [
+                'name'       => 'Prospect chatbot',
+                'email'      => $leadEmail,
+                'phone'      => $leadPhone,
+                'title'      => 'Conversation chatbot' . ($leadPhone ? " — $leadPhone" : ''),
+                'source'     => 'chatbot',
+                'summary'    => $transcript,
+                'source_ref' => 'chat:' . $sessionId,
+            ]);
+
             // rowCount() = 1 seulement si la ligne vient d'être insérée (pas déjà notifiée)
             if ($insertLead->rowCount() > 0) {
                 $webhookUrl = defined('WEBHOOK_URL') ? WEBHOOK_URL : '';

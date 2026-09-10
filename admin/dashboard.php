@@ -38,6 +38,9 @@ $admin = get_admin();
         <button class="nav-item active" data-page="overview">
             <span class="nav-icon">📊</span> Vue d'ensemble
         </button>
+        <button class="nav-item" data-page="crm">
+            <span class="nav-icon">🤝</span> Prospects &amp; Clients
+        </button>
         <button class="nav-item" data-page="messages">
             <span class="nav-icon">💬</span> Messages
             <span class="nav-badge" id="msg-badge" style="display:none">0</span>

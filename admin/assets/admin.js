@@ -32,6 +32,7 @@ const Admin = {
         const titles = {
             overview: '📊 Vue d\'ensemble',
             messages: '💬 Messages',
+            crm: '🤝 Prospects & Clients',
             projects: '🚀 Projets',
             services: '⚙️ Services',
             skills: '🧠 Compétences',
