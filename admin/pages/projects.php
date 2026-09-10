@@ -161,7 +161,7 @@ async function loadProjects() {
     }
 
     tbody.innerHTML = allProjects.map(p => {
-        const imgUrl = p.main_image ? '../' + p.main_image : '';
+        const imgUrl = p.main_image ? imgSrc(p.main_image) : '';
         const imgHtml = imgUrl ? `<div style="width:50px;height:35px;border-radius:4px;background:url('${imgUrl}') center/cover"></div>` : '—';
         return `
             <tr data-id="${p.id}" style="transition:all 0.2s">
@@ -221,71 +221,115 @@ function esc(str) {
     return d.innerHTML;
 }
 
-async function uploadImage(inputElem, type) {
-    if (!inputElem.files || inputElem.files.length === 0) return;
-    
-    const file = inputElem.files[0];
+/**
+ * Adresse affichable d'une image. Les anciennes images sont des chemins
+ * relatifs (img/projects/…), les nouvelles des adresses Vercel Blob
+ * complètes : les préfixer de « ../ » donnait « ../https://… » et l'aperçu
+ * restait vide alors que l'envoi avait réussi.
+ */
+function imgSrc(url) {
+    return /^https?:\/\//i.test(url) ? url : '../' + url;
+}
+
+/**
+ * Envoie une image et renvoie son adresse, ou lève une erreur qui dit
+ * précisément ce qui a échoué.
+ *
+ * On lit la réponse en texte avant de l'interpréter : un res.json() direct
+ * transformait toute réponse inattendue (page de connexion après expiration
+ * de session, erreur du serveur) en un « Erreur réseau » qui ne disait rien.
+ */
+async function sendImage(file) {
     const formData = new FormData();
     formData.append('image', file);
 
-    Admin.toast('Upload en cours...', 'info');
-
+    let res;
     try {
-        const res = await fetch(Admin.basePath + '/api/upload.php', {
+        res = await fetch(Admin.basePath + '/api/upload.php', {
             method: 'POST',
-            body: formData // pas de JSON ici
+            body: formData,
+            // Sans cet en-tête, une session expirée renvoyait une redirection
+            // vers la page de connexion (du HTML) au lieu d'une erreur lisible.
+            headers: { 'Accept': 'application/json' }
         });
-        const data = await res.json();
-
-        if (!res.ok || data.error) {
-            // On journalise le diagnostic complet renvoyé par le serveur :
-            // « Erreur serveur » seul ne permet de rien corriger.
-            console.error('Upload refusé :', data);
-            Admin.toast(data.error || `Erreur serveur (${res.status})`, 'error');
-            inputElem.value = '';
-            return;
-        }
-
-        if (data.success) {
-            Admin.toast('Image uploadée !');
-            if (type === 'main') {
-                document.getElementById('proj-main-img').value = data.url;
-                document.getElementById('main-img-preview').style.backgroundImage = `url('../${data.url}')`;
-                document.getElementById('main-img-preview').innerHTML = '';
-            }
-        } else {
-            Admin.toast(data.error || 'Erreur upload', 'error');
-        }
     } catch (e) {
-        Admin.toast('Erreur réseau', 'error');
+        throw new Error(`Connexion impossible (${e.message}). Vérifiez votre réseau.`);
+    }
+
+    const raw = await res.text();
+    let data;
+    try {
+        data = JSON.parse(raw);
+    } catch (e) {
+        console.error('Réponse non JSON de upload.php :', res.status, raw);
+        throw new Error(`Réponse illisible du serveur (HTTP ${res.status}) : ` +
+            (raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || 'vide'));
+    }
+
+    if (res.status === 401) {
+        throw new Error('Session expirée : reconnectez-vous puis réessayez.');
+    }
+    if (!res.ok || !data.success || !data.url) {
+        console.error('Upload refusé :', res.status, data);
+        throw new Error(data.error || `Envoi refusé (HTTP ${res.status}).`);
+    }
+    return data.url;
+}
+
+async function uploadImage(inputElem, type) {
+    if (!inputElem.files || inputElem.files.length === 0) return;
+    const file = inputElem.files[0];
+
+    Admin.toast('Upload en cours...', 'info');
+    try {
+        const url = await sendImage(file);
+        if (type === 'main') {
+            document.getElementById('proj-main-img').value = url;
+            const preview = document.getElementById('main-img-preview');
+            preview.style.backgroundImage = `url('${imgSrc(url)}')`;
+            preview.innerHTML = '';
+        }
+        Admin.toast('Image envoyée. Pensez à enregistrer le projet.');
+    } catch (e) {
+        console.error('Upload image principale :', e);
+        Admin.toast(e.message, 'error');
+    } finally {
+        // Permet de renvoyer le même fichier après un échec.
+        inputElem.value = '';
     }
 }
 
 async function uploadGallery(inputElem) {
     if (!inputElem.files || inputElem.files.length === 0) return;
-    
-    for (let file of inputElem.files) {
-        const formData = new FormData();
-        formData.append('image', file);
-        
+    const files = Array.from(inputElem.files);
+    const failures = [];
+
+    Admin.toast(`Envoi de ${files.length} image(s)...`, 'info');
+    for (const file of files) {
         try {
-            const res = await fetch(Admin.basePath + '/api/upload.php', { method: 'POST', body: formData });
-            const data = await res.json();
-            if (data.success) {
-                galleryUrls.push(data.url);
-            }
+            galleryUrls.push(await sendImage(file));
         } catch (e) {
-            console.error('Gallery upload error', e);
+            // Les échecs de la galerie étaient ignorés en silence : l'image
+            // manquait sans que personne sache pourquoi.
+            console.error(`Galerie — ${file.name} :`, e);
+            failures.push(`${file.name} : ${e.message}`);
         }
     }
     renderGallery();
+    inputElem.value = '';
+
+    if (failures.length) {
+        Admin.toast(`${failures.length} échec(s) — ${failures[0]}`, 'error');
+    } else {
+        Admin.toast(`${files.length} image(s) ajoutée(s). Pensez à enregistrer le projet.`);
+    }
 }
 
 function renderGallery() {
     const container = document.getElementById('gallery-container');
     container.innerHTML = galleryUrls.map((url, i) => `
         <div style="display:flex;align-items:center;gap:8px;background:var(--surface);padding:4px;border-radius:4px;border:1px solid var(--border)">
-            <div style="width:40px;height:30px;background:url('../${url}') center/cover;border-radius:2px"></div>
+            <div style="width:40px;height:30px;background:url('${imgSrc(url)}') center/cover;border-radius:2px"></div>
             <div style="flex:1;font-size:0.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${url.split('/').pop()}</div>
             <button class="action-btn danger" style="padding:2px 6px" onclick="removeGalleryImg(${i})">✕</button>
         </div>
@@ -329,7 +373,7 @@ async function openProjModal(id = null) {
 
         if (data.main_image) {
             document.getElementById('proj-main-img').value = data.main_image;
-            document.getElementById('main-img-preview').style.backgroundImage = `url('../${data.main_image}')`;
+            document.getElementById('main-img-preview').style.backgroundImage = `url('${imgSrc(data.main_image)}')`;
             document.getElementById('main-img-preview').innerHTML = '';
         }
 
