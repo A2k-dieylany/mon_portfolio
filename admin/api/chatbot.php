@@ -65,23 +65,35 @@ if ($method === 'GET') {
 }
 
 if ($method === 'DELETE') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (!empty($data['session_id'])) {
-        $stmt = $pdo->prepare("DELETE FROM chatbot_logs WHERE session_id = ?");
-        $stmt->execute([$data['session_id']]);
-        echo json_encode(['success' => true]);
-        exit;
+    $data = json_decode(file_get_contents('php://input'), true) ?: [];
+    try {
+        if (!empty($data['session_id'])) {
+            $stmt = $pdo->prepare("DELETE FROM chatbot_logs WHERE session_id = ?");
+            $stmt->execute([(string) $data['session_id']]);
+            if (!$stmt->rowCount()) {
+                json_response(['error' => 'Conversation introuvable.'], 404);
+            }
+            json_response(['success' => true, 'deleted' => $stmt->rowCount()]);
+        }
+
+        // Effacement total : irréversible, et ces conversations sont la seule
+        // trace complète des échanges avec les prospects. La page exige de
+        // taper EFFACER ; le serveur le vérifie aussi pour qu'un appel isolé
+        // ne suffise pas.
+        if (!empty($data['clear_all'])) {
+            if (($data['confirm'] ?? '') !== 'EFFACER') {
+                json_response(['error' => 'Confirmation manquante.'], 400);
+            }
+            $count = (int) $pdo->query("SELECT COUNT(DISTINCT session_id) FROM chatbot_logs")->fetchColumn();
+            $pdo->exec("DELETE FROM chatbot_logs");
+            json_response(['success' => true, 'deleted' => $count]);
+        }
+    } catch (PDOException $e) {
+        error_log('SDS Admin Chatbot delete error: ' . $e->getMessage());
+        json_response(['error' => 'Erreur serveur.'], 500);
     }
-    
-    if (!empty($data['clear_all'])) {
-        $pdo->query("TRUNCATE TABLE chatbot_logs");
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid request']);
-    exit;
+
+    json_response(['error' => 'Requête invalide.'], 400);
 }
 
 http_response_code(405);

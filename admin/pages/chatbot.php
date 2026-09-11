@@ -244,27 +244,45 @@ async function loadConversation(sessionId) {
 async function deleteCurrentConv() {
   if (!currentSession) return;
   if (!confirm('Supprimer cette conversation ?')) return;
-  
+  const data = await cbDelete({session_id: currentSession});
+  if (!data) return;
+  Admin.toast('Conversation supprimée.');
+  loadChatbotData();
+}
+
+// Les deux suppressions restaient muettes en cas d'échec : on croyait
+// avoir effacé alors que rien n'avait changé.
+async function cbDelete(payload) {
   try {
-    await Admin.fetchJson(API_CB, {
+    const res = await Admin.fetchJson(API_CB, {
       method: 'DELETE',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({session_id: currentSession})
+      body: JSON.stringify(payload)
     });
-    loadChatbotData();
-  } catch(e) { alert('Erreur'); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) { Admin.fail(data); return null; }
+    return data;
+  } catch (e) {
+    Admin.fail({error: 'Erreur réseau, rien n\'a été supprimé.'});
+    return null;
+  }
 }
 
 async function clearAllLogs() {
-  if (!confirm('ATTENTION: Vous allez supprimer TOUT l\'historique des conversations. Continuer ?')) return;
-  try {
-    await Admin.fetchJson(API_CB, {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({clear_all: true})
-    });
-    loadChatbotData();
-  } catch(e) { alert('Erreur'); }
+  const total = document.getElementById('cb-total-conv').textContent;
+  const typed = prompt(
+    `Vous allez supprimer définitivement les ${total} conversation(s) de MAX, ` +
+    `y compris celles des prospects pas encore traités dans le CRM.\n\n` +
+    `Tapez EFFACER pour confirmer.`);
+  if (typed === null) return;
+  if (typed.trim().toUpperCase() !== 'EFFACER') {
+    Admin.toast('Rien n\'a été supprimé : le mot tapé ne correspond pas.', 'error');
+    return;
+  }
+  const data = await cbDelete({clear_all: true, confirm: 'EFFACER'});
+  if (!data) return;
+  Admin.toast(`${data.deleted} conversation(s) supprimée(s).`);
+  loadChatbotData();
 }
 
 function formatDate(ds) {
