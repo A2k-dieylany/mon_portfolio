@@ -191,7 +191,9 @@ foreach($settingsData as $s) {
       <li><a href="#timeline" data-i18n="nav.timeline">Parcours</a></li>
       <li><a href="#services" data-i18n="nav.services">Services</a></li>
       <li><a href="#projects" data-i18n="nav.projects">Projets</a></li>
+      <?php if ($blog_posts): ?>
       <li><a href="#blog" data-i18n="nav.blog">Blog</a></li>
+      <?php endif; ?>
       <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
     </ul>
     <div class="lang-switcher">
@@ -523,6 +525,7 @@ foreach($settingsData as $s) {
   </section>
 
   <!-- BLOG -->
+  <?php if ($blog_posts): // section et lien du menu masqués tant qu'aucun article n'est publié ?>
   <section id="blog">
     <div class="container">
       <div class="reveal">
@@ -566,6 +569,7 @@ foreach($settingsData as $s) {
       </div>
     </div>
   </section>
+  <?php endif; ?>
 
   <!-- TESTIMONIALS -->
   <?php if ($testimonials): // section masquée tant qu'aucun témoignage vérifié n'est publié ?>

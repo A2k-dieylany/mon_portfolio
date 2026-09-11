@@ -285,7 +285,8 @@ const Admin = {
         el.className = `toast toast-${type}`;
         el.textContent = message;
         container.appendChild(el);
-        setTimeout(() => el.remove(), 3000);
+        // 3 s ne suffisaient pas pour lire une explication de plusieurs lignes.
+        setTimeout(() => el.remove(), Math.max(3000, String(message).length * 60));
     },
 
     /** Confirmer une action */

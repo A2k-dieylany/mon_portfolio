@@ -25,7 +25,20 @@ try {
         $excerpt_fr = $_POST['excerpt_fr'] ?? '';
         $excerpt_en = $_POST['excerpt_en'] ?? '';
         $excerpt_ar = $_POST['excerpt_ar'] ?? '';
-        $external_url = $_POST['external_url'] ?? '';
+        $external_url = clean_url($_POST['external_url'] ?? '');
+        if ($external_url === '') {
+            json_response(['error' => 'Le lien vers la publication est invalide (il doit commencer par https://).'], 400);
+        }
+        // Les anciens articles renvoyaient tous vers le profil LinkedIn : le
+        // visiteur cliquait « Voir sur LinkedIn » et ne trouvait pas l'article.
+        // Un lien LinkedIn doit donc désigner une publication précise.
+        $host = strtolower((string) parse_url($external_url, PHP_URL_HOST));
+        $path = (string) parse_url($external_url, PHP_URL_PATH);
+        if (preg_match('/(^|\.)linkedin\.com$/', $host)
+            && !preg_match('#^/(posts|feed/update|pulse)/.+#', $path)) {
+            json_response(['error' => "Ce lien mène à ton profil LinkedIn, pas à un post. Sur LinkedIn, ouvre le post, "
+                . "clique sur « … » puis « Copier le lien vers le post », et colle-le ici."], 400);
+        }
         $read_time = $_POST['read_time'] ?? '';
         // Un champ date vide arrive en '' : « ?? » ne le remplaçait pas et
         // MySQL refusait la valeur, faisant échouer l'enregistrement.
