@@ -559,7 +559,22 @@ foreach($settingsData as $s) {
             </div>
           </div>
           <div class="blog-footer">
-            <span class="blog-date"><?= date('M Y', strtotime($b['publish_date'])) ?> · <?= htmlspecialchars($b['read_time']) ?></span>
+            <?php
+              // date('M') donnait le mois en anglais (« Jul 2026 ») même sur le site français.
+              $bTs = strtotime($b['publish_date']);
+              $bMonth = (int) date('n', $bTs) - 1;
+              $bYear = date('Y', $bTs);
+              $bRead = ' · ' . $b['read_time'];
+              $bDates = [
+                  'fr' => ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'][$bMonth] . " $bYear$bRead",
+                  'en' => date('M', $bTs) . " $bYear$bRead",
+                  'ar' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'][$bMonth] . " $bYear$bRead",
+              ];
+            ?>
+            <span class="blog-date dynamic-i18n"
+                  data-fr="<?= htmlspecialchars($bDates['fr']) ?>"
+                  data-en="<?= htmlspecialchars($bDates['en']) ?>"
+                  data-ar="<?= htmlspecialchars($bDates['ar']) ?>"><?= htmlspecialchars($bDates['fr']) ?></span>
             <?php if(!empty($b['external_url'])): ?>
             <a href="<?= htmlspecialchars($b['external_url']) ?>" target="_blank" rel="noopener" class="blog-link" data-i18n="blink">Voir sur LinkedIn →</a>
             <?php endif; ?>
