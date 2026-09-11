@@ -394,5 +394,10 @@ async function deleteDeal() {
 }
 
 document.getElementById('crm-stage').addEventListener('change', setLostVisibility);
-loadCrm();
+// La Vue d'ensemble peut demander l'ouverture directe d'une opportunité.
+loadCrm().then(() => {
+    const id = window.CRM_OPEN_DEAL;
+    window.CRM_OPEN_DEAL = null;
+    if (id) { openDeal(id); }
+});
 </script>

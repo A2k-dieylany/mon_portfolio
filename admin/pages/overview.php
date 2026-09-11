@@ -49,6 +49,33 @@ require_auth();
     </div>
 </div>
 
+<div class="chart-card" id="crm-overview" style="display:none;margin-bottom:28px">
+    <div class="crm-ov-head">
+        <h3 style="margin:0">🤝 Pipeline commercial</h3>
+        <button type="button" class="btn btn-ghost" onclick="Admin.loadPage('crm')">Tout voir →</button>
+    </div>
+    <div class="crm-ov-stats" id="crm-ov-stats"></div>
+    <div id="crm-ov-next"></div>
+</div>
+
+<style>
+  .crm-ov-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+  .crm-ov-stats { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-bottom:18px; }
+  .crm-ov-stat { background:var(--glass, rgba(255,255,255,0.03)); border:1px solid var(--border); border-radius:12px; padding:12px 14px; min-width:0; }
+  .crm-ov-stat.alert { border-color:var(--red); }
+  .crm-ov-num { font-size:1.15rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .crm-ov-lbl { font-size:0.72rem; color:var(--text-dim); margin-top:3px; }
+  .crm-ov-sub { font-size:0.78rem; color:var(--text-muted); margin:0 0 8px; text-transform:uppercase; letter-spacing:.04em; }
+  .crm-ov-row { display:flex; gap:12px; align-items:center; padding:11px 8px; border-bottom:1px solid rgba(255,255,255,0.03); cursor:pointer; border-radius:8px; }
+  .crm-ov-row:hover, .crm-ov-row:focus-visible { background:rgba(124,106,255,0.05); outline:none; }
+  .crm-ov-main { flex:1; min-width:0; }
+  .crm-ov-title { font-size:0.84rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .crm-ov-meta { font-size:0.74rem; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .crm-ov-date { font-size:0.74rem; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+  .crm-ov-date.late { color:var(--red); font-weight:600; }
+  @media (max-width:640px) { .crm-ov-stats { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+</style>
+
 <div class="charts-grid">
     <div class="chart-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
@@ -92,6 +119,58 @@ require_auth();
         animateValue(document.getElementById('kpi-projects'), k.projects_visible);
         animateValue(document.getElementById('kpi-chatbot'), k.chatbot_24h);
         animateValue(document.getElementById('kpi-total'), k.visitors_total);
+
+        // Pipeline commercial. Titres et noms viennent du chatbot et du
+        // formulaire public : tout passe par Admin.esc avant innerHTML.
+        if (data.crm) {
+            const c = data.crm;
+            const e = Admin.esc;
+            const fcfa = (n) => Number(n || 0).toLocaleString('fr-FR') + ' F';
+            const stages = { nouveau: 'Nouveau', contacte: 'Contacté', devis: 'Devis envoyé' };
+            const today = new Date().toISOString().slice(0, 10);
+
+            document.getElementById('crm-ov-stats').innerHTML = `
+                <div class="crm-ov-stat"><div class="crm-ov-num">${c.open_count}</div>
+                    <div class="crm-ov-lbl">En cours · dont ${c.new_count} nouveau(x)</div></div>
+                <div class="crm-ov-stat"><div class="crm-ov-num">${fcfa(c.open_amount)}</div>
+                    <div class="crm-ov-lbl">Montant en jeu</div></div>
+                <div class="crm-ov-stat"><div class="crm-ov-num">${fcfa(c.won_amount)}</div>
+                    <div class="crm-ov-lbl">${c.won_count} affaire(s) gagnée(s)</div></div>
+                <div class="crm-ov-stat${c.overdue ? ' alert' : ''}"><div class="crm-ov-num">${c.overdue}</div>
+                    <div class="crm-ov-lbl">Relance(s) en retard</div></div>`;
+
+            const next = c.next || [];
+            document.getElementById('crm-ov-next').innerHTML = next.length
+                ? '<p class="crm-ov-sub">Prochaines actions</p>' + next.map(d => {
+                    const late = d.next_action_at && d.next_action_at < today;
+                    const who = d.contact_company || d.contact_name || 'Contact inconnu';
+                    const what = d.next_action || stages[d.stage] || d.stage;
+                    const when = d.next_action_at
+                        ? new Date(d.next_action_at + 'T00:00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+                        : 'Sans date';
+                    return `
+                    <div class="crm-ov-row" role="button" tabindex="0" data-deal="${Number(d.id)}">
+                        <div class="crm-ov-main">
+                            <div class="crm-ov-title">${e(d.title)}</div>
+                            <div class="crm-ov-meta">${e(who)} · ${e(what)}${d.amount ? ' · ' + fcfa(d.amount) : ''}</div>
+                        </div>
+                        <div class="crm-ov-date${late ? ' late' : ''}">${late ? '⏰ ' : ''}${e(when)}</div>
+                    </div>`;
+                }).join('')
+                : '<div class="empty-state"><p>Aucune opportunité en cours.</p></div>';
+
+            const openDealFromOverview = (row) => {
+                window.CRM_OPEN_DEAL = Number(row.dataset.deal);
+                Admin.loadPage('crm');
+            };
+            document.querySelectorAll('#crm-ov-next .crm-ov-row').forEach(row => {
+                row.addEventListener('click', () => openDealFromOverview(row));
+                row.addEventListener('keydown', (ev) => {
+                    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openDealFromOverview(row); }
+                });
+            });
+            document.getElementById('crm-overview').style.display = '';
+        }
 
         // Chart
         const ctx = document.getElementById('visits-chart');
