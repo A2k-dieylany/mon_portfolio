@@ -88,7 +88,7 @@ $admin = get_admin();
 
     <div class="sidebar-footer">
         <div class="sidebar-user">
-            <div class="sidebar-avatar"><?= mb_substr($admin['display_name'], 0, 1) ?></div>
+            <div class="sidebar-avatar"><?= htmlspecialchars(mb_substr($admin['display_name'], 0, 1)) ?></div>
             <div class="sidebar-user-info">
                 <div class="sidebar-user-name"><?= htmlspecialchars($admin['display_name']) ?></div>
                 <div class="sidebar-user-role" style="display:flex;align-items:center;gap:4px">
@@ -114,7 +114,9 @@ $admin = get_admin();
         <div class="header-actions">
             <span style="font-size:0.75rem;color:var(--text-muted);display:none" id="clock"></span>
             <a href="../index.php" target="_blank" class="header-btn" aria-label="Voir le site">🌐 <span class="btn-label">Voir le site</span></a>
-            <a href="logout.php" class="header-btn" aria-label="Déconnexion" style="border-color:rgba(251,113,133,0.2);color:var(--red)">🚪 <span class="btn-label">Déconnexion</span></a>
+            <form method="post" action="logout.php" style="display:contents">
+                <button type="submit" class="header-btn" aria-label="Déconnexion" style="border-color:rgba(251,113,133,0.2);color:var(--red)">🚪 <span class="btn-label">Déconnexion</span></button>
+            </form>
         </div>
     </header>
 
