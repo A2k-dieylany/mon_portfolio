@@ -44,7 +44,7 @@ foreach($settingsData as $s) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" data-default-theme="<?= ($settings['default_theme'] ?? 'dark') === 'light' ? 'light' : 'dark' ?>">
 
 <head>
   <meta charset="UTF-8" />

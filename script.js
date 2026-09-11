@@ -20,9 +20,14 @@ function setLang(l) {
     const k = el.dataset.i18nPlaceholder, v = T[l][k];
     if (v !== undefined) el.placeholder = v;
   });
+  // Textes venus de la base (projets, services, frise…) : du texte, jamais du
+  // HTML. Depuis qu'ils sont stockés bruts, innerHTML aurait interprété un « < »
+  // saisi dans l'admin comme une balise au changement de langue. Aucun de ces
+  // champs ne contient de balise (vérifié). Les chaînes de T, écrites dans le
+  // code et contenant du <strong>, restent en innerHTML ci-dessus.
   document.querySelectorAll('.dynamic-i18n').forEach(el => {
     const v = el.dataset[l];
-    if (v !== undefined && v.trim() !== "") el.innerHTML = v;
+    if (v !== undefined && v.trim() !== "") el.textContent = v;
   });
   document.querySelectorAll('.lang-btn:not(#theme-toggle)').forEach(b => b.classList.toggle('active', b.textContent === l.toUpperCase()));
   twIdx = 0; twChar = 0; twDel = false;
@@ -213,7 +218,8 @@ function setupFilters() {
 function setupTheme() {
   const btn = document.getElementById('theme-toggle');
   if (!btn) return;
-  const current = localStorage.getItem('theme') || 'dark';
+  // Le choix du visiteur prime ; à défaut, le thème réglé dans l'admin.
+  const current = localStorage.getItem('theme') || document.documentElement.dataset.defaultTheme || 'dark';
   if (current === 'light') document.documentElement.setAttribute('data-theme', 'light');
   btn.addEventListener('click', () => {
     if (document.documentElement.getAttribute('data-theme') === 'light') {

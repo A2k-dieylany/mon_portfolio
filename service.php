@@ -108,7 +108,7 @@ $siteName = $settings['site_name'] ?? 'SEN DIGITAL SOLUTION';
 $logoText = $settings['logo_text'] ?? 'A2K';
 ?>
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" data-default-theme="<?= ($settings['default_theme'] ?? 'dark') === 'light' ? 'light' : 'dark' ?>">
 
 <head>
   <meta charset="UTF-8" />
@@ -301,7 +301,7 @@ $logoText = $settings['logo_text'] ?? 'A2K';
     // Thème clair/sombre — même mécanisme que la page d'accueil
     (function () {
       var saved = 'dark';
-      try { saved = localStorage.getItem('theme') || 'dark'; } catch (e) {}
+      try { saved = localStorage.getItem('theme') || document.documentElement.dataset.defaultTheme || 'dark'; } catch (e) {}
       if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
       var btn = document.getElementById('theme-toggle');
