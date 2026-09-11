@@ -26,14 +26,44 @@ try {
     // Enregistrer la vue de page
     sds_session_start();
     $session_id = session_id();
-    
-    $page = $_GET['page'] ?? 'home';
-    if ($page === '' || $page === 'index.php') $page = 'home';
-    $ref = $_GET['ref'] ?? '';
-    $device = $_GET['device'] ?? 'desktop';
 
-    $stmtView = $pdo->prepare("INSERT INTO page_views (session_id, page, referrer, device) VALUES (:sess, :page, :ref, :device)");
-    $stmtView->execute([':sess' => $session_id, ':page' => $page, ':ref' => $ref, ':device' => $device]);
+    // Ces trois valeurs viennent du navigateur : n'importe qui peut appeler
+    // cette adresse avec ce qu'il veut. On ne garde que des valeurs plausibles,
+    // de la taille des colonnes (un « device » hors liste faisait échouer
+    // l'insertion, l'ENUM le refusant).
+    $page = (string) ($_GET['page'] ?? '');
+    // Le site n'envoie que le dernier segment de l'adresse : jamais de « / ».
+    if ($page === '' || $page === 'index.php' || str_contains($page, '..')
+        || !preg_match('#^[\w\-.]{1,100}$#', $page)) {
+        $page = 'home';
+    }
+    $ref = trim((string) ($_GET['ref'] ?? ''));
+    if ($ref !== '' && (strlen($ref) > 500 || !preg_match('#^https?://#i', $ref)
+                        || !filter_var($ref, FILTER_VALIDATE_URL))) {
+        $ref = '';
+    }
+    $device = in_array($_GET['device'] ?? '', ['desktop', 'mobile', 'tablet'], true) ? $_GET['device'] : 'desktop';
+
+    // Limite de fréquence : sans elle, une boucle suffisait à gonfler les
+    // statistiques à volonté. Au-delà, la vue n'est pas comptée, mais la
+    // réponse reste normale (c'est du suivi, pas une fonction du site).
+    $maxViews = 30;
+    $pdo->exec("DELETE FROM api_rate_limits WHERE endpoint = 'visit' AND window_start < (NOW() - INTERVAL 60 SECOND)");
+    $rl = $pdo->prepare("SELECT requests_count FROM api_rate_limits WHERE ip_hash = ? AND endpoint = 'visit'");
+    $rl->execute([$ipHash]);
+    $count = $rl->fetchColumn();
+    if ($count === false) {
+        $pdo->prepare("INSERT INTO api_rate_limits (ip_hash, endpoint, requests_count) VALUES (?, 'visit', 1)")->execute([$ipHash]);
+    } else {
+        $pdo->prepare("UPDATE api_rate_limits SET requests_count = requests_count + 1 WHERE ip_hash = ? AND endpoint = 'visit'")->execute([$ipHash]);
+    }
+
+    if ($count === false || (int) $count < $maxViews) {
+        // Le pays de la vue n'était jamais renseigné, bien que la colonne existe.
+        $stmtView = $pdo->prepare("INSERT INTO page_views (session_id, page, referrer, device, country) VALUES (:sess, :page, :ref, :device, :country)");
+        $stmtView->execute([':sess' => $session_id, ':page' => $page, ':ref' => $ref, ':device' => $device,
+                            ':country' => sds_client_country()]);
+    }
 
     // Compter les statistiques
     $total = $pdo->query("SELECT COUNT(*) FROM visitors")->fetchColumn();
