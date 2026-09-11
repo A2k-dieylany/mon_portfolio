@@ -24,13 +24,12 @@ require_auth();
                     <th style="width: 50px"></th>
                     <th>Groupe</th>
                     <th>Compétence</th>
-                    <th>Niveau (%)</th>
                     <th>Statut</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="skills-tbody">
-                <tr><td colspan="6"><div class="page-loader"><div class="spinner"></div></div></td></tr>
+                <tr><td colspan="5"><div class="page-loader"><div class="spinner"></div></div></td></tr>
             </tbody>
         </table>
     </div>
@@ -75,11 +74,6 @@ require_auth();
             </div>
 
             <div style="margin-bottom:16px">
-                <label class="meta-label">Niveau d'expertise : <span id="skill-perc-val" style="color:var(--accent);font-weight:bold">85</span>%</label>
-                <input type="range" id="skill-percentage" min="0" max="100" value="85" style="width:100%;accent-color:var(--accent);margin-top:8px" oninput="document.getElementById('skill-perc-val').textContent=this.value">
-            </div>
-
-            <div style="margin-bottom:16px">
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
                     <input type="checkbox" id="skill-visible" checked>
                     <span style="font-size:0.9rem">Visible sur le site public</span>
@@ -104,7 +98,7 @@ async function loadSkills() {
     allSkills = data.skills || [];
     
     if (allSkills.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Aucune compétence.</p></div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Aucune compétence.</p></div></td></tr>';
         return;
     }
 
@@ -114,14 +108,6 @@ async function loadSkills() {
                 <td class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.2rem" title="Glisser pour réorganiser">↕</td>
                 <td><span style="margin-right:6px">${Admin.esc(s.group_icon)}</span> ${esc(s.group_name_fr)}</td>
                 <td style="font-weight:600">${esc(s.skill_name)}</td>
-                <td>
-                    <div style="display:flex;align-items:center;gap:10px">
-                        <div style="flex:1;height:6px;background:var(--surface);border-radius:3px;overflow:hidden">
-                            <div style="width:${s.percentage}%;height:100%;background:var(--accent)"></div>
-                        </div>
-                        <span style="font-size:0.8rem;width:30px">${s.percentage}%</span>
-                    </div>
-                </td>
                 <td>
                     <span class="status ${s.is_visible ? 'status-read' : 'status-archived'}" style="cursor:pointer" onclick="toggleSkillVis(${s.id}, ${s.is_visible})">
                         ${s.is_visible ? 'Visible' : 'Masqué'}
@@ -187,8 +173,6 @@ function openSkillModal(id = null) {
         document.getElementById('skill-group-ar').value = s.group_name_ar;
         document.getElementById('skill-icon').value = s.group_icon;
         document.getElementById('skill-name').value = s.skill_name;
-        document.getElementById('skill-percentage').value = s.percentage;
-        document.getElementById('skill-perc-val').textContent = s.percentage;
         document.getElementById('skill-visible').checked = s.is_visible == 1;
     } else {
         document.getElementById('skill-id').value = '';
@@ -197,8 +181,6 @@ function openSkillModal(id = null) {
         document.getElementById('skill-group-ar').value = '';
         document.getElementById('skill-icon').value = '';
         document.getElementById('skill-name').value = '';
-        document.getElementById('skill-percentage').value = 85;
-        document.getElementById('skill-perc-val').textContent = 85;
         document.getElementById('skill-visible').checked = true;
     }
     
@@ -217,7 +199,6 @@ async function saveSkill() {
         group_name_ar: document.getElementById('skill-group-ar').value,
         group_icon: document.getElementById('skill-icon').value,
         skill_name: document.getElementById('skill-name').value,
-        percentage: document.getElementById('skill-percentage').value,
         is_visible: document.getElementById('skill-visible').checked ? 1 : 0
     };
 

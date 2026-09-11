@@ -26,7 +26,9 @@ try {
     // ===== POST (Create) =====
     if ($method === 'POST') {
         $data = get_json_body();
-        require_fields($data, ['group_name_fr', 'skill_name', 'percentage']);
+        // Le pourcentage n'est plus affiché sur le site (étiquettes au lieu de
+        // barres) : il n'est plus exigé. La colonne reste, à 0 par défaut.
+        require_fields($data, ['group_name_fr', 'skill_name']);
 
         $stmt = $pdo->prepare("INSERT INTO skills (group_name_fr, group_name_en, group_name_ar, group_icon, skill_name, percentage, sort_order, is_visible) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
@@ -35,7 +37,7 @@ try {
             clean_text($data['group_name_ar'] ?? $data['group_name_fr']),
             clean_text($data['group_icon'] ?? ''),
             clean_text($data['skill_name']),
-            (int)$data['percentage'],
+            (int)($data['percentage'] ?? 0),
             (int)($data['sort_order'] ?? 0),
             isset($data['is_visible']) ? (int)$data['is_visible'] : 1
         ]);
