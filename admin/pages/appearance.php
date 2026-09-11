@@ -131,7 +131,7 @@ require_auth();
 async function loadAppearanceSettings() {
   const container = document.getElementById('appearance-container');
   try {
-    const res = await fetch('api/settings.php');
+    const res = await Admin.fetchJson('api/settings.php');
     let data = await res.json();
     
     // Filtrer uniquement la catégorie apparence
@@ -215,7 +215,7 @@ async function saveAppSetting(key) {
   const btn = document.getElementById('app-btn-' + key);
 
   try {
-    const res = await fetch('api/settings.php', {
+    const res = await Admin.fetchJson('api/settings.php', {
       method: 'PUT',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ setting_key: key, setting_value: input.value })

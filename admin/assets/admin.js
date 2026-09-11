@@ -244,6 +244,21 @@ const Admin = {
     },
 
     /**
+     * fetch() pour les pages qui lisent elles-mêmes la réponse (Analytics,
+     * Chatbot, Paramètres, Apparence). Même usage que fetch, mais annonce du
+     * JSON : sans cet en-tête, une session expirée renvoyait la page de
+     * connexion en HTML, et res.json() échouait sans explication.
+     */
+    async fetchJson(url, options = {}) {
+        const res = await fetch(url, {
+            ...options,
+            headers: { 'Accept': 'application/json', ...(options.headers || {}) },
+        });
+        if (res.status === 401) this.warnSessionExpired();
+        return res;
+    },
+
+    /**
      * Signale l'échec d'une action. Plusieurs actions (suppression, masquage,
      * réordonnancement) restaient muettes quand le serveur refusait :
      * l'utilisateur cliquait et rien ne se passait, sans explication.

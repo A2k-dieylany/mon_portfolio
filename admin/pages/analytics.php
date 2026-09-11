@@ -185,7 +185,7 @@ async function loadAnalytics() {
 
 async function loadSummary() {
   try {
-    const res = await fetch(API_ANALYTICS + '?action=summary');
+    const res = await Admin.fetchJson(API_ANALYTICS + '?action=summary');
     const d = await res.json();
     animateCounter('kpi-today', d.visitors_today);
     animateCounter('kpi-week', d.visitors_week);
@@ -208,7 +208,7 @@ function animateCounter(id, target) {
 
 async function loadChart30() {
   try {
-    const res = await fetch(API_ANALYTICS + '?action=chart_30days');
+    const res = await Admin.fetchJson(API_ANALYTICS + '?action=chart_30days');
     const d = await res.json();
     const ctx = document.getElementById('chart-30days');
     if (chart30) chart30.destroy();
@@ -254,7 +254,7 @@ async function loadChart30() {
 
 async function loadChartHours() {
   try {
-    const res = await fetch(API_ANALYTICS + '?action=chart_hours');
+    const res = await Admin.fetchJson(API_ANALYTICS + '?action=chart_hours');
     const d = await res.json();
     const ctx = document.getElementById('chart-hours');
     if (chartHours) chartHours.destroy();
@@ -286,7 +286,7 @@ async function loadChartHours() {
 
 async function loadDevices() {
   try {
-    const res = await fetch(API_ANALYTICS + '?action=devices');
+    const res = await Admin.fetchJson(API_ANALYTICS + '?action=devices');
     const d = await res.json();
     const ctx = document.getElementById('chart-devices');
     if (chartDevices) chartDevices.destroy();
@@ -336,7 +336,7 @@ async function loadRecent() {
   };
 
   try {
-    const res = await fetch(API_ANALYTICS + '?action=recent');
+    const res = await Admin.fetchJson(API_ANALYTICS + '?action=recent');
     const visits = await res.json();
     if (visits.length === 0) {
       container.innerHTML = '<div class="empty-state" style="padding:2rem;text-align:center;color:#666;">Aucune visite enregistrée pour le moment.</div>';

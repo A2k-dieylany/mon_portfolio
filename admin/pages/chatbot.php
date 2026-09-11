@@ -156,7 +156,7 @@ var currentSession = null;
 
 async function loadChatbotData() {
   try {
-    const res = await fetch(API_CB);
+    const res = await Admin.fetchJson(API_CB);
     const data = await res.json();
     
     // Stats
@@ -210,7 +210,7 @@ async function loadConversation(sessionId) {
   msgEl.innerHTML = '<div class="loading-spinner" style="margin:2rem auto;"></div>';
   
   try {
-    const res = await fetch(`${API_CB}?session_id=${sessionId}`);
+    const res = await Admin.fetchJson(`${API_CB}?session_id=${sessionId}`);
     const data = await res.json();
     
     if (data.messages.length > 0) {
@@ -246,7 +246,7 @@ async function deleteCurrentConv() {
   if (!confirm('Supprimer cette conversation ?')) return;
   
   try {
-    await fetch(API_CB, {
+    await Admin.fetchJson(API_CB, {
       method: 'DELETE',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({session_id: currentSession})
@@ -258,7 +258,7 @@ async function deleteCurrentConv() {
 async function clearAllLogs() {
   if (!confirm('ATTENTION: Vous allez supprimer TOUT l\'historique des conversations. Continuer ?')) return;
   try {
-    await fetch(API_CB, {
+    await Admin.fetchJson(API_CB, {
       method: 'DELETE',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({clear_all: true})

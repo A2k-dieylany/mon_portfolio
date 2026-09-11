@@ -223,7 +223,7 @@ var CATEGORY_META = {
 async function loadSettings() {
   const container = document.getElementById('settings-container');
   try {
-    const res = await fetch(API_SETTINGS);
+    const res = await Admin.fetchJson(API_SETTINGS);
     settingsData = await res.json();
 
     // Grouper par catégorie
@@ -336,7 +336,7 @@ async function saveSetting(key) {
   const btn = document.getElementById('btn-' + key);
 
   try {
-    const res = await fetch(API_SETTINGS, {
+    const res = await Admin.fetchJson(API_SETTINGS, {
       method: 'PUT',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ setting_key: key, setting_value: input.value })
@@ -356,7 +356,7 @@ async function saveSetting(key) {
 async function deleteSetting(key) {
   if (!confirm(`Supprimer le paramètre "${key}" ?`)) return;
   try {
-    const res = await fetch(API_SETTINGS, {
+    const res = await Admin.fetchJson(API_SETTINGS, {
       method: 'DELETE',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ setting_key: key })
@@ -389,7 +389,7 @@ async function submitAdd(e) {
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
   try {
-    const res = await fetch(API_SETTINGS, {
+    const res = await Admin.fetchJson(API_SETTINGS, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(data)
