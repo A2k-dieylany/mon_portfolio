@@ -213,7 +213,8 @@ textarea.form-input{resize:vertical;min-height:120px;}
 /* WA FLOAT */
 .wa-float{position:fixed;bottom:1.8rem;right:1.8rem;z-index:200;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 4px 20px rgba(37,211,102,.5);cursor:pointer;transition:.3s;animation:waPulse 2s ease-in-out infinite;}
 .wa-float:hover{transform:scale(1.12);}
-[dir="rtl"] .wa-float{right:auto;left:1.8rem;}
+/* Pas d'inversion en arabe : le bouton de MAX occupe déjà le coin bas-gauche
+   dans toutes les langues, et passé à gauche WhatsApp se retrouvait dessous. */
 @keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 35px rgba(37,211,102,.8)}}
 
 /* TESTIMONIALS */
